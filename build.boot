@@ -5,6 +5,7 @@
                  [org.clojure/tools.nrepl "0.2.12" :scope "test"]
                  [com.cemerick/piggieback "0.2.1" :scope "test"]
                  [weasel "0.7.0" :scope "test"]
+                 #_[re-frame "0.9.4"]
                  [adzerk/boot-cljs "1.7.228-1" :scope "test"]
                  [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
                  [adzerk/boot-reload    "0.4.13"  :scope "test"]])
