@@ -24,9 +24,10 @@
   (comp ;; Audio feedback about warnings etc. =======================
         (speak)
         ;; Inject REPL and reloading code into renderer build =======
-        (cljs-repl :ids #{"renderer"})
+        (cljs-repl :ids #{"renderer"}
+                   :nrepl-opts {:bind "0.0.0.0" :port 36503})
         (reload    :ids #{"renderer"}
-                   :ws-host "localhost"
+                   :ws-host #_"192.168.0.104" "localhost"
                    :on-jsload 'app.renderer/init
                    :target-path "target")
         ;; Compile renderer =========================================
