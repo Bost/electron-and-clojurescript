@@ -1,4 +1,5 @@
-(ns app.main)
+(ns app.main
+  (:require [demos.badge :as ba]))
 
 (def electron      (js/require "electron"))
 (def app           (.-app electron))
@@ -28,9 +29,11 @@
   (reset! main-window (mk-window 800 600 true true))
   (load-page @main-window)
   (if dev? (.openDevTools @main-window))
+  (ba/main app electron)
   (.on @main-window "closed" #(reset! main-window nil)))
 
 (defn init []
   (.on app "window-all-closed" #(when-not (= js/process.platform "darwin") (.quit app)))
   (.on app "ready" init-browser)
   (set! *main-cli-fn* (fn [] nil)))
+
