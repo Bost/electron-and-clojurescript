@@ -1,8 +1,6 @@
 (ns app.renderer
-  (:require [demos.badge :as ba]))
-
-(def electron      (js/require "electron"))
+  (:require [demos.filesystem :as fs]))
 
 (defn init []
   (js/console.log "Starting Application")
-  (ba/renderer electron))
+  (fs/renderer))

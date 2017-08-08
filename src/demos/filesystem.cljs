@@ -1,15 +1,15 @@
 (ns demos.filesystem)
 
-(comment
-
-  (def fs (js/require "fs"))
-
-  (def path (js/require "path"))
-
-  (def current-dir (.resolve path "."))
-
-  (.writeFile fs
-              (str current-dir "/written-from-cljs.txt")
-              "I didn't expect it to be so warm in Finland.")
-
-  )
+(defn renderer []
+  (let [body (.-body js/document)
+        myCodeMirror (js/CodeMirror body
+                                    {:value "function myScript(){return 200;}\n"
+                                     :mode "javascript"
+                                     :lineNumbers true})]
+    myCodeMirror)
+  #_(let [fs (js/require "fs")
+          path (js/require "path")
+          current-dir (.resolve path ".")
+          fname (str current-dir "/written-from-cljs.txt")
+          data "I didn't expect it to be so warm in Finland."]
+      (.writeFile fs fname data (fn [] (js/console.log fname "saved")))))

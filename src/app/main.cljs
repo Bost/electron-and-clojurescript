@@ -1,5 +1,5 @@
 (ns app.main
-  (:require [demos.badge :as ba]))
+  (:require [demos.filesystem :as fs]))
 
 (def electron      (js/require "electron"))
 (def app           (.-app electron))
@@ -29,7 +29,6 @@
   (reset! main-window (mk-window 800 600 true true))
   (load-page @main-window)
   (if dev? (.openDevTools @main-window))
-  (ba/main app electron)
   (.on @main-window "closed" #(reset! main-window nil)))
 
 (defn init []
