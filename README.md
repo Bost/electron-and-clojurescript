@@ -12,12 +12,14 @@ sudo npm install --global --unsafe-perm=true electron
 
 #### Development
 
-For development you can start the compiler with `boot watch dev-build`.
-This will incrementally compile ClojureScript sources, push changes to your
-running Electron app and provide a REPL connection
+Start the compiler with `boot watch dev-build`. This will:
+* incrementally compile ClojureScript sources
+* push changes to your running Electron app
+* provide a REPL connection
+
 ([docs](https://github.com/adzerk-oss/boot-cljs-repl))into the app.
 
-You can start the electron process using
+Start the electron process using
 [electron-prebuilt](https://github.com/mafintosh/electron-prebuilt) or
 using a downloaded `Electron.app` package:
 
