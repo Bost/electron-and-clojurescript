@@ -5,11 +5,21 @@
  '[[org.clojure/clojurescript "1.9.908"]
    [org.clojure/tools.nrepl "0.2.12" :scope "test"]
    [com.cemerick/piggieback "0.2.2" :scope "test"]
-   [weasel "0.7.0" :scope "test"] ;; ClojureScript browser REPL using WebSockets
+
+   ;; ClojureScript browser REPL using WebSockets
+   [weasel "0.7.0" :scope "test"]
+
    [reagent  "0.7.0"]
    [re-frame "0.10.1"]
+
+   ;; Boot task to compile ClojureScript applications
    [adzerk/boot-cljs "2.1.2" :scope "test"]
+
+   ;; Boot task providing a ClojureScript browser REPL via Weasel and Piggieback.
    [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
+
+   ;; Boot task to automatically reload resources in the browser when files in the project change.
+   ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]])
 
 (require
