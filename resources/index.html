@@ -9,16 +9,14 @@
     <script src="mode/javascript/javascript.js"></script>
   </head>
   <body>
-      <div id="container">
-          <script type="text/javascript" src="renderer.js"></script>
-      </div>
       <div id="app">
           <h1>Reagent example app – see README.md</h1>
       </div>
       <script>
        window.onload = function () {
-           demos.filesystem.run();
+           app.renderer.run();
        }
       </script>
+      <script type="text/javascript" src="renderer.js"></script>
   </body>
 </html>
