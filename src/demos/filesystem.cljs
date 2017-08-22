@@ -14,6 +14,12 @@
                                               :lineNumbers true})
                        doc (.-doc cm)]
                    #_(js/Notification. "Hello ClojuTRE!" (clj->js {:body "It's great to be here."}))
-                   (js/console.log "cm" cm)
+                   (.setOption cm "extraKeys"
+                               #js {
+                                    :Ctrl-W (fn [cm] (js/console.log "Ctrl-W"))
+                                    :Ctrl-S (fn [cm] (js/console.log "Ctrl-s"))
+                                    :Mod (fn [cm] (js/console.log "Mod"))     ; single key: <S>
+                                    :Cmd-S (fn [cm] (js/console.log "Cmd-s")) ; combination: <S-s>
+                                    })
                    #_(.setValue doc "ufo"))))
     #_(set! (. doc -innerHTML) "something in the container")))
