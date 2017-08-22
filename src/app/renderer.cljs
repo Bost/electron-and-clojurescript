@@ -8,7 +8,11 @@
 
 (defn init []
   (js/console.log "Starting Application")
-  (fs/renderer))
+  (let [path (js/require "path")
+        current-dir (.resolve path ".")
+        fname (str current-dir "/boot.properties")]
+    (js/console.log fname)
+    (fs/renderer fname)))
 
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
