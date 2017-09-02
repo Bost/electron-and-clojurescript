@@ -87,7 +87,7 @@
   []
   #_[:div {:id "containerx"}]
   [:div
-   #_[:div "Hello re-frame world, time is now: " [clock] [color-input]]
+   [:div "Hello re-frame world, time is now: " [clock] #_[color-input]]
    #_[:div "electron-forge CLI for electron: "
     [:a {:href "https://youtu.be/wySl0l9qmc0?t=11m59s"}
      "https://youtu.be/wySl0l9qmc0?t=11m59s"]]])

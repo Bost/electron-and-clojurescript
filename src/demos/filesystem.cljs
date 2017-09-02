@@ -1,4 +1,7 @@
-(ns demos.filesystem)
+(ns demos.filesystem
+  (:require
+   [re-frame.core :as rf]
+   ))
 
 (defn save [fs fname data]
   (.writeFile fs fname data
@@ -31,6 +34,9 @@
 
                        :Cmd-F (fn [cm]
                                 (js/console.log "Cmd-F / <S-f>")
+                                (rf/dispatch [:time-color-change
+                                              "green"
+                                              #_(-> % .-target .-value)])
                                 (let [new-fname
                                       #_"/home/bost/dev/eac/README.md"
                                       fname]
