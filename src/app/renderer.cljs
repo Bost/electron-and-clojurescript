@@ -10,7 +10,7 @@
   (js/console.log "Starting Application")
   (let [path (js/require "path")
         current-dir (.resolve path ".")
-        fname (str current-dir "/boot.properties")]
+        fname (str current-dir "/nodejs-code.js")]
     (js/console.log fname)
     (fs/renderer fname)))
 
@@ -87,13 +87,10 @@
   []
   #_[:div {:id "containerx"}]
   [:div
-   [:h1 "Hello re-frame world, time is now"]
-   [:div "TODO try the monaco editror: npm install monaco-loader"]
-   [:div "electron-forge CLI for electron"]
-   [:div "see https://youtu.be/wySl0l9qmc0?t=11m59s"]
-   [:a {:href "https://www.google.com"} "https://www.google.com"]
-   [clock]
-   [color-input]])
+   #_[:div "Hello re-frame world, time is now: " [clock] [color-input]]
+   #_[:div "electron-forge CLI for electron: "
+    [:a {:href "https://youtu.be/wySl0l9qmc0?t=11m59s"}
+     "https://youtu.be/wySl0l9qmc0?t=11m59s"]]])
 
 ;; -- Entry Point -------------------------------------------------------------
 

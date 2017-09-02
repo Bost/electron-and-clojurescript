@@ -20,7 +20,7 @@
   (let [doc (.-body js/document)]
     #_(js/Notification. "Hello ClojuTRE!" (clj->js {:body "It's great to be here."}))
     (let [cm (js/CodeMirror doc
-                            #js {:mode "text" #_"javascript"
+                            #js {:mode #_"text" "javascript"
                                  :lineNumbers true})
           fs (js/require "fs")]
       (read fs fname cm)
