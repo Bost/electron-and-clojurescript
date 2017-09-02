@@ -88,7 +88,7 @@
   #_[:div {:id "containerx"}]
   [:div
    [:h1 "Hello re-frame world, time is now"]
-   [:div "TODO try the monaco editror: nmp --install monaco-loader"]
+   [:div "TODO try the monaco editror: npm install monaco-loader"]
    [:div "electron-forge CLI for electron"]
    [:div "see https://youtu.be/wySl0l9qmc0?t=11m59s"]
    [:a {:href "https://www.google.com"} "https://www.google.com"]
