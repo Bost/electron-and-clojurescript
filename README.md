@@ -1,5 +1,7 @@
 # Electron & ClojureScript
 
+TODO try out: lein new electroncljs eac
+
 This repository contains an Electron app written in ClojureScript. In
 contrast to other examples out there this one uses ClojureScript for
 both parts of the Electron app: the main process and the renderer.

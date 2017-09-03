@@ -1,6 +1,6 @@
 (ns app.renderer
   (:require
-   #_[cljsjs.codemirror :as cm]
+   ;; [cljsjs.codemirror :as cm]
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [clojure.string :as str]
@@ -58,13 +58,13 @@
                   (js/console.log err)
                   (js/console.log (count data) "bytes saved")))))
 
-(defn read [fs fname cm]
+(defn read [fs fname editor]
   (.readFile fs fname "utf8"
              (fn [err data]
                (if err
                  (js/console.log err)
                  (do
-                   (.setValue (.-doc cm) data)
+                   (.setValue (.-doc editor) data)
                    (rf/dispatch [:data-change data])
                    (js/console.log (count data) "bytes loaded"))))))
 
@@ -80,32 +80,42 @@
      {:component-did-mount
       (fn [this]
         (js/console.log "did-mount this" this)
-        (let [cm (js/CodeMirror (reagent/dom-node this) #_(.-body js/document)
-                                #js {
-                                     :theme "xq-light"
-                                     :mode "javascript"
-                                     :lineNumbers true
-                                     })]
-          (read fs fname cm)
-          (.setOption cm "extraKeys"
+        (let [editor
+              (js/CodeMirror (reagent/dom-node this)
+                             #js
+                             {
+                                  :theme "xq-light"
+                                  :mode "javascript"
+                                  :lineNumbers true
+                                  })
+              #_(js/CodeMirror (reagent/dom-node this) #_(.-body js/document)
+                             #js
+                             {
+                                  :theme "xq-light"
+                                  :mode "javascript"
+                                  :lineNumbers true
+                                  }
+                             )]
+          (read fs fname editor)
+          (.setOption editor "extraKeys"
                       #js {
-                           ;; :Ctrl-W (fn [cm] (js/console.log "Ctrl-W"))
-                           ;; :Mod (fn [cm] (js/console.log "Mod"))     ; single key: <S>
+                           ;; :Ctrl-W (fn [editor] (js/console.log "Ctrl-W"))
+                           ;; :Mod (fn [editor] (js/console.log "Mod"))     ; single key: <S>
 
-                           :Cmd-F (fn [cm]
+                           :Cmd-F (fn [editor]
                                     (js/console.log "Cmd-F / <S-f>")
                                     (rf/dispatch [:time-color-change "green"])
                                     (let [new-fname
                                           #_"/home/bost/dev/eac/README.md"
                                           fname]
                                       (rf/dispatch [:fname-change new-fname])
-                                      (read fs new-fname cm)
+                                      (read fs new-fname editor)
                                       ))
-                           :Cmd-S (fn [cm]
+                           :Cmd-S (fn [editor]
                                     (js/console.log "Cmd-S / <S-s>")
-                                    (save fs fname (.getValue (.-doc cm))))
+                                    (save fs fname (.getValue (.-doc editor))))
                            })
-          (js/console.log "did-mount cm" cm)))
+          (js/console.log "did-mount editor" editor)))
 
       ;; ... other methods go here
       ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle

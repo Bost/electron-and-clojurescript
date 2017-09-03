@@ -2,7 +2,8 @@
  :source-paths    #{"src"}
  :resource-paths  #{"resources"}
  :dependencies
- '[[org.clojure/clojurescript "1.9.908"]
+ '[
+   [org.clojure/clojurescript "1.9.908"]
    [org.clojure/tools.nrepl "0.2.12" :scope "test"]
    [com.cemerick/piggieback "0.2.2" :scope "test"]
 
@@ -21,11 +22,8 @@
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
-   #_[cljsjs/codemirror "5.24.0-1"]]
+   [cljsjs/codemirror "5.24.0-1"]]
  )
-
-;; (sift :add-jar {'cljsjs/codemirror #"cljsjs/codemirror/development/codemirror.css"})
-;; (sift :move {#"cljsjs/codemirror/development/codemirror.css" "vendor/codemirror/codemirror.css"})))
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
@@ -41,6 +39,9 @@
 (deftask dev-build []
   (comp ;; Audio feedback about warnings etc. =======================
         (speak)
+        (sift :add-jar {'cljsjs/codemirror #"cljsjs/codemirror/development/codemirror.css"})
+        (sift :move {#"cljsjs/codemirror/development/codemirror.css" "vendor/codemirror/codemirror.css"})
+
         ;; Inject REPL and reloading code into renderer build =======
         (cljs-repl :ids #{"renderer"}
                    :nrepl-opts {:bind "0.0.0.0" :port 36503})
