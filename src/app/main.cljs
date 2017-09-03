@@ -1,5 +1,5 @@
 (ns app.main
-  (:require [demos.filesystem :as fs]))
+  #_(:require [demos.filesystem :as fs]))
 
 (def electron      (js/require "electron"))
 (def app           (.-app electron))

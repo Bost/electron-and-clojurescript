@@ -1,18 +1,13 @@
 (ns app.renderer
   (:require
-   [demos.filesystem :as fs]
+   #_[cljsjs.codemirror :as cm]
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [clojure.string :as str]
    ))
 
 (defn init []
-  (js/console.log "Starting Application")
-  (let [path (js/require "path")
-        current-dir (.resolve path ".")
-        fname (str current-dir "/nodejs-code.js")]
-    (js/console.log fname)
-    (fs/renderer fname)))
+  (js/console.log "Starting Application"))
 
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
@@ -42,6 +37,14 @@
 
 
 (rf/reg-event-db
+ :data-change
+ (fn [db [_ new-data]] (assoc db :data new-data)))
+
+(rf/reg-event-db
+ :cm-change
+ (fn [db [_ new-cm]] (assoc db :cm new-cm)))
+
+(rf/reg-event-db
  :fname-change
  (fn [db [_ new-fname]] (assoc db :fname new-fname)))
 
@@ -58,6 +61,16 @@
 
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
+
+(rf/reg-sub
+ :data
+ (fn [db _]      ;; db is current app state. 2nd unused param is query vector
+   (:data db)))
+
+(rf/reg-sub
+ :cm
+ (fn [db _]      ;; db is current app state. 2nd unused param is query vector
+   (:cm db)))
 
 (rf/reg-sub
  :fname
@@ -94,15 +107,87 @@
             :value @(rf/subscribe [:time-color])
             :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
 
+(defn save [fs fname data]
+  (.writeFile fs fname data
+              (fn [err _]
+                (if err
+                  (js/console.log err)
+                  (js/console.log (count data) "bytes saved")))))
+
+(defn read [fs fname cm]
+  (.readFile fs fname "utf8"
+             (fn [err data]
+               (if err
+                 (js/console.log err)
+                 (do
+                   (.setValue (.-doc cm) data)
+                   (rf/dispatch [:data-change data])
+                   (js/console.log (count data) "bytes loaded"))))))
+
+(defn complex-component [a b c]
+  (let [
+        path (js/require "path")
+        current-dir (.resolve path ".")
+        fname (str current-dir "/nodejs-code.js")
+        fs (js/require "fs")
+        state (reagent/atom {})] ;; you can include state
+    #_(js/console.log "complex-component" "state" state)
+    (reagent/create-class
+     {:component-did-mount
+      (fn [this]
+        (js/console.log "did-mount this" this)
+        (let [cm (js/CodeMirror (reagent/dom-node this) #_(.-body js/document)
+                                #js {
+                                     :theme "xq-light"
+                                     :mode "javascript"
+                                     :lineNumbers true
+                                     })]
+          (read fs fname cm)
+          (.setOption cm "extraKeys"
+                      #js {
+                           ;; :Ctrl-W (fn [cm] (js/console.log "Ctrl-W"))
+                           ;; :Mod (fn [cm] (js/console.log "Mod"))     ; single key: <S>
+
+                           :Cmd-F (fn [cm]
+                                    (js/console.log "Cmd-F / <S-f>")
+                                    (rf/dispatch [:time-color-change "green"])
+                                    (let [new-fname
+                                          #_"/home/bost/dev/eac/README.md"
+                                          fname]
+                                      (rf/dispatch [:fname-change new-fname])
+                                      (read fs new-fname cm)
+                                      ))
+                           :Cmd-S (fn [cm]
+                                    (js/console.log "Cmd-S / <S-s>")
+                                    (save fs fname (.getValue (.-doc cm))))
+                           })
+          (js/console.log "did-mount cm" cm)))
+
+      ;; ... other methods go here
+      ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
+      ;; for a complete list
+
+      ;; name your component for inclusion in error messages
+      ;; :display-name "complex-component"
+
+      ;; :component-did-update (fn [this old-argv] (js/console.log "did-update this" this))
+
+      ;; note the keyword for this method
+      :reagent-render
+      (fn [a b c]
+        (js/console.log "reagent-render" a b c)
+        [:div (str a b c)])})))
+
 (defn ui
   []
-  #_[:div {:id "containerx"}]
   [:div
-   [:div [clock] #_[color-input]]
+   ;; [:div [clock] #_[color-input]]
    [:div @(rf/subscribe [:fname])]
-   #_[:div "electron-forge CLI for electron: "
-    [:a {:href "https://youtu.be/wySl0l9qmc0?t=11m59s"}
-     "https://youtu.be/wySl0l9qmc0?t=11m59s"]]])
+   [:div "before"]
+   [complex-component "" "" ""]
+   [:div "after"]
+   ])
+
 
 ;; -- Entry Point -------------------------------------------------------------
 

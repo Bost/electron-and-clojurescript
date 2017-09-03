@@ -20,7 +20,12 @@
 
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
-   [adzerk/boot-reload    "0.5.2"  :scope "test"]])
+   [adzerk/boot-reload    "0.5.2"  :scope "test"]
+   #_[cljsjs/codemirror "5.24.0-1"]]
+ )
+
+;; (sift :add-jar {'cljsjs/codemirror #"cljsjs/codemirror/development/codemirror.css"})
+;; (sift :move {#"cljsjs/codemirror/development/codemirror.css" "vendor/codemirror/codemirror.css"})))
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
