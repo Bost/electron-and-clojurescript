@@ -35,9 +35,15 @@
 (rf/reg-event-db             ;; sets up initial application state
  :initialize                 ;; usage:  (dispatch [:initialize])
  (fn [_ _]                    ;; the two parameters are not important here, so use _
-   {:time (js/Date.)         ;; What it returns becomes the new application state
+   {
+    ;; :fname "ufo"
+    :time (js/Date.)         ;; What it returns becomes the new application state
     :time-color "#f88"}))    ;; so the application state will initially be a map with two keys
 
+
+(rf/reg-event-db
+ :fname-change
+ (fn [db [_ new-fname]] (assoc db :fname new-fname)))
 
 (rf/reg-event-db              ;; usage:  (dispatch [:time-color-change 34562])
  :time-color-change           ;; dispatched when the user enters a new colour into the UI text field
@@ -52,6 +58,11 @@
 
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
+
+(rf/reg-sub
+ :fname
+ (fn [db _]      ;; db is current app state. 2nd unused param is query vector
+   (:fname db)))
 
 (rf/reg-sub
  :time
@@ -87,7 +98,8 @@
   []
   #_[:div {:id "containerx"}]
   [:div
-   [:div "Hello re-frame world, time is now: " [clock] #_[color-input]]
+   [:div [clock] #_[color-input]]
+   [:div @(rf/subscribe [:fname])]
    #_[:div "electron-forge CLI for electron: "
     [:a {:href "https://youtu.be/wySl0l9qmc0?t=11m59s"}
      "https://youtu.be/wySl0l9qmc0?t=11m59s"]]])

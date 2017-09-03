@@ -27,6 +27,7 @@
                                  :lineNumbers true})
           fs (js/require "fs")]
       (read fs fname cm)
+      (rf/dispatch [:fname-change fname])
       (.setOption cm "extraKeys"
                   #js {
                        ;; :Ctrl-W (fn [cm] (js/console.log "Ctrl-W"))
@@ -34,12 +35,11 @@
 
                        :Cmd-F (fn [cm]
                                 (js/console.log "Cmd-F / <S-f>")
-                                (rf/dispatch [:time-color-change
-                                              "green"
-                                              #_(-> % .-target .-value)])
+                                (rf/dispatch [:time-color-change "green"])
                                 (let [new-fname
                                       #_"/home/bost/dev/eac/README.md"
                                       fname]
+                                  (rf/dispatch [:fname-change new-fname])
                                   (read fs new-fname cm)))
                        :Cmd-S (fn [cm]
                                 (js/console.log "Cmd-S / <S-s>")
