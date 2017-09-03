@@ -1,5 +1,6 @@
 (ns demos.filesystem
   (:require
+   ;; deactivate re-frame.core if: ReferenceError: React is not defined
    [re-frame.core :as rf]
    ))
 
