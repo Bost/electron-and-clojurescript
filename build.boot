@@ -22,13 +22,14 @@
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
-   [cljsjs/codemirror "5.24.0-1"]]
+   #_[cljsjs/codemirror "5.24.0-1"]]
  )
 
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
  '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
- '[adzerk.boot-reload    :refer [reload]])
+ '[adzerk.boot-reload    :refer [reload]]
+ )
 
 (deftask prod-build []
   (comp (cljs :ids #{"main"}
@@ -39,8 +40,10 @@
 (deftask dev-build []
   (comp ;; Audio feedback about warnings etc. =======================
         (speak)
-        (sift :add-jar {'cljsjs/codemirror #"cljsjs/codemirror/development/codemirror.css"})
-        (sift :move {#"cljsjs/codemirror/development/codemirror.css" "vendor/codemirror/codemirror.css"})
+        #_(sift :add-jar {'cljsjs/codemirror
+                        #"cljsjs/codemirror/development/codemirror.css"})
+        #_(sift :move {#"cljsjs/codemirror/development/codemirror.css"
+                     "vendor/codemirror/codemirror.css"})
 
         ;; Inject REPL and reloading code into renderer build =======
         (cljs-repl :ids #{"renderer"}
