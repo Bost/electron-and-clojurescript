@@ -24,13 +24,17 @@
 (rf/reg-event-db :initialize (fn [_ _] {:time (js/Date.) :time-color "#f88"}))
 (rf/reg-event-db :data-change (fn [db [_ new-data]] (assoc db :data new-data)))
 (rf/reg-event-db :cm-change (fn [db [_ new-cm]] (assoc db :cm new-cm)))
-(rf/reg-event-db :fname-change (fn [db [_ new-fname]] (assoc db :fname new-fname)))
-(rf/reg-event-db :time-color-change (fn [db [_ new-color-value]] (assoc db :time-color new-color-value)))
+(rf/reg-event-db :active-file-change
+                 (fn [db [_ new-file]] (assoc db :active-file new-file)))
+(rf/reg-event-db :open-files-change (fn [db [_ of]] (assoc db :open-files of)))
+(rf/reg-event-db :time-color-change
+                 (fn [db [_ new-color]] (assoc db :time-color new-color)))
 (rf/reg-event-db :timer (fn [db [_ new-time]] (assoc db :time new-time)))
 
 (rf/reg-sub :data (fn [db _] (:data db)))
 (rf/reg-sub :cm (fn [db _] (:cm db)))
-(rf/reg-sub :fname (fn [db _] (:fname db)))
+(rf/reg-sub :active-file (fn [db _] (:active-file db)))
+(rf/reg-sub :open-files (fn [db _] (:open-files db)))
 (rf/reg-sub :time (fn [db _] (:time db)))
 (rf/reg-sub :time-color (fn [db _] (:time-color db)))
 
@@ -49,7 +53,8 @@
    "Time color: "
    [:input {:type "text"
             :value @(rf/subscribe [:time-color])
-            :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])
+            :on-change #(rf/dispatch
+                         [:time-color-change (-> % .-target .-value)])}]])
 
 (defn save [fs fname data]
   (.writeFile fs fname data
@@ -68,79 +73,96 @@
                    (rf/dispatch [:data-change data])
                    (js/console.log (count data) "bytes loaded"))))))
 
-(defn complex-component [a b c]
-  (let [
-        path (js/require "path")
-        current-dir (.resolve path ".")
-        fname (str current-dir "/nodejs-code.js")
-        fs (js/require "fs")
+(defn edit [file]
+  (let [fs (js/require "fs")
         state (reagent/atom {})] ;; you can include state
-    #_(js/console.log "complex-component" "state" state)
+    #_(js/console.log "edit" "file" file)
     (reagent/create-class
      {:component-did-mount
       (fn [this]
-        (js/console.log "did-mount this" this)
+        #_(js/console.log "did-mount this" this)
         (let [editor
               (js/CodeMirror (reagent/dom-node this)
                              #js
                              {
-                                  :theme "xq-light"
-                                  :mode "javascript"
-                                  :lineNumbers true
-                                  })
+                              :theme "xq-light"
+                              :mode "javascript"
+                              :lineNumbers true
+                              })
               #_(js/CodeMirror (reagent/dom-node this) #_(.-body js/document)
-                             #js
-                             {
-                                  :theme "xq-light"
-                                  :mode "javascript"
-                                  :lineNumbers true
-                                  }
-                             )]
-          (read fs fname editor)
-          (.setOption editor "extraKeys"
-                      #js {
-                           ;; :Ctrl-W (fn [editor] (js/console.log "Ctrl-W"))
-                           ;; :Mod (fn [editor] (js/console.log "Mod"))     ; single key: <S>
+                               #js
+                               {
+                                :theme "xq-light"
+                                :mode "javascript"
+                                :lineNumbers true
+                                }
+                               )]
+          (read fs file editor)
+          (.setOption
+           editor "extraKeys"
+           #js {
+                ;; :Ctrl-W (fn [editor] (js/console.log "Ctrl-W"))
 
-                           :Cmd-F (fn [editor]
-                                    (js/console.log "Cmd-F / <S-f>")
-                                    (rf/dispatch [:time-color-change "green"])
-                                    (let [new-fname
-                                          #_"/home/bost/dev/eac/README.md"
-                                          fname]
-                                      (rf/dispatch [:fname-change new-fname])
-                                      (read fs new-fname editor)
-                                      ))
-                           :Cmd-S (fn [editor]
-                                    (js/console.log "Cmd-S / <S-s>")
-                                    (save fs fname (.getValue (.-doc editor))))
-                           })
-          (js/console.log "did-mount editor" editor)))
+                ;; single key: <S>
+                ;; :Mod (fn [editor] (js/console.log "Mod"))
+
+                :Cmd-F (fn [editor]
+                         (js/console.log "Cmd-F / <S-f>")
+                         (rf/dispatch [:time-color-change "green"])
+                         (let [new-file
+                               ;; assigning file to new-file causes file-reload
+                               file]
+                           (rf/dispatch [:active-file-change new-file])
+                           (read fs new-file editor)
+                           ))
+                :Cmd-S (fn [editor]
+                         (js/console.log "Cmd-S / <S-s>")
+                         (save fs file (.getValue (.-doc editor))))
+                })))
 
       ;; ... other methods go here
       ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
       ;; for a complete list
 
       ;; name your component for inclusion in error messages
-      ;; :display-name "complex-component"
+      ;; :display-name "edit"
 
-      ;; :component-did-update (fn [this old-argv] (js/console.log "did-update this" this))
+      ;; :component-did-update
+      ;; (fn [this old-argv] (js/console.log "did-update this" this))
 
       ;; note the keyword for this method
       :reagent-render
-      (fn [a b c]
-        (js/console.log "reagent-render" a b c)
-        [:div (str a b c)])})))
+      (fn []
+        #_(js/console.log "reagent-render")
+        [:div])})))
+
+(defn active-file [file]
+  (let [af @(rf/subscribe [:active-file])]
+    [:div
+     [:div (if (= file af) "*" "") file]
+     (if (= file af)
+       [edit file])
+     [:div "stats: " file]]))
 
 (defn ui
   []
-  [:div
-   ;; [:div [clock] #_[color-input]]
-   [:div @(rf/subscribe [:fname])]
-   [:div "before"]
-   [complex-component "" "" ""]
-   [:div "after"]
-   ])
+  (let [
+        path (js/require "path")
+        cur-dir (.resolve path ".")
+        fname1 (str cur-dir "/nodejs-code.js")
+        fname2 (str cur-dir "/n2.js")
+        files [fname1 fname2]
+        ]
+    (rf/dispatch [:open-files-change files])
+    (rf/dispatch [:active-file-change (first files)])
+    [:div
+     (map-indexed
+      (fn [i file]
+        [:div {:key i
+               :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+         [active-file file]])
+      files)
+     ]))
 
 (defn ^:export run
   []
