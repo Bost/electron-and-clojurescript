@@ -144,6 +144,37 @@
        [edit file])
      [:div "stats: " file]]))
 
+(defn context-menu
+  "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
+  []
+  (let [
+        ;; const {remote} = require('electron')
+        remote (.-remote (js/require "electron"))
+        ;; const {Menu, MenuItem} = remote
+        menu-fn (.-Menu remote)
+        menu-item-fn (.-MenuItem remote)
+        ]
+    ;; <!-- index.html -->
+    ;; <script>
+
+    ;; const menu = new Menu()
+    ;; menu.append(new MenuItem({label: 'MenuItem1', click() { console.log('item 1 clicked') }}))
+    ;; menu.append(new MenuItem({type: 'separator'}))
+    ;; menu.append(new MenuItem({label: 'MenuItem2', type: 'checkbox', checked: true}))
+
+    ;; window.addEventListener('contextmenu',
+    ;; (e) => {
+    ;;         e.preventDefault()
+    ;;         menu.popup(remote.getCurrentWindow())
+    ;;         }, false)
+    ;; </script>
+
+    (js/console.log "remote" remote)
+    (js/console.log "menu-fn" menu-fn)
+    (js/console.log "menu-item-fn" menu-item-fn)
+    [:div]
+    ))
+
 (defn ui
   []
   (let [
@@ -156,6 +187,7 @@
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change (first files)])
     [:div
+     [context-menu]
      (map-indexed
       (fn [i file]
         [:div {:key i
