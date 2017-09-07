@@ -147,31 +147,30 @@
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
   []
-  (let [
-        ;; const {remote} = require('electron')
-        remote (.-remote (js/require "electron"))
-        ;; const {Menu, MenuItem} = remote
+  (let [remote (.-remote (js/require "electron"))
         menu-fn (.-Menu remote)
         menu-item-fn (.-MenuItem remote)
+        menu (menu-fn.)
+        menu-items [(menu-item-fn.
+                     #js {:label "MenuItem1"
+                          :click (fn [] (js/console.log "item 1 clicked"))})
+                    (menu-item-fn.
+                     #js {:type "separator"})
+                    (menu-item-fn.
+                     #js {:label "MenuItem2"
+                          :type "checkbox"
+                          :checked true
+                          :click (fn [] (js/console.log "item 2 clicked"))
+                          })]
         ]
-    ;; <!-- index.html -->
-    ;; <script>
-
-    ;; const menu = new Menu()
-    ;; menu.append(new MenuItem({label: 'MenuItem1', click() { console.log('item 1 clicked') }}))
-    ;; menu.append(new MenuItem({type: 'separator'}))
-    ;; menu.append(new MenuItem({label: 'MenuItem2', type: 'checkbox', checked: true}))
-
-    ;; window.addEventListener('contextmenu',
-    ;; (e) => {
-    ;;         e.preventDefault()
-    ;;         menu.popup(remote.getCurrentWindow())
-    ;;         }, false)
-    ;; </script>
-
-    (js/console.log "remote" remote)
-    (js/console.log "menu-fn" menu-fn)
-    (js/console.log "menu-item-fn" menu-item-fn)
+    (doseq [mi menu-items]
+      (.append menu mi))
+    (.addEventListener
+     js/window "contextmenu"
+     (fn [e]
+       (.preventDefault e)
+       (.popup menu (.getCurrentWindow remote)))
+     false)
     [:div]
     ))
 
