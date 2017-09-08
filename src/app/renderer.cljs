@@ -85,7 +85,9 @@
               (js/CodeMirror (reagent/dom-node this)
                              #js
                              {
-                              :theme "xq-light"
+                              :theme
+                              #_"xq-light"
+                              "solarized dark"
                               :mode "clojure"
                               :lineNumbers true
                               })
