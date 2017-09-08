@@ -90,6 +90,7 @@
                               "solarized dark"
                               :mode "clojure"
                               :lineNumbers true
+                              :vimMode true
                               })
               ]
           (read fs file editor)
