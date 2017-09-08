@@ -86,17 +86,10 @@
                              #js
                              {
                               :theme "xq-light"
-                              :mode "javascript"
+                              :mode "clojure"
                               :lineNumbers true
                               })
-              #_(js/CodeMirror (reagent/dom-node this) #_(.-body js/document)
-                               #js
-                               {
-                                :theme "xq-light"
-                                :mode "javascript"
-                                :lineNumbers true
-                                }
-                               )]
+              ]
           (read fs file editor)
           (.setOption
            editor "extraKeys"
@@ -179,8 +172,8 @@
   (let [
         path (js/require "path")
         cur-dir (.resolve path ".")
-        fname1 (str cur-dir "/nodejs-code.js")
-        fname2 (str cur-dir "/n2.js")
+        fname1 (str cur-dir "/src/app/renderer.cljs")
+        fname2 (str cur-dir "/src/app/main.cljs")
         files [fname1 fname2]
         ]
     (rf/dispatch [:open-files-change files])
