@@ -5,6 +5,7 @@
    [re-frame.core :as rf]
    [clojure.string :as str]
    [utils.core :refer [in? dbg next-cyclic]]
+   [app.regs]
    ))
 
 (enable-console-print!)
@@ -24,14 +25,6 @@
 ;; created in the face of figwheel hot-reloading of this file.
 (defonce do-timer (js/setInterval dispatch-timer-event 1000))
 
-(rf/reg-event-db :initialize (fn [_ _] {:time (js/Date.) :time-color "#f88"}))
-
-(rf/reg-event-db :time-color-change
-                 (fn [db [_ new]] (assoc db :time-color new)))
-(rf/reg-event-db :timer (fn [db [_ new]] (assoc db :time new)))
-(rf/reg-sub :time (fn [db _] (:time db)))
-(rf/reg-sub :time-color (fn [db _] (:time-color db)))
-
 (defn clock
   []
   [:div.example-clock
@@ -50,29 +43,32 @@
             :on-change #(rf/dispatch
                          [:time-color-change (-> % .-target .-value)])}]])
 
-(rf/reg-event-db
- :open-files-change (fn [db [_ new]] (assoc db :open-files new)))
-(rf/reg-sub
- :open-files (fn [db _] (:open-files db)))
+(declare read)
+(declare save)
 
-(rf/reg-event-db
- :active-file-change (fn [db [_ new]] (assoc db :active-file new)))
-(rf/reg-sub
- :active-file (fn [db _] (:active-file db)))
+(defn keymap [fs file open-files]
+  #js
+  {
+   ;; :Ctrl-W (fn [editor] (println "Ctrl-W"))
 
-(rf/reg-event-db
- :ide-files-change (fn [db [_ new]] (assoc db :ide-files new)))
-(rf/reg-sub
- :ide-files (fn [db _] (:ide-files db)))
+   ;; single key: <S>
+   ;; :Mod (fn [editor] (println "Mod"))
 
-(rf/reg-event-db
- :ide-file-content-change
- (fn [db [_ [file new]]]
-   (assoc-in db [:ide-files file :content] new)))
-(rf/reg-sub
- :ide-file-content
- (fn [db [_ file]]
-   (get-in db [:ide-files file :content])))
+   :Cmd-F (fn [editor]
+            (println "Cmd-F / <S-f>")
+            ;; assigning file to file causes file-reload
+            (rf/dispatch [:active-file-change file])
+            (read fs file editor open-files)
+            )
+   :Cmd-S (fn [editor]
+            (println "Cmd-S / <S-s>")
+            (save fs file (.getValue (.-doc editor))))
+   :Cmd-Q (fn [editor]
+            (println "Cmd-Q / <S-q>")
+            (let [active-file @(rf/subscribe [:active-file])
+                  idx (.indexOf open-files active-file)]
+              (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
+   })
 
 (defn read [fs file editor open-files]
   (let [content @(rf/subscribe [:ide-file-content file])]
@@ -87,7 +83,6 @@
                        (.setValue (.-doc editor) data)
                        (rf/dispatch [:ide-file-content-change [file data]])
                        )))))))
-
 
 (defn save [fs fname data]
   (.writeFile fs fname data
@@ -119,32 +114,7 @@
           (read fs file editor open-files)
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
-          (.setOption
-           editor "extraKeys"
-           #js {
-                ;; :Ctrl-W (fn [editor] (println "Ctrl-W"))
-
-                ;; single key: <S>
-                ;; :Mod (fn [editor] (println "Mod"))
-
-                :Cmd-F (fn [editor]
-                         (println "Cmd-F / <S-f>")
-                         (rf/dispatch [:time-color-change "green"])
-                         (let [new-file
-                               ;; assigning file to new-file causes file-reload
-                               file]
-                           (rf/dispatch [:active-file-change new-file])
-                           (read fs new-file editor open-files)
-                           ))
-                :Cmd-S (fn [editor]
-                         (println "Cmd-S / <S-s>")
-                         (save fs file (.getValue (.-doc editor))))
-                :Cmd-Q (fn [editor]
-                         (println "Cmd-Q / <S-q>")
-                         (let [active-file @(rf/subscribe [:active-file])
-                               idx (.indexOf open-files active-file)]
-                           (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
-                })))
+          (.setOption editor "extraKeys" (keymap fs file open-files))))
 
       ;; ... other methods go here
       ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
@@ -163,7 +133,9 @@
         [:div])})))
 
 (defn active-file [file]
-  (let [af @(rf/subscribe [:active-file])]
+  (let [
+        af @(rf/subscribe [:active-file])
+        ]
     [:div
      [:div (if (= file af) "*" "") file]
      (if (= file af)
