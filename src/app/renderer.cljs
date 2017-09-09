@@ -194,6 +194,13 @@
       files)
      ]))
 
+#_(let [parinfer (js/require "parinfer")
+      old-text (.getValue editor)
+      #_"(def foo [a b"
+      result (.indentMode parinfer old-text)]
+  #_(js/console.log parinfer)
+  (.setValue (.-doc editor) result))
+
 (defn ^:export run
   []
   ;; puts a value into application state

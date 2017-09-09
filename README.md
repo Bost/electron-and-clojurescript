@@ -10,6 +10,8 @@ Install nodejs8, electron
 ```
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo npm install --global --unsafe-perm=true electron
+
+cd resources; and npm install codemirror parinfer raphael
 ```
 
 #### Development

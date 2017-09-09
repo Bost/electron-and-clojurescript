@@ -3,18 +3,29 @@
   <head>
     <meta charset="utf-8">
     <title>ClojureScript & Electron & CodeMirror</title>
-    <style>body{font-family: sans-serif;}</style>
-    <link rel="stylesheet" href="lib/codemirror.css">
-    <!-- <link rel="stylesheet" href="theme/xq-light.css"> -->
-    <link rel="stylesheet" href="theme/solarized.css">
-    <script src="lib/codemirror.js"></script>
-    <script src="keymap/vim.js"></script>
-    <script src="mode/javascript/javascript.js"></script>
-    <script src="mode/clojure/clojure.js"></script>
+    <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="node_modules/codemirror/theme/solarized.css">
+    <script src="node_modules/codemirror/lib/codemirror.js"></script>
+    <script src="node_modules/codemirror/mode/clojure/clojure.js"></script>
+    <script src="node_modules/codemirror/mode/javascript/javascript.js"></script>
+    <script src="node_modules/codemirror/keymap/vim.js"></script>
+    <script src="node_modules/parinfer/parinfer.js"></script>
+    <script src="lib/parinfer-codemirror.js"></script>
+
     <style type="text/css">
+     /* html, body { */
+     /* height: 100%; */
+     /* margin: 0; */
+     /* } */
+     body {
+         font-family: sans-serif;
+     }
      .CodeMirror {
          /* border: 1px solid #eee; */
+         box-sizing: border-box;
          height: auto;
+         /* padding: 10px; */
+         height: 100%;
      }
     </style>
   </head>
@@ -23,12 +34,12 @@
           Loading re-frame / reagent app...
       </div>
       <script>
-       window.onload = function () {
-           // mw = new BrowserWindow({
-           // titleBarStyle: 'hidden-inset'
-           // })
-           app.renderer.run();
-       }
+          window.onload = function () {
+          // mw = new BrowserWindow({
+          // titleBarStyle: 'hidden-inset'
+          // })
+          app.renderer.run();
+          }
       </script>
       <script type="text/javascript" src="renderer.js"></script>
   </body>

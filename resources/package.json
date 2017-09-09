@@ -1,5 +1,10 @@
 {
-  "name"    : "electron-cljs",
-  "version" : "0.1.0",
-  "main"    : "main.js"
+  "name": "electron-cljs",
+  "version": "0.1.0",
+  "main": "main.js",
+  "dependencies": {
+    "codemirror": "^5.29.0",
+    "parinfer": "^3.11.0",
+    "raphael": "^2.2.7"
+  }
 }
