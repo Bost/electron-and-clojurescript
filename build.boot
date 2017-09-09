@@ -24,7 +24,11 @@
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
-   #_[cljsjs/codemirror "5.24.0-1"]]
+   [cljsjs/codemirror "5.24.0-1"]
+   [cljsjs/parinfer "2.0.0-0"]
+   #_[parinfer-cljs "2.0.0-0"]
+   [metosin/codemirror-parinfer "2.0.0"]
+   ]
  )
 
 (require

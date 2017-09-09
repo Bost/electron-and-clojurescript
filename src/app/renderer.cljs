@@ -1,14 +1,56 @@
 (ns app.renderer
   (:require
    ;; [cljsjs.codemirror :as cm]
-   [reagent.core :as reagent]
+   [reagent.core :as r]
    [re-frame.core :as rf]
    [clojure.string :as str]
    [utils.core :refer [in? dbg next-cyclic]]
    [app.regs]
+   #_cljsjs.parinfer
+   cljsjs.codemirror
+   [parinfer-codemirror.editor :as editor]
    ))
 
 (enable-console-print!)
+
+(def parinfer (js/require "parinfer"))
+
+(defn- convert-changed-line [e]
+  {:line-no (aget e "lineNo")
+   :line (aget e "line")})
+
+(defn- convert-error [e]
+  (when e
+    {:name (aget e "name")
+     :message (aget e "message")
+     :line-no (aget e "lineNo")
+     :x (aget e "x")}))
+
+(defn- convert-result [result]
+  {:text (aget result "text")
+   :success? (aget result "success")
+   :changed-lines (mapv convert-changed-line (aget result "changedLines"))
+   :error (convert-error (aget result "error"))})
+
+(defn- convert-options [option]
+  #js {:cursorX (:cursor-x option)
+       :cursorLine (:cursor-line option)
+       :cursorDx (:cursor-dx option)})
+
+#_(def parinfer (js/require "parinfer"))
+
+;; (def indent-mode* (partial .indentMode parinfer))
+;; (def paren-mode* (partial .parenMode parinfer))
+
+(defn indent-mode
+  ([text] (convert-result (.indentMode (js/require "parinfer") text)))
+  ([text options] (convert-result (.indentMode (js/require "parinfer") text (convert-options options)))))
+
+(defn paren-mode
+  ([text] (convert-result (.parenMode (js/require "parinfer") text)))
+  ([text options] (convert-result (.parenMode (js/require "parinfer") text (convert-options options)))))
+
+(def default-codemirror-opts {})
 
 (defn init []
   (println "Starting Application"))
@@ -91,15 +133,18 @@
                   (println err)
                   (println (count data) "bytes saved")))))
 
+
+(defonce state (r/atom {:code "(defn hello [] \"world\")"}))
+
 (defn edit [file]
   (let [fs (js/require "fs")
-        state (reagent/atom {})] ;; you can include state
-    (reagent/create-class
+        state (r/atom {})] ;; you can include state
+    (r/create-class
      {:component-did-mount
       (fn [this]
-        #_(println "did-mount this" this)
+        #_(js/console.log "did-mount this" this)
         (let [editor
-              (js/CodeMirror (reagent/dom-node this)
+              (js/CodeMirror (r/dom-node this)
                              #js
                              {
                               :theme
@@ -110,8 +155,12 @@
                               ;; :vimMode true
                               })
               open-files @(rf/subscribe [:open-files])
+              parinfer-mode #_:paren-mode :indent-mode
               ]
           (read fs file editor open-files)
+          (.on editor "change" (partial editor/on-change parinfer-mode))
+          (.on editor "beforeChange" editor/before-change)
+          (.on editor "cursorActivity" (partial editor/on-cursor-activity parinfer-mode))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
           (.setOption editor "extraKeys" (keymap fs file open-files))))
@@ -123,8 +172,16 @@
       ;; name your component for inclusion in error messages
       ;; :display-name "edit"
 
-      ;; :component-did-update
-      ;; (fn [this old-argv] (println "did-update this" this))
+      #_:component-did-update
+      #_(fn [this [_ prev-props]]
+        #_(println "did-update this" this)
+        ;; TODO: Handle codemirror-opts changes?
+
+        (if-let [new-value (:value (r/props this))]
+          ;; Not checked against (:value prev-props) as that causes problems with parinfer
+          ;; not sure if any benefit in using that when not using parinfer?
+          (when (not= (.getValue @cm) new-value)
+            (.setValue @cm new-value))))
 
       ;; note the keyword for this method
       :reagent-render
@@ -139,7 +196,15 @@
     [:div
      [:div (if (= file af) "*" "") file]
      (if (= file af)
-       [edit file])
+       [edit file
+        {:on-before-change editor/before-change
+         :on-cursor-activity (partial editor/on-cursor-activity :indent-mode)
+         :on-change (fn [cm change]
+                      (editor/on-change :indent-mode cm change)
+                      (if (not= "setState" (.-origin change))
+                        (swap! state assoc :code (.getValue cm))))
+         :codemirror-opts (merge editor/default-opts
+                                 {})}])
      [:div "stats: " file]]))
 
 (defn context-menu
@@ -177,8 +242,11 @@
   (let [
         path (js/require "path")
         cur-dir (.resolve path ".")
-        ide-files {(str cur-dir "/src/app/renderer.cljs") {}
-                   (str cur-dir "/src/app/main.cljs") {}}
+        ide-files
+        {(str cur-dir "/src/app/s1.cljs") {}
+         (str cur-dir "/src/app/s2.cljs") {}}
+        #_{(str cur-dir "/src/app/renderer.cljs") {}
+         (str cur-dir "/src/app/main.cljs") {}}
         files (->> ide-files keys vec)
         ]
     (rf/dispatch [:ide-files-change ide-files])
@@ -194,17 +262,10 @@
       files)
      ]))
 
-#_(let [parinfer (js/require "parinfer")
-      old-text (.getValue editor)
-      #_"(def foo [a b"
-      result (.indentMode parinfer old-text)]
-  #_(js/console.log parinfer)
-  (.setValue (.-doc editor) result))
-
 (defn ^:export run
   []
   ;; puts a value into application state
   (rf/dispatch-sync [:initialize])
   ;; mount the application's ui into '<div id="app" />'
-  (reagent/render [ui] (js/document.getElementById "app")))
+  (r/render [ui] (js/document.getElementById "app")))
 
