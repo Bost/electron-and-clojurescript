@@ -6,49 +6,10 @@
    [clojure.string :as str]
    [utils.core :refer [in? dbg next-cyclic]]
    [app.regs]
-   #_cljsjs.parinfer
-   cljsjs.codemirror
    [parinfer-codemirror.editor :as editor]
    ))
 
 (enable-console-print!)
-
-(def parinfer (js/require "parinfer"))
-
-(defn- convert-changed-line [e]
-  {:line-no (aget e "lineNo")
-   :line (aget e "line")})
-
-(defn- convert-error [e]
-  (when e
-    {:name (aget e "name")
-     :message (aget e "message")
-     :line-no (aget e "lineNo")
-     :x (aget e "x")}))
-
-(defn- convert-result [result]
-  {:text (aget result "text")
-   :success? (aget result "success")
-   :changed-lines (mapv convert-changed-line (aget result "changedLines"))
-   :error (convert-error (aget result "error"))})
-
-(defn- convert-options [option]
-  #js {:cursorX (:cursor-x option)
-       :cursorLine (:cursor-line option)
-       :cursorDx (:cursor-dx option)})
-
-#_(def parinfer (js/require "parinfer"))
-
-;; (def indent-mode* (partial .indentMode parinfer))
-;; (def paren-mode* (partial .parenMode parinfer))
-
-(defn indent-mode
-  ([text] (convert-result (.indentMode (js/require "parinfer") text)))
-  ([text options] (convert-result (.indentMode (js/require "parinfer") text (convert-options options)))))
-
-(defn paren-mode
-  ([text] (convert-result (.parenMode (js/require "parinfer") text)))
-  ([text options] (convert-result (.parenMode (js/require "parinfer") text (convert-options options)))))
 
 (def default-codemirror-opts {})
 
@@ -242,11 +203,8 @@
   (let [
         path (js/require "path")
         cur-dir (.resolve path ".")
-        ide-files
-        {(str cur-dir "/src/app/s1.cljs") {}
-         (str cur-dir "/src/app/s2.cljs") {}}
-        #_{(str cur-dir "/src/app/renderer.cljs") {}
-         (str cur-dir "/src/app/main.cljs") {}}
+        ide-files {(str cur-dir "/src/app/renderer.cljs") {}
+                   (str cur-dir "/src/app/main.cljs") {}}
         files (->> ide-files keys vec)
         ]
     (rf/dispatch [:ide-files-change ide-files])
