@@ -4,10 +4,13 @@
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [clojure.string :as str]
+   [utils.core :refer [in? dbg next-cyclic]]
    ))
 
+(enable-console-print!)
+
 (defn init []
-  (js/console.log "Starting Application"))
+  (println "Starting Application"))
 
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
@@ -22,19 +25,10 @@
 (defonce do-timer (js/setInterval dispatch-timer-event 1000))
 
 (rf/reg-event-db :initialize (fn [_ _] {:time (js/Date.) :time-color "#f88"}))
-(rf/reg-event-db :data-change (fn [db [_ new-data]] (assoc db :data new-data)))
-(rf/reg-event-db :cm-change (fn [db [_ new-cm]] (assoc db :cm new-cm)))
-(rf/reg-event-db :active-file-change
-                 (fn [db [_ new-file]] (assoc db :active-file new-file)))
-(rf/reg-event-db :open-files-change (fn [db [_ of]] (assoc db :open-files of)))
-(rf/reg-event-db :time-color-change
-                 (fn [db [_ new-color]] (assoc db :time-color new-color)))
-(rf/reg-event-db :timer (fn [db [_ new-time]] (assoc db :time new-time)))
 
-(rf/reg-sub :data (fn [db _] (:data db)))
-(rf/reg-sub :cm (fn [db _] (:cm db)))
-(rf/reg-sub :active-file (fn [db _] (:active-file db)))
-(rf/reg-sub :open-files (fn [db _] (:open-files db)))
+(rf/reg-event-db :time-color-change
+                 (fn [db [_ new]] (assoc db :time-color new)))
+(rf/reg-event-db :timer (fn [db [_ new]] (assoc db :time new)))
 (rf/reg-sub :time (fn [db _] (:time db)))
 (rf/reg-sub :time-color (fn [db _] (:time-color db)))
 
@@ -56,31 +50,59 @@
             :on-change #(rf/dispatch
                          [:time-color-change (-> % .-target .-value)])}]])
 
+(rf/reg-event-db
+ :open-files-change (fn [db [_ new]] (assoc db :open-files new)))
+(rf/reg-sub
+ :open-files (fn [db _] (:open-files db)))
+
+(rf/reg-event-db
+ :active-file-change (fn [db [_ new]] (assoc db :active-file new)))
+(rf/reg-sub
+ :active-file (fn [db _] (:active-file db)))
+
+(rf/reg-event-db
+ :ide-files-change (fn [db [_ new]] (assoc db :ide-files new)))
+(rf/reg-sub
+ :ide-files (fn [db _] (:ide-files db)))
+
+(rf/reg-event-db
+ :ide-file-content-change
+ (fn [db [_ [file new]]]
+   (assoc-in db [:ide-files file :content] new)))
+(rf/reg-sub
+ :ide-file-content
+ (fn [db [_ file]]
+   (get-in db [:ide-files file :content])))
+
+(defn read [fs file editor open-files]
+  (let [content @(rf/subscribe [:ide-file-content file])]
+    (if content
+      (.setValue (.-doc editor) content)
+      (.readFile fs file "utf8"
+                 (fn [err data]
+                   (if err
+                     (println err)
+                     (do
+                       (println (count data) "bytes loaded")
+                       (.setValue (.-doc editor) data)
+                       (rf/dispatch [:ide-file-content-change [file data]])
+                       )))))))
+
+
 (defn save [fs fname data]
   (.writeFile fs fname data
               (fn [err _]
                 (if err
-                  (js/console.log err)
-                  (js/console.log (count data) "bytes saved")))))
-
-(defn read [fs fname editor]
-  (.readFile fs fname "utf8"
-             (fn [err data]
-               (if err
-                 (js/console.log err)
-                 (do
-                   (.setValue (.-doc editor) data)
-                   (rf/dispatch [:data-change data])
-                   (js/console.log (count data) "bytes loaded"))))))
+                  (println err)
+                  (println (count data) "bytes saved")))))
 
 (defn edit [file]
   (let [fs (js/require "fs")
         state (reagent/atom {})] ;; you can include state
-    #_(js/console.log "edit" "file" file)
     (reagent/create-class
      {:component-did-mount
       (fn [this]
-        #_(js/console.log "did-mount this" this)
+        #_(println "did-mount this" this)
         (let [editor
               (js/CodeMirror (reagent/dom-node this)
                              #js
@@ -90,30 +112,38 @@
                               "solarized dark"
                               :mode "clojure"
                               :lineNumbers true
-                              :vimMode true
+                              ;; :vimMode true
                               })
+              open-files @(rf/subscribe [:open-files])
               ]
-          (read fs file editor)
+          (read fs file editor open-files)
+          (.focus editor)
+          ;; editor.setCursor({line: 1, ch: 5})
           (.setOption
            editor "extraKeys"
            #js {
-                ;; :Ctrl-W (fn [editor] (js/console.log "Ctrl-W"))
+                ;; :Ctrl-W (fn [editor] (println "Ctrl-W"))
 
                 ;; single key: <S>
-                ;; :Mod (fn [editor] (js/console.log "Mod"))
+                ;; :Mod (fn [editor] (println "Mod"))
 
                 :Cmd-F (fn [editor]
-                         (js/console.log "Cmd-F / <S-f>")
+                         (println "Cmd-F / <S-f>")
                          (rf/dispatch [:time-color-change "green"])
                          (let [new-file
                                ;; assigning file to new-file causes file-reload
                                file]
                            (rf/dispatch [:active-file-change new-file])
-                           (read fs new-file editor)
+                           (read fs new-file editor open-files)
                            ))
                 :Cmd-S (fn [editor]
-                         (js/console.log "Cmd-S / <S-s>")
+                         (println "Cmd-S / <S-s>")
                          (save fs file (.getValue (.-doc editor))))
+                :Cmd-Q (fn [editor]
+                         (println "Cmd-Q / <S-q>")
+                         (let [active-file @(rf/subscribe [:active-file])
+                               idx (.indexOf open-files active-file)]
+                           (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
                 })))
 
       ;; ... other methods go here
@@ -124,12 +154,12 @@
       ;; :display-name "edit"
 
       ;; :component-did-update
-      ;; (fn [this old-argv] (js/console.log "did-update this" this))
+      ;; (fn [this old-argv] (println "did-update this" this))
 
       ;; note the keyword for this method
       :reagent-render
       (fn []
-        #_(js/console.log "reagent-render")
+        #_(println "reagent-render")
         [:div])})))
 
 (defn active-file [file]
@@ -149,14 +179,14 @@
         menu (menu-fn.)
         menu-items [(menu-item-fn.
                      #js {:label "MenuItem1"
-                          :click (fn [] (js/console.log "item 1 clicked"))})
+                          :click (fn [] (println "item 1 clicked"))})
                     (menu-item-fn.
                      #js {:type "separator"})
                     (menu-item-fn.
                      #js {:label "MenuItem2"
                           :type "checkbox"
                           :checked true
-                          :click (fn [] (js/console.log "item 2 clicked"))
+                          :click (fn [] (println "item 2 clicked"))
                           })]
         ]
     (doseq [mi menu-items]
@@ -175,10 +205,11 @@
   (let [
         path (js/require "path")
         cur-dir (.resolve path ".")
-        fname1 (str cur-dir "/src/app/renderer.cljs")
-        fname2 (str cur-dir "/src/app/main.cljs")
-        files [fname1 fname2]
+        ide-files {(str cur-dir "/src/app/renderer.cljs") {}
+                   (str cur-dir "/src/app/main.cljs") {}}
+        files (->> ide-files keys vec)
         ]
+    (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change (first files)])
     [:div
