@@ -1,6 +1,5 @@
 (ns app.renderer
   (:require
-   ;; [cljsjs.codemirror :as cm]
    [reagent.core :as r]
    [re-frame.core :as rf]
    [clojure.string :as str]
