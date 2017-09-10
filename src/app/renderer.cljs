@@ -6,7 +6,6 @@
    [clojure.string :as str]
    [utils.core :refer [in? dbg next-cyclic]]
    [app.regs]
-   [parinfer-codemirror.editor :as editor]
    ))
 
 (enable-console-print!)
@@ -94,12 +93,8 @@
                   (println err)
                   (println (count data) "bytes saved")))))
 
-
-(defonce state (r/atom {:code "(defn hello [] \"world\")"}))
-
 (defn edit [file]
-  (let [fs (js/require "fs")
-        state (r/atom {})] ;; you can include state
+  (let [fs (js/require "fs")]
     (r/create-class
      {:component-did-mount
       (fn [this]
@@ -114,14 +109,12 @@
                               :mode "clojure"
                               :lineNumbers true
                               ;; :vimMode true
+                              :autoCloseBrackets true
                               })
               open-files @(rf/subscribe [:open-files])
-              parinfer-mode #_:paren-mode :indent-mode
+              parinfer-mode :paren-mode #_:indent-mode
               ]
           (read fs file editor open-files)
-          (.on editor "change" (partial editor/on-change parinfer-mode))
-          (.on editor "beforeChange" editor/before-change)
-          (.on editor "cursorActivity" (partial editor/on-cursor-activity parinfer-mode))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
           (.setOption editor "extraKeys" (keymap fs file open-files))))
@@ -157,15 +150,7 @@
     [:div
      [:div (if (= file af) "*" "") file]
      (if (= file af)
-       [edit file
-        {:on-before-change editor/before-change
-         :on-cursor-activity (partial editor/on-cursor-activity :indent-mode)
-         :on-change (fn [cm change]
-                      (editor/on-change :indent-mode cm change)
-                      (if (not= "setState" (.-origin change))
-                        (swap! state assoc :code (.getValue cm))))
-         :codemirror-opts (merge editor/default-opts
-                                 {})}])
+       [edit file])
      [:div "stats: " file]]))
 
 (defn context-menu
