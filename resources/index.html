@@ -4,8 +4,13 @@
     <meta charset="utf-8">
     <title>ClojureScript & Electron & CodeMirror</title>
     <script src="node_modules/codemirror/lib/codemirror.js"></script>
-    <script src="node_modules/codemirror/addon/edit/closebrackets.js"></script>
     <script src="node_modules/codemirror/mode/clojure/clojure.js"></script>
+
+    <!-- Order matters; see https://github.com/Bost/paredit-cm.git -->
+    <script src="lib/paredit-cm.js"></script> <!-- 1. -->
+    <script src="lib/keymap-paredit-cm.js"></script> <!-- 2. -->
+    <script src="node_modules/codemirror/addon/edit/closebrackets.js"></script> <!-- 3. -->
+
     <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="node_modules/codemirror/theme/solarized.css">
     <style type="text/css">

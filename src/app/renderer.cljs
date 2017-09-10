@@ -109,6 +109,8 @@
                               :lineNumbers true
                               ;; :vimMode true
                               :autoCloseBrackets true
+                              ;; see https://github.com/Bost/paredit-cm.git
+                              :keyMap "paredit_cm"
                               })
               open-files @(rf/subscribe [:open-files])
               parinfer-mode :paren-mode #_:indent-mode
