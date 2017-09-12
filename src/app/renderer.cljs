@@ -116,6 +116,7 @@
               parinfer-mode :paren-mode #_:indent-mode
               ]
           (read fs file editor open-files)
+          (.setSize editor "50%" 800)
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
           (.setOption editor "extraKeys" (keymap fs file open-files))))
