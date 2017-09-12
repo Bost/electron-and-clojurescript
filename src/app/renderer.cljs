@@ -116,7 +116,19 @@
               parinfer-mode :paren-mode #_:indent-mode
               ]
           (read fs file editor open-files)
-          (.setSize editor "50%" 800)
+          (let [
+                height
+                (->> js/document .-documentElement .-clientHeight)
+                #_(->> (js/require "electron")
+                       .-screen
+                       .getPrimaryDisplay
+                       .-workAreaSize .-height)
+                ;; opts (js/require "electron-browser-window-options")
+                ;; bw (->> electron .-remote)
+                ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
+                ]
+            (js/console.log "height" height)
+            (.setSize editor nil (- height 90)))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
           (.setOption editor "extraKeys" (keymap fs file open-files))))
