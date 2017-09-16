@@ -188,11 +188,12 @@
     ))
 
 (defn active-stats [files]
-  (let [af @(rf/subscribe [:active-file])]
+  (let [active @(rf/subscribe [:active-file])
+        orig-size @(rf/subscribe [:ide-file-content active])]
     [:div {:class "box e"}
      (map-indexed
       (fn [i file]
-        (if (= file af) (str "stats: " file)))
+        (if (= file active) (sjoin [ file "orig-size" (count orig-size)])))
       files)]))
 
 (defn uix [files]
