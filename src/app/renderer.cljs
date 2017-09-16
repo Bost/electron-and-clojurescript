@@ -191,9 +191,25 @@
   (let [
         af @(rf/subscribe [:active-file])
         ]
+    [:div (conj
+           {:on-click (fn [] (rf/dispatch [:active-file-change file]))})
+     (if (= file af) "*" "") file]))
+
+(defn active-editor [file]
+  (let [
+        af @(rf/subscribe [:active-file])
+        ]
     [:div (if (= file af) [edit file])]))
 
-(defn ui
+(defn active-stats [i file]
+  (let [
+        af @(rf/subscribe [:active-file])
+        ]
+    [:aside (conj {:key i}
+                  {:class "twin"})
+     (if true #_(= file af) (str "stats: " file))]))
+
+#_(defn ui
   []
   (let [
         path (js/require "path")
@@ -208,16 +224,47 @@
     (rf/dispatch [:active-file-change af])
     [:div
      [context-menu]
-     (map-indexed
-      (fn [i file]
-        [:div {:key i}
-         [:div {:on-click (fn [] (rf/dispatch [:active-file-change file]))}
-          (if (= file af) "*" "") file]])
-      files)
-     (map-indexed (fn [i file] [:div {:key i} [active-file file]]) files)
-     (map-indexed (fn [i file] [:div {:key i} [:div "stats: " file]])
-      files)
+     [:div (conj {}
+            #_{:class "toptwin"}
+            #_{:class "masthead"})
+      (map-indexed
+       (fn [i file]
+         [:aside (conj {:key i}
+                       {:class "toptwin"})
+          [active-file file]])
+       files)]
+     [:div (conj
+            {:id "content"}
+            {:class "main-content"})
+      (map-indexed
+       (fn [i file]
+         [:div (conj {:key i})
+          [active-editor file]]) files)]
+     [:div (conj {})
+      (map-indexed
+       (fn [i file]
+         [:aside (conj {:key i}
+                       {:class "twin"})
+          (if true #_(= file af) (str "stats: " file))]
+         #_[:span (conj {:key i}
+               )
+          [active-stats i file]])
+       files)]
      ]))
+(defn ui
+ []
+  [:div {:class "site" :style {:background-color "lightgray"}}
+  [:div {:class "skip-link screen-reader-text"} "Skip to content"]
+  [:header {:class "masthead"}
+   [:h2 {:class "site-title"} "Standard two-column layout"]]
+   [:main {:id "content" :class"main-content"}
+    "Main content"]
+   [:aside {:class "twin"}
+    "This should take up half the space"]
+   [:aside {:class "twin"}
+    "This should take up half other the space"]
+
+  ])
 
 (defn ^:export run
   []

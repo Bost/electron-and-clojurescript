@@ -14,24 +14,97 @@
     <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="node_modules/codemirror/theme/solarized.css">
     <style type="text/css">
-     /* html, body { */
-     /* height: 100%; */
-     /* margin: 0; */
-     /* } */
      body {
-         font-family: sans-serif;
+         font-family: monospace;
      }
-     .CodeMirror {
+     /*--------------------------------------------------------------
+        If no grid support, limit width to 50em and center align
+        --------------------------------------------------------------*/
+     @supports not (display: grid) {
+	       .site {
+		         max-width: 50em;
+		         margin: 0 auto;
+	       }
+     }
+
+     /*--------------------------------------------------------------
+        CSS Grid layout for wider screens, when browser supports grid:
+        --------------------------------------------------------------*/
+
+     @media screen and (min-width: 600px) {
+	       @supports (display: grid) {
+
+		         .site {
+			           display: grid;
+			           grid-template-columns: 1fr repeat(6, minmax(auto, 10em)) 1fr;
+			           grid-template-rows: minmax(1em, auto) 1fr auto minmax(1em, auto);
+		         }
+
+		         .masthead,
+		         .colophon {
+			           grid-column: span 8;
+		         }
+
+		         .toptwin {
+			           grid-column: 2/5;
+			           grid-row: 1/4;
+		         }
+
+		         .main-content {
+			           grid-column: 2/6;
+		         }
+
+		         .sidebar {
+			           grid-column: 6/8;
+		         }
+
+		         .twin {
+			           grid-column: 2/5;
+			           grid-row: 3/4;
+		         }
+
+		         .twin:last-of-type {
+			           grid-column: 5/8;
+		         }
+	       }
      }
     </style>
   </head>
   <body>
-      <div id="app">
-          Loading re-frame / reagent app...
-      </div>
-      <script>
-          window.onload = () => {app.renderer.run()}
-      </script>
+      <div id="app">Loading re-frame / reagent app...</div>
+      <script>window.onload = ()=>{app.renderer.run()}</script>
       <script type="text/javascript" src="renderer.js"></script>
+      <div class="site">
+          <a class="skip-link screen-reader-text" href="#content">Skip to content</a>
+
+          <header class="masthead">
+              <h2 class="site-title">Standard two-column layout</h2>
+          </header><!-- .masthead -->
+
+          <main id="content" class="main-content">
+              Main content
+          </main>
+
+          <aside class="sidebar">
+              <h3>The Sidebar</h3>
+              <p>The sidebar typically contains things like:</p>
+              <ul>
+                  <li>Links</li>
+                  <li>Menus</li>
+                  <li>Ads</li>
+              </ul>
+          </aside>
+
+          <aside class="twin">
+              This should take up half the space
+          </aside>
+          <aside class="twin">
+              This should take up the other half of the space
+          </aside>
+
+          <footer class="colophon grid">
+              <aside>Content, layout, design: <a href="https://twitter.com/mor10" target="_blank" rel="nofollow">Morten Rand-Hendriksen</a>.</aside>
+          </footer>
+      </div>
   </body>
 </html>
