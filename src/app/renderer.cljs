@@ -187,14 +187,6 @@
     [:div]
     ))
 
-(defn active-editor [files]
-  (let [af @(rf/subscribe [:active-file])
-        file (->> files
-                  (filter #(= % af))
-                  first)]
-    [:div {:class (sjoin [#_"box" "c"])}
-     (if file [edit file])]))
-
 (defn active-stats [files]
   (let [af @(rf/subscribe [:active-file])]
     [:div {:class "box e"}
@@ -208,14 +200,19 @@
    [context-menu]
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
-   (let [af @(rf/subscribe [:active-file])]
-     (map-indexed
-      (fn [i file]
-        [:div {:key i
-               :class (str "box a" (inc i))
-               :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-         (str (if (= file af) "*" "") file)]) files))
-   [active-editor files]
+   (let [active @(rf/subscribe [:active-file])
+         tabs (map-indexed
+                (fn [i file]
+                  [:div {:key i
+                         :class (str "box a" (inc i))
+                         :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+                   (str (if (= file active) "*" "") file)]) files)
+         cnt-files (count files)
+         editor (map-indexed
+               (fn [i file]
+                 [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "c"])}
+                  (if (= active file) [edit file])]) files)]
+     (into editor tabs))
    #_[:div {:class "box d"} "D"]
    [active-stats files]
    ])
