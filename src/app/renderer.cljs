@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
+   [app.styles :as s]
    ))
 
 (enable-console-print!)
@@ -93,28 +94,27 @@
                   (println (count data) "bytes saved")))))
 
 (defn edit [file]
-  (let [fs (js/require "fs")]
-    (r/create-class
-     {:component-did-mount
-      (fn [this]
-        #_(js/console.log "did-mount this" this)
-        (let [editor
-              (js/CodeMirror (r/dom-node this)
-                             #js
-                             {
-                              :theme
-                              #_"xq-light"
-                              "solarized dark"
-                              :mode "clojure"
-                              :lineNumbers true
-                              ;; :vimMode true
-                              :autoCloseBrackets true
-                              ;; see https://github.com/Bost/paredit-cm.git
-                              :keyMap "paredit_cm"
-                              })
-              open-files @(rf/subscribe [:open-files])
-              parinfer-mode :paren-mode #_:indent-mode
-              ]
+  (r/create-class
+   {:component-did-mount
+    (fn [this]
+      #_(js/console.log "did-mount this" this)
+      (let [editor
+            (js/CodeMirror
+             (r/dom-node this)
+             (->> {:theme "solarized dark" #_"xq-light"
+                   :lineNumbers true
+                   :vimMode true
+                   ;; see https://github.com/Bost/paredit-cm.git
+                   ;; :keyMap "paredit_cm"
+                   :autoCloseBrackets true}
+                  (conj (let [path (js/require "path")]
+                          ((keyword (.extname path file))
+                           {:.cljs {:mode "clojure"}
+                            :.html {:mode "xml" :htmlMode true}})))
+                  clj->js))
+            open-files @(rf/subscribe [:open-files])
+            ]
+        (let [fs (js/require "fs")]
           (read fs file editor open-files)
           (let [
                 height
@@ -127,21 +127,21 @@
                 ;; bw (->> electron .-remote)
                 ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
                 ]
-            (js/console.log "height" height)
+            #_(js/console.log "height" height)
             (.setSize editor nil (- height 90)))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
-          (.setOption editor "extraKeys" (keymap fs file open-files))))
+          (.setOption editor "extraKeys" (keymap fs file open-files)))))
 
-      ;; ... other methods go here
-      ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
-      ;; for a complete list
+    ;; ... other methods go here
+    ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
+    ;; for a complete list
 
-      ;; name your component for inclusion in error messages
-      ;; :display-name "edit"
+    ;; name your component for inclusion in error messages
+    ;; :display-name "edit"
 
-      #_:component-did-update
-      #_(fn [this [_ prev-props]]
+    #_:component-did-update
+    #_(fn [this [_ prev-props]]
         #_(println "did-update this" this)
         ;; TODO: Handle codemirror-opts changes?
 
@@ -151,11 +151,11 @@
           (when (not= (.getValue @cm) new-value)
             (.setValue @cm new-value))))
 
-      ;; note the keyword for this method
-      :reagent-render
-      (fn []
-        #_(println "reagent-render")
-        [:div])})))
+    ;; note the keyword for this method
+    :reagent-render
+    (fn []
+      #_(println "reagent-render")
+      [:div])}))
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
@@ -198,16 +198,19 @@
 
 (defn uix [files]
   [:div {:class "wrapper"}
+   [s/styles files]
    [context-menu]
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
    (let [active @(rf/subscribe [:active-file])
+         path (js/require "path")
          tabs (map-indexed
                 (fn [i file]
                   [:div {:key i
                          :class (str "box a" (inc i))
                          :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-                   (str (if (= file active) "*" "") file)]) files)
+                   (str (if (= file active) "*" "")
+                        (.basename path file))]) files)
          cnt-files (count files)
          editor (map-indexed
                (fn [i file]
@@ -221,8 +224,11 @@
 (defn ui []
   (let [path (js/require "path")
         cur-dir (.resolve path ".")
-        ide-files {(str cur-dir "/src/app/renderer.cljs") {}
-                   (str cur-dir "/src/app/main.cljs") {}}
+        ide-files {
+                   (str cur-dir "/src/app/renderer.cljs") {}
+                   (str cur-dir "/resources/index.html") {}
+                   ;; (str cur-dir "/src/app/main.cljs") {}
+                   }
         files (->> ide-files keys vec)]
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
