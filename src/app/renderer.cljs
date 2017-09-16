@@ -157,16 +157,6 @@
         #_(println "reagent-render")
         [:div])})))
 
-(defn active-file [file]
-  (let [
-        af @(rf/subscribe [:active-file])
-        ]
-    [:div
-     [:div (if (= file af) "*" "") file]
-     (if (= file af)
-       [edit file])
-     [:div "stats: " file]]))
-
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
   []
@@ -197,6 +187,12 @@
     [:div]
     ))
 
+(defn active-file [file]
+  (let [
+        af @(rf/subscribe [:active-file])
+        ]
+    [:div (if (= file af) [edit file])]))
+
 (defn ui
   []
   (let [
@@ -205,17 +201,21 @@
         ide-files {(str cur-dir "/src/app/renderer.cljs") {}
                    (str cur-dir "/src/app/main.cljs") {}}
         files (->> ide-files keys vec)
+        af (first files)
         ]
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
-    (rf/dispatch [:active-file-change (first files)])
+    (rf/dispatch [:active-file-change af])
     [:div
      [context-menu]
      (map-indexed
       (fn [i file]
-        [:div {:key i
-               :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-         [active-file file]])
+        [:div {:key i}
+         [:div {:on-click (fn [] (rf/dispatch [:active-file-change file]))}
+          (if (= file af) "*" "") file]])
+      files)
+     (map-indexed (fn [i file] [:div {:key i} [active-file file]]) files)
+     (map-indexed (fn [i file] [:div {:key i} [:div "stats: " file]])
       files)
      ]))
 
