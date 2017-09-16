@@ -187,84 +187,49 @@
     [:div]
     ))
 
-(defn active-file [file]
-  (let [
-        af @(rf/subscribe [:active-file])
-        ]
-    [:div (conj
-           {:on-click (fn [] (rf/dispatch [:active-file-change file]))})
-     (if (= file af) "*" "") file]))
+(defn active-editor [files]
+  (let [af @(rf/subscribe [:active-file])
+        file (->> files
+                  (filter #(= % af))
+                  first)]
+    [:div {:class "box c"}
+     (if file [edit file])]))
 
-(defn active-editor [file]
-  (let [
-        af @(rf/subscribe [:active-file])
-        ]
-    [:div (if (= file af) [edit file])]))
+(defn active-stats [files]
+  (let [af @(rf/subscribe [:active-file])]
+    [:div {:class "box e"}
+     (map-indexed
+      (fn [i file]
+        (if (= file af) (str "stats: " file)))
+      files)]))
 
-(defn active-stats [i file]
-  (let [
-        af @(rf/subscribe [:active-file])
-        ]
-    [:aside (conj {:key i}
-                  {:class "twin"})
-     (if true #_(= file af) (str "stats: " file))]))
+(defn uix [files]
+  [:div {:class "wrapper"}
+   [context-menu]
+   ;; Can't use (defn active-file [...] ...) because of the react warning:
+   ;; Each child in an array or iterator should have a unique "key" prop
+   (let [af @(rf/subscribe [:active-file])]
+     (map-indexed
+      (fn [i file]
+        [:div {:key i
+               :class (str "box a" (inc i))
+               :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+         (str (if (= file af) "*" "") file)]) files))
+   [active-editor files]
+   #_[:div {:class "box d"} "D"]
+   [active-stats files]
+   ])
 
-#_(defn ui
-  []
-  (let [
-        path (js/require "path")
+(defn ui []
+  (let [path (js/require "path")
         cur-dir (.resolve path ".")
         ide-files {(str cur-dir "/src/app/renderer.cljs") {}
                    (str cur-dir "/src/app/main.cljs") {}}
-        files (->> ide-files keys vec)
-        af (first files)
-        ]
+        files (->> ide-files keys vec)]
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
-    (rf/dispatch [:active-file-change af])
-    [:div
-     [context-menu]
-     [:div (conj {}
-            #_{:class "toptwin"}
-            #_{:class "masthead"})
-      (map-indexed
-       (fn [i file]
-         [:aside (conj {:key i}
-                       {:class "toptwin"})
-          [active-file file]])
-       files)]
-     [:div (conj
-            {:id "content"}
-            {:class "main-content"})
-      (map-indexed
-       (fn [i file]
-         [:div (conj {:key i})
-          [active-editor file]]) files)]
-     [:div (conj {})
-      (map-indexed
-       (fn [i file]
-         [:aside (conj {:key i}
-                       {:class "twin"})
-          (if true #_(= file af) (str "stats: " file))]
-         #_[:span (conj {:key i}
-               )
-          [active-stats i file]])
-       files)]
-     ]))
-(defn ui
- []
-  [:div {:class "site" :style {:background-color "lightgray"}}
-  [:div {:class "skip-link screen-reader-text"} "Skip to content"]
-  [:header {:class "masthead"}
-   [:h2 {:class "site-title"} "Standard two-column layout"]]
-   [:main {:id "content" :class"main-content"}
-    "Main content"]
-   [:aside {:class "twin"}
-    "This should take up half the space"]
-   [:aside {:class "twin"}
-    "This should take up half other the space"]
-
-  ])
+    (rf/dispatch [:active-file-change (first files)])
+    [uix files]))
 
 (defn ^:export run
   []
