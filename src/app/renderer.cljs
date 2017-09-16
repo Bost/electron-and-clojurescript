@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [re-frame.core :as rf]
    [clojure.string :as str]
-   [utils.core :refer [in? dbg next-cyclic]]
+   [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
    ))
 
@@ -192,7 +192,7 @@
         file (->> files
                   (filter #(= % af))
                   first)]
-    [:div {:class "box c"}
+    [:div {:class (sjoin [#_"box" "c"])}
      (if file [edit file])]))
 
 (defn active-stats [files]
