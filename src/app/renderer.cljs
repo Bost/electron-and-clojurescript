@@ -46,6 +46,12 @@
 (declare read)
 (declare save)
 
+(defn next-active [editor open-files]
+  (let [active @(rf/subscribe [:active-file])
+        idx (.indexOf open-files active)]
+    (rf/dispatch [:prev-file-change active])
+    (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
+
 (defn keymap [fs file open-files]
   #js
   {
@@ -70,15 +76,19 @@
    ;;   (.log js/console "Can be stolen"))
    :Cmd-Tab (fn [editor]
               (.log js/console "Cmd-Tab / <s-tab>")
-              (.log js/console "TODO alternate file"))
+              (let [prev @(rf/subscribe [:prev-file])
+                    active @(rf/subscribe [:active-file])]
+                (if (= prev active)
+                  (next-active editor open-files)
+                  (do
+                    (rf/dispatch [:prev-file-change active])
+                    (rf/dispatch [:active-file-change prev])))))
    :Cmd-S (fn [editor]
             (.log js/console "Cmd-S / <S-s>")
             (save fs file (.getValue (.-doc editor))))
    :Cmd-Q (fn [editor]
             (.log js/console "Cmd-Q / <S-q>")
-            (let [active-file @(rf/subscribe [:active-file])
-                  idx (.indexOf open-files active-file)]
-              (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
+            (next-active editor open-files))
    })
 
 (defn read [fs file editor open-files]
@@ -235,13 +245,16 @@
         cur-dir (.resolve path ".")
         ide-files {
                    (str cur-dir "/src/app/renderer.cljs") {}
+                   (str cur-dir "/src/app/styles.cljs") {}
                    (str cur-dir "/resources/index.html") {}
                    ;; (str cur-dir "/src/app/main.cljs") {}
                    }
-        files (->> ide-files keys vec)]
+        files (->> ide-files keys vec)
+        active (first files)]
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
-    (rf/dispatch [:active-file-change (first files)])
+    (rf/dispatch [:active-file-change active])
+    (rf/dispatch [:prev-file-change active])
     [uix files]))
 
 (defn ^:export run

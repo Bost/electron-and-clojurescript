@@ -33,6 +33,11 @@
  :active-file (fn [db _] (:active-file db)))
 
 (rf/reg-event-db
+ :prev-file-change (fn [db [_ new]] (assoc db :prev-file new)))
+(rf/reg-sub
+ :prev-file (fn [db _] (:prev-file db)))
+
+(rf/reg-event-db
  :ide-files-change (fn [db [_ new]] (assoc db :ide-files new)))
 (rf/reg-sub
  :ide-files (fn [db _] (:ide-files db)))
