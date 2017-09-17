@@ -8,12 +8,10 @@
    [app.styles :as s]
    ))
 
-(enable-console-print!)
-
 (def default-codemirror-opts {})
 
 (defn init []
-  (println "Starting Application"))
+  (.log js/console "Starting Application"))
 
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
@@ -51,22 +49,22 @@
 (defn keymap [fs file open-files]
   #js
   {
-   ;; :Ctrl-W (fn [editor] (println "Ctrl-W"))
+   ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
    ;; single key: <S>
-   ;; :Mod (fn [editor] (println "Mod"))
+   ;; :Mod (fn [editor] (.log js/console "Mod"))
 
    :Cmd-F (fn [editor]
-            (println "Cmd-F / <S-f>")
+            (.log js/console "Cmd-F / <S-f>")
             ;; assigning file to file causes file-reload
             (rf/dispatch [:active-file-change file])
             (read fs file editor open-files)
             )
    :Cmd-S (fn [editor]
-            (println "Cmd-S / <S-s>")
+            (.log js/console "Cmd-S / <S-s>")
             (save fs file (.getValue (.-doc editor))))
    :Cmd-Q (fn [editor]
-            (println "Cmd-Q / <S-q>")
+            (.log js/console "Cmd-Q / <S-q>")
             (let [active-file @(rf/subscribe [:active-file])
                   idx (.indexOf open-files active-file)]
               (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
@@ -79,9 +77,9 @@
       (.readFile fs file "utf8"
                  (fn [err data]
                    (if err
-                     (println err)
+                     (.log js/console err)
                      (do
-                       (println (count data) "bytes loaded")
+                       (.log js/console (count data) "bytes loaded")
                        (.setValue (.-doc editor) data)
                        (rf/dispatch [:ide-file-content-change [file data]])
                        )))))))
@@ -90,8 +88,8 @@
   (.writeFile fs fname data
               (fn [err _]
                 (if err
-                  (println err)
-                  (println (count data) "bytes saved")))))
+                  (.log js/console err)
+                  (.log js/console (count data) "bytes saved")))))
 
 (defn edit [file]
   (r/create-class
@@ -142,7 +140,7 @@
 
     #_:component-did-update
     #_(fn [this [_ prev-props]]
-        #_(println "did-update this" this)
+        #_(.log js/console "did-update this" this)
         ;; TODO: Handle codemirror-opts changes?
 
         (if-let [new-value (:value (r/props this))]
@@ -154,7 +152,7 @@
     ;; note the keyword for this method
     :reagent-render
     (fn []
-      #_(println "reagent-render")
+      #_(.log js/console "reagent-render")
       [:div])}))
 
 (defn context-menu
@@ -166,14 +164,14 @@
         menu (menu-fn.)
         menu-items [(menu-item-fn.
                      #js {:label "MenuItem1"
-                          :click (fn [] (println "item 1 clicked"))})
+                          :click (fn [] (.log js/console "item 1 clicked"))})
                     (menu-item-fn.
                      #js {:type "separator"})
                     (menu-item-fn.
                      #js {:label "MenuItem2"
                           :type "checkbox"
                           :checked true
-                          :click (fn [] (println "item 2 clicked"))
+                          :click (fn [] (.log js/console "item 2 clicked"))
                           })]
         ]
     (doseq [mi menu-items]
