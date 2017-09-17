@@ -8,13 +8,7 @@
 
 (defn styles [files]
   [:style {:type "text/css"}
-   (let [cols (count files)
-         tabs (map-indexed
-             (fn [idx f]
-               (let [i (inc idx)]
-                 [(keyword (str ".a" i))
-                  {:grid-column (str "col " idx)
-                   :grid-row "row 1"}])) files)]
+   (let [cols (count files)]
      #_(println "tabs" tabs)
      (g/css
       [:body {:font-family "monospace"}]
@@ -37,7 +31,10 @@
         ;; :margin "4px"
         :font-size "100%"}
        ]
-      tabs
+      (map-indexed
+       (fn [i f] [(keyword (str ".a" (inc i)))
+                 {:grid-column (str "col " i)
+                  :grid-row "row 1"}]) files)
       [:.c
        {:grid-column (str "col 1 / span " cols)
         :grid-row "row 2"}]
@@ -45,8 +42,6 @@
        {:grid-column (str "col 1 / span " cols)
         :grid-row "row 3"}]
       [:.e
-       {:grid-column (str"col 1 / span " cols)
+       {:grid-column (str "col 1 / span " cols)
         :grid-row "row 4"}]
-
-
       ))])
