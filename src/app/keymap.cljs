@@ -34,7 +34,7 @@
    :Cmd-Up
    (fn [editor]
      (.log js/console "Cmd-Up / <s-up>")
-     (rf/dispatch [:tabs-pos-change css/up]))
+     (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
    :Cmd-Down
    (fn [editor]
      (.log js/console "Cmd-Down / <s-down>")
@@ -43,11 +43,11 @@
    :Cmd-Left
    (fn [editor]
      (.log js/console "Cmd-Left / <s-left>")
-     (rf/dispatch [:tabs-pos-change css/left]))
+     (rf/dispatch [:tabs-pos-change css/tabs-on-left]))
    :Cmd-Right
    (fn [editor]
      (.log js/console "Cmd-Right / <s-right>")
-     (rf/dispatch [:tabs-pos-change css/right]))
+     (rf/dispatch [:tabs-pos-change css/tabs-on-right]))
    :Cmd-F
    (fn [editor]
      (.log js/console "Cmd-F / <S-f>")

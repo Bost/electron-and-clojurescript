@@ -23,7 +23,7 @@
      :font-size "100%"}
     ]])
 
-(defn up [files]
+(defn tabs-on-top [files]
   [:style {:type "text/css"}
    (->> (common)
         (conj
@@ -67,7 +67,7 @@
             ]))
         (apply g/css))])
 
-(defn left [files]
+(defn tabs-on-left [files]
   [:style {:type "text/css"}
    (->> (common)
         (conj
@@ -90,7 +90,7 @@
             [:.s {:grid-column 2 :grid-row cols}]]))
         (apply g/css))])
 
-(defn right [files]
+(defn tabs-on-right [files]
   [:style {:type "text/css"}
    (->> (common)
         (conj

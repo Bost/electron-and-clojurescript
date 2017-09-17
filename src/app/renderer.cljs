@@ -10,7 +10,7 @@
    [app.fs :as fs]
    ))
 
-(def default-css-fn css/left)
+(def default-css-fn css/tabs-on-left)
 
 (defn init []
   (.log js/console "Starting Application"))
@@ -200,7 +200,7 @@
                    }
         files (->> ide-files keys vec)
         active (first files)]
-    (rf/dispatch [:tabs-pos-change css/left])
+    (rf/dispatch [:tabs-pos-change default-css-fn])
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])
