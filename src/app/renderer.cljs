@@ -6,9 +6,9 @@
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
    [app.styles :as css]
+   [app.keymap :as k]
+   [app.fs :as fs]
    ))
-
-(def default-codemirror-opts {})
 
 (defn init []
   (.log js/console "Starting Application"))
@@ -43,75 +43,6 @@
             :on-change #(rf/dispatch
                          [:time-color-change (-> % .-target .-value)])}]])
 
-(declare read)
-(declare save)
-
-(defn next-active [editor open-files]
-  (let [active @(rf/subscribe [:active-file])
-        idx (.indexOf open-files active)]
-    (rf/dispatch [:prev-file-change active])
-    (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
-
-(defn keymap [fs file open-files]
-  #js
-  {
-   ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
-
-   ;; single key: <S>
-   ;; :Mod (fn [editor] (.log js/console "Mod"))
-
-   :Cmd-F (fn [editor]
-            (.log js/console "Cmd-F / <S-f>")
-            ;; assigning file to file causes file-reload
-            (rf/dispatch [:active-file-change file])
-            (read fs file editor open-files)
-            )
-   ;; :Ctrl-R
-   ;; (fn [editor]
-   ;;   (.log js/console "Ctrl-R / <C-r>")
-   ;;   (.log js/console "Can be stolen"))
-   ;; :Shift-Ctrl-I
-   ;; (fn [editor]
-   ;;   (.log js/console "Shif-Ctrl-I / <C-S-i>")
-   ;;   (.log js/console "Can be stolen"))
-   :Cmd-Tab (fn [editor]
-              (.log js/console "Cmd-Tab / <s-tab>")
-              (let [prev @(rf/subscribe [:prev-file])
-                    active @(rf/subscribe [:active-file])]
-                (if (= prev active)
-                  (next-active editor open-files)
-                  (do
-                    (rf/dispatch [:prev-file-change active])
-                    (rf/dispatch [:active-file-change prev])))))
-   :Cmd-S (fn [editor]
-            (.log js/console "Cmd-S / <S-s>")
-            (save fs file (.getValue (.-doc editor))))
-   :Cmd-Q (fn [editor]
-            (.log js/console "Cmd-Q / <S-q>")
-            (next-active editor open-files))
-   })
-
-(defn read [fs file editor open-files]
-  (let [content @(rf/subscribe [:ide-file-content file])]
-    (if content
-      (.setValue (.-doc editor) content)
-      (.readFile fs file "utf8"
-                 (fn [err data]
-                   (if err
-                     (.log js/console err)
-                     (do
-                       (.log js/console (count data) "bytes loaded")
-                       (.setValue (.-doc editor) data)
-                       (rf/dispatch [:ide-file-content-change [file data]])
-                       )))))))
-
-(defn save [fs fname data]
-  (.writeFile fs fname data
-              (fn [err _]
-                (if err
-                  (.log js/console err)
-                  (.log js/console (count data) "bytes saved")))))
-
 (defn edit [file]
   (r/create-class
    {:component-did-mount
@@ -134,7 +65,7 @@
             open-files @(rf/subscribe [:open-files])
             ]
         (let [fs (js/require "fs")]
-          (read fs file editor open-files)
+          (fs/read fs file editor open-files)
           (let [
                 height
                 (->> js/document .-documentElement .-clientHeight)
@@ -150,7 +81,7 @@
             (.setSize editor nil (- height 90)))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
-          (.setOption editor "extraKeys" (keymap fs file open-files)))))
+          (.setOption editor "extraKeys" (k/keymap fs file open-files)))))
 
     ;; ... other methods go here
     ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
