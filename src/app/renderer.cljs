@@ -60,6 +60,17 @@
             (rf/dispatch [:active-file-change file])
             (read fs file editor open-files)
             )
+   ;; :Ctrl-R
+   ;; (fn [editor]
+   ;;   (.log js/console "Ctrl-R / <C-r>")
+   ;;   (.log js/console "Can be stolen"))
+   ;; :Shift-Ctrl-I
+   ;; (fn [editor]
+   ;;   (.log js/console "Shif-Ctrl-I / <C-S-i>")
+   ;;   (.log js/console "Can be stolen"))
+   :Cmd-Tab (fn [editor]
+              (.log js/console "Cmd-Tab / <s-tab>")
+              (.log js/console "TODO alternate file"))
    :Cmd-S (fn [editor]
             (.log js/console "Cmd-S / <S-s>")
             (save fs file (.getValue (.-doc editor))))
