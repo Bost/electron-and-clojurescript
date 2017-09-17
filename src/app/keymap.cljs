@@ -5,6 +5,7 @@
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
    [app.fs :as fs]
+   [app.styles :as css]
    ))
 
 (defn next-active [editor open-files]
@@ -30,6 +31,22 @@
    ;; single key: <S>
    ;; :Mod (fn [editor] (.log js/console "Mod"))
 
+   :Cmd-Up
+   (fn [editor]
+     (.log js/console "Cmd-Up / <s-up>")
+     (rf/dispatch [:tabs-pos-change css/up]))
+   :Cmd-Down
+   (fn [editor]
+     (.log js/console "Cmd-Down / <s-down>")
+     (rf/dispatch [:tabs-pos-change css/down]))
+   :Cmd-Left
+   (fn [editor]
+     (.log js/console "Cmd-Left / <s-left>")
+     (rf/dispatch [:tabs-pos-change css/left]))
+   :Cmd-Right
+   (fn [editor]
+     (.log js/console "Cmd-Right / <s-right>")
+     (rf/dispatch [:tabs-pos-change css/right]))
    :Cmd-F
    (fn [editor]
      (.log js/console "Cmd-F / <S-f>")

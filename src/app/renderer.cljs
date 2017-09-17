@@ -10,6 +10,8 @@
    [app.fs :as fs]
    ))
 
+(def default-css-fn css/left)
+
 (defn init []
   (.log js/console "Starting Application"))
 
@@ -140,7 +142,7 @@
 (defn active-stats [files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:class "box e"}
+    [:div {:class "box s"}
      (map-indexed
       (fn [i file]
         (if (= file active) (sjoin [ file "orig-size" (count orig-size)])))
@@ -153,7 +155,8 @@
 
 (defn uix [files]
   [:div {:class "wrapper"}
-   [css/styles files]
+   (let [css-fn @(rf/subscribe [:tabs-pos])]
+     [(if css-fn css-fn default-css-fn) files])
    [context-menu]
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
@@ -176,7 +179,7 @@
          cnt-files (count files)
          editor (map-indexed
                (fn [i file]
-                 [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "c"])}
+                 [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "e"])}
                   (if (= active file) [edit file])]) files)]
      (into editor tabs))
    #_[:div {:class "box d"} "D"]
@@ -190,10 +193,11 @@
                    (str cur-dir "/src/app/renderer.cljs") {}
                    (str cur-dir "/src/app/styles.cljs") {}
                    (str cur-dir "/resources/index.html") {}
-                   ;; (str cur-dir "/src/app/main.cljs") {}
+                   (str cur-dir "/src/app/main.cljs") {}
                    }
         files (->> ide-files keys vec)
         active (first files)]
+    (rf/dispatch [:tabs-pos-change css/left])
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])

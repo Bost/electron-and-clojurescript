@@ -28,6 +28,11 @@
 ;;  :keymap (fn [db _] (:keymap db)))
 
 (rf/reg-event-db
+ :tabs-pos-change (fn [db [_ new]] (assoc db :tabs-pos new)))
+(rf/reg-sub
+ :tabs-pos (fn [db _] (:tabs-pos db)))
+
+(rf/reg-event-db
  :active-file-change (fn [db [_ new]] (assoc db :active-file new)))
 (rf/reg-sub
  :active-file (fn [db _] (:active-file db)))
