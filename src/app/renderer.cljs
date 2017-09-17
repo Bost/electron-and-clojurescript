@@ -157,33 +157,36 @@
   [:div {:class "wrapper"}
    (let [css-fn @(rf/subscribe [:tabs-pos])]
      [(if css-fn css-fn default-css-fn) files])
-   [context-menu]
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
    (let [active @(rf/subscribe [:active-file])
          prev @(rf/subscribe [:prev-file])
          path (js/require "path")
-         tabs (map-indexed
-                (fn [i file]
-                  [:div {:key i
-                         :class (str "box a" (inc i))
-                         :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+         tabs
+         (let [css-fn @(rf/subscribe [:tabs-pos])] ;; TODO this repeats itself
+           (if (= css-fn css/no-tabs)
+             []
+             (map-indexed
+              (fn [i file]
+                [:div {:key i
+                       :class (str "box a" (inc i))
+                       :on-click (fn [] (rf/dispatch [:active-file-change file]))}
 
-                   (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
-                                   (remove nil?)
-                                   s/join)]
-                     (sjoin [(if-not (empty? attr)
-                               (str "*" attr "*"))
-                             (.basename path file)]))])
-                files)
+                 (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                                 (remove nil?)
+                                 s/join)]
+                   (sjoin [(if-not (empty? attr)
+                             (str "*" attr "*"))
+                           (.basename path file)]))])
+              files)))
          cnt-files (count files)
          editor (map-indexed
-               (fn [i file]
-                 [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "e"])}
-                  (if (= active file) [edit file])]) files)]
+                 (fn [i file]
+                   [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "e"])}
+                    (if (= active file) [edit file])]) files)]
      (into editor tabs))
-   #_[:div {:class "box d"} "D"]
    [active-stats files]
+   [context-menu]
    ])
 
 (defn ui []

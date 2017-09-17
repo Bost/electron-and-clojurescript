@@ -45,7 +45,27 @@
             ]))
         (apply g/css))])
 
-;; (def down up) down is not needed
+(defn no-tabs [files]
+  [:style {:type "text/css"}
+   (->> (common)
+        (conj
+         (let [cols (count files)]
+           [
+            [:.wrapper
+             {:display "grid"
+              ;; :grid-gap "10px"
+              :grid-template-columns 1
+              :grid-template-rows 2
+              :background-color "#fff"
+              :color "#444"}]
+            (map-indexed
+             (fn [i f] [(keyword (str ".a" (inc i)))
+                        {:grid-column (str "col " i)
+                         :grid-row "row 1"}]) files)
+            [:.e {:grid-column 1 :grid-row 1}]
+            [:.s {:grid-column 1 :grid-row 2}]
+            ]))
+        (apply g/css))])
 
 (defn left [files]
   [:style {:type "text/css"}

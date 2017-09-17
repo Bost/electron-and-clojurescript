@@ -38,7 +38,7 @@
    :Cmd-Down
    (fn [editor]
      (.log js/console "Cmd-Down / <s-down>")
-     ;; layout with tabs down (bottom) is not needed
+     (rf/dispatch [:tabs-pos-change css/no-tabs])
      )
    :Cmd-Left
    (fn [editor]
