@@ -2,10 +2,10 @@
   (:require
    [reagent.core :as r]
    [re-frame.core :as rf]
-   [clojure.string :as str]
+   [clojure.string :as s]
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
-   [app.styles :as s]
+   [app.styles :as css]
    ))
 
 (def default-codemirror-opts {})
@@ -31,7 +31,7 @@
    {:style {:color @(rf/subscribe [:time-color])}}
    (-> @(rf/subscribe [:time])
        .toTimeString
-       (str/split " ")
+       (s/split " ")
        first)])
 
 (defn color-input
@@ -215,21 +215,33 @@
         (if (= file active) (sjoin [ file "orig-size" (count orig-size)])))
       files)]))
 
+(defn prev? [file]
+  (= file @(rf/subscribe [:prev-file])))
+(defn active? [file]
+  (= file @(rf/subscribe [:active-file])))
+
 (defn uix [files]
   [:div {:class "wrapper"}
-   [s/styles files]
+   [css/styles files]
    [context-menu]
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
    (let [active @(rf/subscribe [:active-file])
+         prev @(rf/subscribe [:prev-file])
          path (js/require "path")
          tabs (map-indexed
                 (fn [i file]
                   [:div {:key i
                          :class (str "box a" (inc i))
                          :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-                   (str (if (= file active) "*" "")
-                        (.basename path file))]) files)
+
+                   (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                                   (remove nil?)
+                                   s/join)]
+                     (sjoin [(if-not (empty? attr)
+                               (str "*" attr "*"))
+                             (.basename path file)]))])
+                files)
          cnt-files (count files)
          editor (map-indexed
                (fn [i file]
