@@ -7,8 +7,6 @@
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    ))
 
-(def col-width "170px")
-
 (def tabs "a")
 (def editor "e")
 (def stats "s")
@@ -22,25 +20,6 @@
 (def codemirror-theme (str "cm-s-" theme))
 (def codemirror-theme-mode (str "cm-s-" theme-mode))
 
-(defn common []
-  [[:body {:font-family "monospace"}]
-   [(class box)
-    {
-     ;; :border-radius "4px"
-     :padding "4px"
-     ;; :margin "4px"
-     :font-size "100%"}
-    #_{
-     ;; .cm-s-solarized.CodeMirror ;; TODO use 'less'
-     :background-color "#002b36"
-     ;; :background-color "#444"
-     :color "#fff"
-     ;; :border-radius "4px"
-     :padding "4px"
-     ;; :margin "4px"
-     :font-size "100%"}
-    ]])
-
 (defn window-height []
   (let [
         ;; (->> (js/require "electron")
@@ -52,6 +31,18 @@
         ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
         ]
     (- (->> js/document .-documentElement .-clientHeight) 95)))
+
+(defn window-width []
+  (- (->> js/document .-documentElement .-clientWidth) 0))
+;; TODO use (window-width) for col-width calculation
+(def col-width "170px")
+
+(defn common []
+  [[:body {:font-family "monospace" :margin 0}]
+   [(class box)
+    (conj
+     #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})
+    ]])
 
 (defn tabs-on-left [files]
   [:style {:type "text/css"}
@@ -102,9 +93,12 @@
              (fn [i _] [(class (str tabs (inc i)))
                        {:grid-column (str "col " i)
                         :grid-row "row 1"}]) files)
-            [(class editor) {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
-            [(class stats) {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 3"}]
-            [(class cmd-line) {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 4"}]
+            [(class editor)
+             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
+            [(class stats)
+             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 3"}]
+            [(class cmd-line)
+             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 4"}]
             ]))
         (apply g/css))])
 
