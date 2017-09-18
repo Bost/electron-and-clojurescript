@@ -85,8 +85,9 @@
              ]
             (map-indexed
              (fn [i _]
-               [(class (str tabs (inc i)))
-                {:grid-column (str "col " (inc i)) :grid-row "row 1"}]) files)
+               (let [idx (inc i)]
+                 [(class (str tabs idx))
+                  {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
             [(class editor)
              {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
             [(class stats)
@@ -110,8 +111,9 @@
                })]
             (map-indexed
              (fn [i _]
-               [(class (str tabs (inc i)))
-                {:grid-column (str "col " (inc i)) :grid-row "row 1"}]) files)
+               (let [idx (inc i)]
+                 [(class (str tabs idx))
+                  {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
             [(class editor) {:grid-column 1 :grid-row 1}]
             [(class stats) {:grid-column 1 :grid-row 2}]
             ]))
