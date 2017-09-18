@@ -35,7 +35,8 @@
 (defn window-width []
   (- (->> js/document .-documentElement .-clientWidth) 0))
 ;; TODO use (window-width) for col-width calculation
-(def col-width "170px")
+(def col-width 170)
+(def col-width-px (str col-width "px"))
 
 (defn common []
   [[:body {:font-family "monospace" :margin 0}]
@@ -55,7 +56,7 @@
            [
             [:.wrapper
              {:display "grid"
-              :grid-template-columns (sjoin [col-width "auto"])
+              :grid-template-columns (sjoin [col-width-px "auto"])
               }]
             (map-indexed
              (fn [i _]
@@ -63,11 +64,11 @@
                  [(class (str tabs idx))
                   {:grid-column 1 :grid-row idx}])) files)
             [(class editor)
-             {:grid-column 2 :grid-row 1}]
+             {:grid-column 2 :grid-row (str "1 / span " (- cnt-files 2))}]
             [(class stats)
-             {:grid-column 2 :grid-row 2}]
+             {:grid-column 2 :grid-row (- cnt-files 1)}]
             [(class cmd-line)
-             {:grid-column 2 :grid-row 3}]
+             {:grid-column 2 :grid-row (- cnt-files 0)}]
             ]))
         (apply g/css))])
 
@@ -129,7 +130,7 @@
            [
             [:.wrapper
              {:display "grid"
-              :grid-template-columns (sjoin ["auto" col-width])
+              :grid-template-columns (sjoin ["auto" col-width-px])
               ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
               }
              ]
@@ -138,10 +139,10 @@
                [(class (str tabs (inc i)))
                 {:grid-column 2 :grid-row (inc i)}]) files)
             [(class editor)
-             {:grid-column 1 :grid-row 1}]
+             {:grid-column 1 :grid-row (str "1 / span " (- cnt-files 2))}]
             [(class stats)
-             {:grid-column 1 :grid-row 2}]
+             {:grid-column 1 :grid-row (- cnt-files 1)}]
             [(class cmd-line)
-             {:grid-column 1 :grid-row 3}]
+             {:grid-column 1 :grid-row (- cnt-files 0)}]
             ]))
         (apply g/css))])
