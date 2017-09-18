@@ -114,8 +114,10 @@
                (let [idx (inc i)]
                  [(class (str tabs idx))
                   {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
-            [(class editor) {:grid-column 1 :grid-row 1}]
-            [(class stats) {:grid-column 1 :grid-row 2}]
+            [(class editor)
+             {:grid-column 1 :grid-row 1}]
+            [(class stats)
+             {:grid-column 1 :grid-row 2}]
             ]))
         (apply g/css))])
 
