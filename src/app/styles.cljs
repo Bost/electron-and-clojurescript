@@ -55,26 +55,19 @@
            [
             [:.wrapper
              {:display "grid"
-              ;; :grid-gap "10px"
-              :grid-template-columns
-              (sjoin [col-width "auto"])
-              ;; :grid-template-rows 3
-              }
-             #_{:display "grid"
-              ;; :grid-gap "10px"
-              :grid-template-columns (str "repeat(" cols ", [col] auto)")
-              :grid-template-rows 3
-              :background-color "#fff"
-              :color "#444"}]
+              :grid-template-columns (sjoin [col-width "auto"])
+              }]
             (map-indexed
              (fn [i _]
                (let [idx (inc i)]
                  [(class (str tabs idx))
-                  {:grid-column 1
-                   :grid-row idx}])) files)
-            [(class editor) {:grid-column 2 :grid-row 1}]
-            [(class stats) {:grid-column 2 :grid-row 2}]
-            [(class cmd-line) {:grid-column 2 :grid-row 3}]
+                  {:grid-column 1 :grid-row idx}])) files)
+            [(class editor)
+             {:grid-column 2 :grid-row 1}]
+            [(class stats)
+             {:grid-column 2 :grid-row 2}]
+            [(class cmd-line)
+             {:grid-column 2 :grid-row 3}]
             ]))
         (apply g/css))])
 
@@ -87,14 +80,13 @@
             [:.wrapper
              (conj
               {:display "grid"
-               ;; :grid-gap "10px"
                :grid-template-columns (str "repeat(" cnt-files ", [col] auto)")
                :grid-template-rows 3})
              ]
             (map-indexed
-             (fn [i _] [(class (str tabs (inc i)))
-                       {:grid-column (str "col " i)
-                        :grid-row "row 1"}]) files)
+             (fn [i _]
+               [(class (str tabs (inc i)))
+                {:grid-column (str "col " (inc i)) :grid-row "row 1"}]) files)
             [(class editor)
              {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
             [(class stats)
@@ -113,14 +105,13 @@
             [:.wrapper
              (conj
               {:display "grid"
-               ;; :grid-gap "10px"
                :grid-template-columns 1
                :grid-template-rows 2
                })]
             (map-indexed
-             (fn [i _] [(class (str tabs (inc i)))
-                        {:grid-column (str "col " i)
-                         :grid-row "row 1"}]) files)
+             (fn [i _]
+               [(class (str tabs (inc i)))
+                {:grid-column (str "col " (inc i)) :grid-row "row 1"}]) files)
             [(class editor) {:grid-column 1 :grid-row 1}]
             [(class stats) {:grid-column 1 :grid-row 2}]
             ]))
@@ -134,26 +125,19 @@
            [
             [:.wrapper
              {:display "grid"
-              ;; :grid-gap "10px"
-              :grid-template-columns
-              #_(str "repeat(" cols ", [col] auto)")
-              (sjoin ["auto" col-width])
+              :grid-template-columns (sjoin ["auto" col-width])
               ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
               }
-             #_{:display "grid"
-              ;; :grid-gap "10px"
-              :grid-template-columns
-              #_(str "repeat(" cols ", [col] auto)")
-              (sjoin ["auto" col-width])
-              ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
-              :background-color "#fff"
-              :color "#444"}]
+             ]
             (map-indexed
-             (fn [i _] [(class (str tabs (inc i)))
-                       {:grid-column 2
-                        :grid-row (inc i)}]) files)
-            [(class editor) {:grid-column 1 :grid-row 1}]
-            [(class stats) {:grid-column 1 :grid-row 2}]
-            [(class cmd-line) {:grid-column 1 :grid-row 3}]
+             (fn [i _]
+               [(class (str tabs (inc i)))
+                {:grid-column 2 :grid-row (inc i)}]) files)
+            [(class editor)
+             {:grid-column 1 :grid-row 1}]
+            [(class stats)
+             {:grid-column 1 :grid-row 2}]
+            [(class cmd-line)
+             {:grid-column 1 :grid-row 3}]
             ]))
         (apply g/css))])
