@@ -10,7 +10,9 @@
    [app.fs :as fs]
    ))
 
-(def default-css-fn css/tabs-on-left)
+(def default-css-fn
+  #_css/tabs-on-left
+  css/left-right)
 
 (defn init []
   (.log js/console "Starting Application"))
@@ -131,7 +133,8 @@
 (defn active-stats [files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:class (sjoin [css/box css/stats css/codemirror-theme css/codemirror-theme-mode])}
+    [:div {:key 1 :class (sjoin [css/box css/stats
+                                 css/codemirror-theme css/codemirror-theme-mode])}
      (map-indexed
       (fn [i file]
         (if (= file active) (sjoin [file "orig-size" (count orig-size) "bytes"])))
@@ -143,44 +146,47 @@
   (= file @(rf/subscribe [:active-file])))
 
 (defn uix [files]
-  [:div {:class "wrapper"}
+  [:div {:class "lr-wrapper"}
    (let [css-fn @(rf/subscribe [:tabs-pos])]
      [(if css-fn css-fn default-css-fn) files])
    ;; Can't use (defn active-file [...] ...) because of the react warning:
    ;; Each child in an array or iterator should have a unique "key" prop
-   (let [active @(rf/subscribe [:active-file])
-         prev @(rf/subscribe [:prev-file])
-         path (js/require "path")
-         tabs
-         (let [css-fn @(rf/subscribe [:tabs-pos])] ;; TODO this repeats itself
-           (if (= css-fn css/no-tabs)
-             []
-             (map-indexed
-              (fn [i file]
-                [:div {:key i
-                       :class (sjoin [css/box
-                                      (str css/tabs (inc i))
-                                      css/codemirror-theme
-                                      css/codemirror-theme-mode])
-                       :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-
-                 (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
-                                 (remove nil?)
-                                 s/join)]
-                   (sjoin [(if-not (empty? attr)
-                             (str "*" attr "*"))
-                           (.basename path file)]))])
-              files)))
-         cnt-files (count files)
-         editor (map-indexed
-                 (fn [i file]
-                   [:div {:key (+ cnt-files i) :class (sjoin [#_css/box css/editor])}
-                    (if (= active file) [edit file])]) files)]
-     (into editor tabs))
-   [active-stats files]
-   [:div {:class (sjoin [css/box css/cmd-line css/codemirror-theme css/codemirror-theme-mode])} "cmd"]
-   [context-menu]
-   ])
+   [:div {:class "l-wrapper"}
+    (doall
+     (let [css-fn @(rf/subscribe [:tabs-pos]) ;; TODO this repeats itself
+           prev @(rf/subscribe [:prev-file])
+           path (js/require "path")]
+       (if (= css-fn css/no-tabs)
+         []
+         (map-indexed
+          (fn [i file]
+            [:div {:key i
+                   :class (sjoin [css/box
+                                  (str css/tabs (inc i))
+                                  css/codemirror-theme
+                                  css/codemirror-theme-mode])
+                   :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+             (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                             (remove nil?)
+                             s/join)]
+               (sjoin [(if-not (empty? attr) (str "*" attr "*"))
+                       (.basename path file)]))])
+          files))))]
+   [:div {:class "r-wrapper"}
+    (let [active @(rf/subscribe [:active-file])
+          cnt-files (count files)]
+      (map-indexed
+       (fn [i file]
+         (if (= active file)
+           [:div {:key 1 :class (sjoin [#_css/box css/editor])}
+            [edit file]]))
+       files))
+    [active-stats files]
+    [:div {:key 2
+           :class (sjoin [css/box css/cmd-line
+                          css/codemirror-theme css/codemirror-theme-mode])}
+     "cmd-line, messages"]]
+   [context-menu]])
 
 (defn ui []
   (let [path (js/require "path")
@@ -194,7 +200,7 @@
                    }
         files (->> ide-files keys vec)
         active (first files)]
-    (rf/dispatch [:tabs-pos-change default-css-fn])
+    (rf/dispatch [:tabs-pos-change (partial default-css-fn true)])
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])

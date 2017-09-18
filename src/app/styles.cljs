@@ -48,6 +48,56 @@
 (defn row-height [cnt-files]
   (/ (window-height) cnt-files))
 
+(def left "left")
+(def right "right")
+
+(defn left-right [tabs-left files]
+  [:style {:type "text/css"}
+   (->> (common)
+        (conj
+         (let [cnt-files (count files)]
+           [
+            [:.lr-wrapper
+             {:display "grid"
+              :grid-template-columns (sjoin (if tabs-left
+                                              [col-width-px "auto"]
+                                              ["auto" col-width-px]))
+              :grid-template-rows 1
+              }]
+            [(class left)
+             {:grid-column 1 :grid-row 1}]
+            [(class right)
+             {:grid-column 2 :grid-row 1}]
+
+            [(if tabs-left :.l-wrapper :.r-wrapper)
+             {:grid-column 1 :grid-row 1
+              :display "grid"
+              :grid-template-columns 1
+              :grid-template-rows (str "repeat(" cnt-files ", [row] auto)")
+              }]
+            (map-indexed
+             (fn [i _]
+               (let [idx (inc i)]
+                 [(class (str tabs idx))
+                  {:grid-column 1 :grid-row idx}])) files)
+
+            [(if tabs-left :.r-wrapper :.l-wrapper)
+             {:grid-column 2 :grid-row 1
+              :display "grid"
+              :grid-template-columns 1
+              :grid-template-rows (str "repeat(" 3 ", [row] auto)")
+              }]
+            [(class editor)
+             {:grid-column 1 :grid-row 1}]
+            [(class stats)
+             {:grid-column 1 :grid-row 2}]
+            [(class cmd-line)
+             {:grid-column 1 :grid-row 3}]
+
+            ]))
+        (apply g/css))
+   ])
+
 (defn tabs-on-left [files]
   [:style {:type "text/css"}
    (->> (common)
