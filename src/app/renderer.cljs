@@ -68,19 +68,7 @@
             ]
         (let [fs (js/require "fs")]
           (fs/read fs file editor open-files)
-          (let [
-                height
-                (->> js/document .-documentElement .-clientHeight)
-                #_(->> (js/require "electron")
-                       .-screen
-                       .getPrimaryDisplay
-                       .-workAreaSize .-height)
-                ;; opts (js/require "electron-browser-window-options")
-                ;; bw (->> electron .-remote)
-                ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
-                ]
-            #_(js/console.log "height" height)
-            (.setSize editor nil (- height 90)))
+          (.setSize editor nil (css/window-height))
           (.focus editor)
           ;; editor.setCursor({line: 1, ch: 5})
           (.setOption editor "extraKeys" (k/keymap fs file open-files)))))
@@ -108,6 +96,7 @@
     (fn []
       #_(.log js/console "reagent-render")
       [:div])}))
+
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
@@ -169,8 +158,10 @@
              (map-indexed
               (fn [i file]
                 [:div {:key i
-                       :class (sjoin [css/box (str css/tabs (inc i))
-                                      css/codemirror-theme css/codemirror-theme-mode])
+                       :class (sjoin [css/box
+                                      (str css/tabs (inc i))
+                                      css/codemirror-theme
+                                      css/codemirror-theme-mode])
                        :on-click (fn [] (rf/dispatch [:active-file-change file]))}
 
                  (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
