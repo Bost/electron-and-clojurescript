@@ -53,7 +53,7 @@
       (let [editor
             (js/CodeMirror
              (r/dom-node this)
-             (->> {:theme "solarized dark" #_"xq-light"
+             (->> {:theme (sjoin [css/theme css/theme-mode #_"xq-light"])
                    :lineNumbers true
                    :vimMode true
                    ;; see https://github.com/Bost/paredit-cm.git
@@ -142,7 +142,7 @@
 (defn active-stats [files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:class (sjoin [css/box css/stats])}
+    [:div {:class (sjoin [css/box css/stats css/codemirror-theme css/codemirror-theme-mode])}
      (map-indexed
       (fn [i file]
         (if (= file active) (sjoin [file "orig-size" (count orig-size) "bytes"])))
@@ -169,7 +169,8 @@
              (map-indexed
               (fn [i file]
                 [:div {:key i
-                       :class (sjoin [css/box (str css/tabs (inc i))])
+                       :class (sjoin [css/box (str css/tabs (inc i))
+                                      css/codemirror-theme css/codemirror-theme-mode])
                        :on-click (fn [] (rf/dispatch [:active-file-change file]))}
 
                  (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
@@ -186,7 +187,7 @@
                     (if (= active file) [edit file])]) files)]
      (into editor tabs))
    [active-stats files]
-   [:div {:class (sjoin [css/box css/cmd-line])} "cmd"]
+   [:div {:class (sjoin [css/box css/cmd-line css/codemirror-theme css/codemirror-theme-mode])} "cmd"]
    [context-menu]
    ])
 

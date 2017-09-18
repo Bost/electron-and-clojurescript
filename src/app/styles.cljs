@@ -17,10 +17,20 @@
 (defn class-str [name] (str "." name))
 (defn class [name] (keyword (class-str name)))
 
+(def theme "solarized")
+(def theme-mode "light" #_"dark")
+(def codemirror-theme (str "cm-s-" theme))
+(def codemirror-theme-mode (str "cm-s-" theme-mode))
+
 (defn common []
   [[:body {:font-family "monospace"}]
    [(class box)
     {
+     ;; :border-radius "4px"
+     :padding "4px"
+     ;; :margin "4px"
+     :font-size "100%"}
+    #_{
      ;; .cm-s-solarized.CodeMirror ;; TODO use 'less'
      :background-color "#002b36"
      ;; :background-color "#444"
@@ -39,6 +49,10 @@
            [
             [:.wrapper
              {:display "grid"
+              ;; :grid-gap "10px"
+              :grid-template-columns (str "repeat(" cols ", [col] auto)")
+              :grid-template-rows 3}
+             #_{:display "grid"
               ;; :grid-gap "10px"
               :grid-template-columns (str "repeat(" cols ", [col] auto)")
               :grid-template-rows 3
@@ -62,6 +76,11 @@
            [
             [:.wrapper
              {:display "grid"
+              ;; :grid-gap "10px"
+              :grid-template-columns 1
+              :grid-template-rows 2
+              }
+             #_{:display "grid"
               ;; :grid-gap "10px"
               :grid-template-columns 1
               :grid-template-rows 2
@@ -89,6 +108,13 @@
               #_(str "repeat(" cols ", [col] auto)")
               (sjoin [col-width "auto"])
               ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
+              }
+             #_{:display "grid"
+              ;; :grid-gap "10px"
+              :grid-template-columns
+              #_(str "repeat(" cols ", [col] auto)")
+              (sjoin [col-width "auto"])
+              ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
               :background-color "#fff"
               :color "#444"}]
             (map-indexed
@@ -109,6 +135,13 @@
            [
             [:.wrapper
              {:display "grid"
+              ;; :grid-gap "10px"
+              :grid-template-columns
+              #_(str "repeat(" cols ", [col] auto)")
+              (sjoin ["auto" col-width])
+              ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
+              }
+             #_{:display "grid"
               ;; :grid-gap "10px"
               :grid-template-columns
               #_(str "repeat(" cols ", [col] auto)")
