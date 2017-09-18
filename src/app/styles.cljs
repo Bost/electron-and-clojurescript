@@ -9,9 +9,17 @@
 
 (def col-width "170px")
 
+(def tabs "a")
+(def editor "e")
+(def stats "s")
+(def cmd-line "c")
+(def box "box")
+(defn class-str [name] (str "." name))
+(defn class [name] (keyword (class-str name)))
+
 (defn common []
   [[:body {:font-family "monospace"}]
-   [:.box
+   [(class box)
     {
      ;; .cm-s-solarized.CodeMirror ;; TODO use 'less'
      :background-color "#002b36"
@@ -33,15 +41,16 @@
              {:display "grid"
               ;; :grid-gap "10px"
               :grid-template-columns (str "repeat(" cols ", [col] auto)")
-              :grid-template-rows (str "repeat(" cols ", [row] auto)")
+              :grid-template-rows 3
               :background-color "#fff"
               :color "#444"}]
             (map-indexed
-             (fn [i f] [(keyword (str ".a" (inc i)))
+             (fn [i f] [(class (str tabs (inc i)))
                        {:grid-column (str "col " i)
                         :grid-row "row 1"}]) files)
-            [:.e {:grid-column (str "col 1 / span " cols) :grid-row "row 2"}]
-            [:.s {:grid-column (str "col 1 / span " cols) :grid-row "row 4"}]
+            [(class editor) {:grid-column (str "col 1 / span " cols) :grid-row "row 2"}]
+            [(class stats) {:grid-column (str "col 1 / span " cols) :grid-row "row 3"}]
+            [(class cmd-line) {:grid-column (str "col 1 / span " cols) :grid-row "row 4"}]
             ]))
         (apply g/css))])
 
@@ -59,11 +68,11 @@
               :background-color "#fff"
               :color "#444"}]
             (map-indexed
-             (fn [i f] [(keyword (str ".a" (inc i)))
+             (fn [i f] [(class (str tabs (inc i)))
                         {:grid-column (str "col " i)
                          :grid-row "row 1"}]) files)
-            [:.e {:grid-column 1 :grid-row 1}]
-            [:.s {:grid-column 1 :grid-row 2}]
+            [(class editor) {:grid-column 1 :grid-row 1}]
+            [(class stats) {:grid-column 1 :grid-row 2}]
             ]))
         (apply g/css))])
 
@@ -83,11 +92,13 @@
               :background-color "#fff"
               :color "#444"}]
             (map-indexed
-             (fn [i f] [(keyword (str ".a" (inc i)))
+             (fn [i f] [(class (str tabs (inc i)))
                        {:grid-column 1
                         :grid-row (inc i)}]) files)
-            [:.e {:grid-column 2 :grid-row (str "1 / " cols)}]
-            [:.s {:grid-column 2 :grid-row cols}]]))
+            [(class editor) {:grid-column 2 :grid-row 1}]
+            [(class stats) {:grid-column 2 :grid-row 2}]
+            [(class cmd-line) {:grid-column 2 :grid-row 3}]
+            ]))
         (apply g/css))])
 
 (defn tabs-on-right [files]
@@ -106,10 +117,11 @@
               :background-color "#fff"
               :color "#444"}]
             (map-indexed
-             (fn [i f] [(keyword (str ".a" (inc i)))
+             (fn [i f] [(class (str tabs (inc i)))
                        {:grid-column 2
                         :grid-row (inc i)}]) files)
-            [:.e {:grid-column 1 :grid-row (str "1 / " cols)}]
-            [:.s {:grid-column 1 :grid-row cols}]
+            [(class editor) {:grid-column 1 :grid-row 1}]
+            [(class stats) {:grid-column 1 :grid-row 2}]
+            [(class cmd-line) {:grid-column 1 :grid-row 3}]
             ]))
         (apply g/css))])

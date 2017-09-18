@@ -142,10 +142,10 @@
 (defn active-stats [files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:class "box s"}
+    [:div {:class (sjoin [css/box css/stats])}
      (map-indexed
       (fn [i file]
-        (if (= file active) (sjoin [ file "orig-size" (count orig-size)])))
+        (if (= file active) (sjoin [file "orig-size" (count orig-size) "bytes"])))
       files)]))
 
 (defn prev? [file]
@@ -169,7 +169,7 @@
              (map-indexed
               (fn [i file]
                 [:div {:key i
-                       :class (str "box a" (inc i))
+                       :class (sjoin [css/box (str css/tabs (inc i))])
                        :on-click (fn [] (rf/dispatch [:active-file-change file]))}
 
                  (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
@@ -182,10 +182,11 @@
          cnt-files (count files)
          editor (map-indexed
                  (fn [i file]
-                   [:div {:key (+ cnt-files i) :class (sjoin [#_"box" "e"])}
+                   [:div {:key (+ cnt-files i) :class (sjoin [#_css/box css/editor])}
                     (if (= active file) [edit file])]) files)]
      (into editor tabs))
    [active-stats files]
+   [:div {:class (sjoin [css/box css/cmd-line])} "cmd"]
    [context-menu]
    ])
 
