@@ -44,12 +44,14 @@
      #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})
     ]])
 
+(defn row-height [cnt-files]
+  (/ (window-height) cnt-files))
+
 (defn tabs-on-left [files]
   [:style {:type "text/css"}
    (->> (common)
         (conj
-         (let [cnt-files (count files)
-               row-height (/ (window-height) cnt-files)]
+         (let [cnt-files (count files)]
            [
             [:.wrapper
              {:display "grid"
