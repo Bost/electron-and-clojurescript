@@ -43,11 +43,11 @@
    :Cmd-Left
    (fn [editor]
      (.log js/console "Cmd-Left / <s-left>")
-     (rf/dispatch [:tabs-pos-change css/tabs-on-left]))
+     (rf/dispatch [:tabs-pos-change css/left-to-right]))
    :Cmd-Right
    (fn [editor]
      (.log js/console "Cmd-Right / <s-right>")
-     (rf/dispatch [:tabs-pos-change css/tabs-on-right]))
+     (rf/dispatch [:tabs-pos-change css/right-to-left]))
    :Cmd-F
    (fn [editor]
      (.log js/console "Cmd-F / <S-f>")

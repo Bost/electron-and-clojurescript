@@ -98,6 +98,9 @@
         (apply g/css))
    ])
 
+(defn left-to-right [files] (left-right true files))
+(defn right-to-left [files] (left-right false files))
+
 (defn tabs-on-left [files]
   [:style {:type "text/css"}
    (->> (common)

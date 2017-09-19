@@ -10,9 +10,7 @@
    [app.fs :as fs]
    ))
 
-(def default-css-fn
-  #_css/tabs-on-left
-  css/left-right)
+(def default-css-fn css/left-to-right)
 
 (defn init []
   (.log js/console "Starting Application"))
@@ -130,10 +128,10 @@
     [:div]
     ))
 
-(defn active-stats [files]
+(defn active-stats [key files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:key 1 :class (sjoin [css/box css/stats
+    [:div {:key key :class (sjoin [css/box css/stats
                                  css/codemirror-theme css/codemirror-theme-mode])}
      (map-indexed
       (fn [i file]
@@ -146,46 +144,85 @@
   (= file @(rf/subscribe [:active-file])))
 
 (defn uix [files]
-  [:div {:class "lr-wrapper"}
-   (let [css-fn @(rf/subscribe [:tabs-pos])]
-     [(if css-fn css-fn default-css-fn) files])
-   ;; Can't use (defn active-file [...] ...) because of the react warning:
-   ;; Each child in an array or iterator should have a unique "key" prop
-   [:div {:class "l-wrapper"}
-    (doall
-     (let [css-fn @(rf/subscribe [:tabs-pos]) ;; TODO this repeats itself
-           prev @(rf/subscribe [:prev-file])
-           path (js/require "path")]
-       (if (= css-fn css/no-tabs)
-         []
-         (map-indexed
-          (fn [i file]
-            [:div {:key i
-                   :class (sjoin [css/box
-                                  (str css/tabs (inc i))
-                                  css/codemirror-theme
-                                  css/codemirror-theme-mode])
-                   :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-             (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
-                             (remove nil?)
-                             s/join)]
-               (sjoin [(if-not (empty? attr) (str "*" attr "*"))
-                       (.basename path file)]))])
-          files))))]
-   [:div {:class "r-wrapper"}
-    (let [active @(rf/subscribe [:active-file])
-          cnt-files (count files)]
-      (map-indexed
-       (fn [i file]
-         [:div {:key i :class (sjoin [#_css/box css/editor])}
-          (if (= active file) [edit file])])
-       files))
-    [active-stats files]
-    [:div {:key 2
-           :class (sjoin [css/box css/cmd-line
-                          css/codemirror-theme css/codemirror-theme-mode])}
-     "cmd-line, messages"]]
-   [context-menu]])
+  (let [cnt-files (count files)
+        css-fn @(rf/subscribe [:tabs-pos])]
+    (if (in? [css/left-to-right css/right-to-left] css-fn)
+      [:div {:class "lr-wrapper"}
+       [(if css-fn css-fn default-css-fn) files]
+       ;; Can't use (defn active-file [...] ...) because of the react warning:
+       ;; Each child in an array or iterator should have a unique "key" prop
+       [:div {:class "l-wrapper"}
+        (doall
+         (let [prev @(rf/subscribe [:prev-file])
+               path (js/require "path")]
+           (if (= css-fn css/no-tabs)
+             []
+             (map-indexed
+              (fn [i file]
+                [:div {:key (str css/tabs i)
+                       :class (sjoin [css/box
+                                      (str css/tabs (inc i))
+                                      css/codemirror-theme
+                                      css/codemirror-theme-mode])
+                       :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+                 (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                                 (remove nil?)
+                                 s/join)]
+                   (sjoin [(if-not (empty? attr) (str "*" attr "*"))
+                           (.basename path file)]))])
+              files))))]
+       [:div {:class "r-wrapper"}
+        (let [active @(rf/subscribe [:active-file])]
+          (map-indexed
+           (fn [i file]
+             [:div {:key (str css/editor i)
+                    :class (sjoin [#_css/box css/editor])}
+              (if (= active file) [edit file])])
+           files))
+        [active-stats cnt-files files]
+        [:div {:key (inc cnt-files)
+               :class (sjoin [css/box css/cmd-line
+                              css/codemirror-theme css/codemirror-theme-mode])}
+         "cmd-line, messages"]]
+       [context-menu]]
+      [:div {:class "wrapper"}
+       (let [css-fn @(rf/subscribe [:tabs-pos])]
+         [(if css-fn css-fn default-css-fn) files])
+       ;; Can't use (defn active-file [...] ...) because of the react warning:
+       ;; Each child in an array or iterator should have a unique "key" prop
+       (let [active @(rf/subscribe [:active-file])
+             prev @(rf/subscribe [:prev-file])
+             path (js/require "path")
+             tabs (if (= css-fn css/no-tabs)
+                    []
+                    (map-indexed
+                     (fn [i file]
+                       [:div {:key i
+                              :class (sjoin [css/box
+                                             (str css/tabs (inc i))
+                                             css/codemirror-theme
+                                             css/codemirror-theme-mode])
+                              :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+
+                        (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                                        (remove nil?)
+                                        s/join)]
+                          (sjoin [(if-not (empty? attr)
+                                    (str "*" attr "*"))
+                                  (.basename path file)]))])
+                     files))
+             editor (map-indexed
+                     (fn [i file]
+                       [:div {:key (+ (count tabs) i) :class (sjoin [#_css/box css/editor])}
+                        (if (= active file) [edit file])]) files)]
+         (into editor tabs))
+       [active-stats cnt-files files]
+       [:div {:key (inc cnt-files)
+              :class (sjoin [css/box css/cmd-line
+                             css/codemirror-theme css/codemirror-theme-mode])}
+        "cmd-line, messages"]
+       [context-menu]
+       ])))
 
 (defn ui []
   (let [path (js/require "path")
@@ -199,7 +236,7 @@
                    }
         files (->> ide-files keys vec)
         active (first files)]
-    (rf/dispatch [:tabs-pos-change (partial default-css-fn true)])
+    (rf/dispatch [:tabs-pos-change default-css-fn])
     (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])
