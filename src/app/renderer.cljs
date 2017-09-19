@@ -10,6 +10,22 @@
    [app.fs :as fs]
    ))
 
+;; TODO Ctrl-Cmd-Alt-<Key> jump-to-char
+;; TODO vim keybindings
+;; TODO drag-line / drag-text
+;; TODO run 'boot watch dev-build' from within
+;; TODO full-screen style w/o stats and cmd-line
+;; TODO context-menu: 'Search for <hlited-text>'
+;; TODO context-menu: paste from clipboard
+;; TODO integrate paredit-cm
+;; TODO integrate utils dependency
+;; TODO multiple-buffer, split-view: horizontal / vertical (active/inactive editor- bg-color)
+;; TODO multiple-buffer, split-view: http://codemirror.net/demo/buffers.html
+;; TODO dired
+;; TODO file numbers: s-1, s-2, ... activate-file
+;; TODO stack of active files 1. *A*, 2. *P*, 3. <order-by edit-time?>
+;; TODO search and replace: http://codemirror.net/doc/manual.html#addon_search
+
 (def default-css-fn css/left-to-right)
 
 (defn init []
