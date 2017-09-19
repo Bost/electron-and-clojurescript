@@ -74,6 +74,8 @@
    (fn [editor]
      (.log js/console "Cmd-Q / <S-q>")
      (next-active editor open-files))
+   :Cmd-Ctrl-Alt-P
+   (fn [editor]
+     (.log js/console "Cmd-Ctrl-Alt-P")
+     )
    })
-
-
