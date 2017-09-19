@@ -177,9 +177,8 @@
           cnt-files (count files)]
       (map-indexed
        (fn [i file]
-         (if (= active file)
-           [:div {:key 1 :class (sjoin [#_css/box css/editor])}
-            [edit file]]))
+         [:div {:key i :class (sjoin [#_css/box css/editor])}
+          (if (= active file) [edit file])])
        files))
     [active-stats files]
     [:div {:key 2
