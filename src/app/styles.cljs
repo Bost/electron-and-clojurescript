@@ -30,7 +30,9 @@
         ;; bw (->> electron .-remote)
         ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
         ]
-    (- (->> js/document .-documentElement .-clientHeight) 95)))
+    (- (->> js/document .-documentElement .-clientHeight)
+       55 ;; 55 for tabs-on-top; 45 for all other
+       )))
 
 (defn window-width []
   (- (->> js/document .-documentElement .-clientWidth) 0))
@@ -45,8 +47,7 @@
      #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})
     ]])
 
-(defn row-height [cnt-files]
-  (/ (window-height) cnt-files))
+(defn row-height [cnt-files] (/ (window-height) cnt-files))
 
 (def left "left")
 (def right "right")
@@ -101,30 +102,6 @@
 (defn left-to-right [files] (left-right true files))
 (defn right-to-left [files] (left-right false files))
 
-(defn tabs-on-left [files]
-  [:style {:type "text/css"}
-   (->> (common)
-        (conj
-         (let [cnt-files (count files)]
-           [
-            [:.wrapper
-             {:display "grid"
-              :grid-template-columns (sjoin [col-width-px "auto"])
-              }]
-            (map-indexed
-             (fn [i _]
-               (let [idx (inc i)]
-                 [(class (str tabs idx))
-                  {:grid-column 1 :grid-row idx}])) files)
-            [(class editor)
-             {:grid-column 2 :grid-row (str "1 / span " (- cnt-files 2))}]
-            [(class stats)
-             {:grid-column 2 :grid-row (- cnt-files 1)}]
-            [(class cmd-line)
-             {:grid-column 2 :grid-row (- cnt-files 0)}]
-            ]))
-        (apply g/css))])
-
 (defn tabs-on-top [files]
   [:style {:type "text/css"}
    (->> (common)
@@ -175,27 +152,3 @@
             ]))
         (apply g/css))])
 
-(defn tabs-on-right [files]
-  [:style {:type "text/css"}
-   (->> (common)
-        (conj
-         (let [cnt-files (count files)]
-           [
-            [:.wrapper
-             {:display "grid"
-              :grid-template-columns (sjoin ["auto" col-width-px])
-              ;; :grid-template-rows (str "repeat(" cols ", [row] auto)")
-              }
-             ]
-            (map-indexed
-             (fn [i _]
-               [(class (str tabs (inc i)))
-                {:grid-column 2 :grid-row (inc i)}]) files)
-            [(class editor)
-             {:grid-column 1 :grid-row (str "1 / span " (- cnt-files 2))}]
-            [(class stats)
-             {:grid-column 1 :grid-row (- cnt-files 1)}]
-            [(class cmd-line)
-             {:grid-column 1 :grid-row (- cnt-files 0)}]
-            ]))
-        (apply g/css))])
