@@ -43,6 +43,11 @@
  :prev-file (fn [db _] (:prev-file db)))
 
 (rf/reg-event-db
+ :boot-process-change (fn [db [_ new]] (assoc db :boot-process new)))
+(rf/reg-sub
+ :boot-process (fn [db _] (:boot-process db)))
+
+(rf/reg-event-db
  :ide-files-change (fn [db [_ new]] (assoc db :ide-files new)))
 (rf/reg-sub
  :ide-files (fn [db _] (:ide-files db)))

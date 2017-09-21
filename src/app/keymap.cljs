@@ -78,4 +78,39 @@
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-P")
      )
+   :Cmd-Ctrl-Alt-K
+   (fn [editor]
+     (.log js/console "Cmd-Ctrl-Alt-K")
+     (let [prc
+           (:boot-process @re-frame.db/app-db)
+           #_@(rf/subscribe [:boot-process])]
+       (if prc
+         (js/prc.kill "SIGTERM")
+         (.error js/console "boot-process not found"))
+       ))
+   :Cmd-Ctrl-Alt-B
+   (fn [editor]
+     (.log js/console "Cmd-Ctrl-Alt-B")
+     (let [spawn (->> (js/require "child_process") .-spawn)
+           prc
+           #_(spawn "pwd")
+           (spawn "boot" #js ["watch" "dev-build"])
+           #_(spawn "ls" #js ["-la"])]
+       (js/prc.stdout.setEncoding "utf8")
+       (js/prc.stdout.on
+        "data" (fn [data]
+                 (.log js/console "STDOUT" (str data))))
+       (js/prc.stderr.on
+        "data" (fn [data]
+                 (.log js/console "STDERR" (str data))))
+       (js/prc.stdout.on
+        "message" (fn [msg]
+                  (.log js/console "CHILD got message" msg)))
+       (js/prc.stdout.on
+        "close" (fn [code]
+                  (.log js/console "Process close code" code)))
+       (js/prc.stdout.on
+        "exit" (fn [code]
+                  (.log js/console "Process exit code" code)))
+       ))
    })

@@ -244,11 +244,11 @@
   (let [path (js/require "path")
         cur-dir (.resolve path ".")
         ide-files {
+                   (str cur-dir "/src/app/keymap.cljs") {}
                    (str cur-dir "/src/app/renderer.cljs") {}
                    (str cur-dir "/src/app/styles.cljs") {}
                    (str cur-dir "/resources/index.html") {}
                    (str cur-dir "/src/app/regs.cljs") {}
-                   (str cur-dir "/src/app/keymap.cljs") {}
                    }
         files (->> ide-files keys vec)
         active (first files)]
