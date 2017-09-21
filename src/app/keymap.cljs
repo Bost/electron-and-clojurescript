@@ -41,7 +41,9 @@
       (js/prc.stdout.on
        "exit" (fn [code] (.log js/console "Process exit code" code))))))
 
-(defn keymap [fs file open-files]
+(defn keymap
+  "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
+  [fs file open-files]
   #js
   {
    ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
@@ -49,6 +51,10 @@
    ;; single key: <S>
    ;; :Mod (fn [editor] (.log js/console "Mod"))
 
+   ;; :F11
+   ;; (fn [editor]
+   ;;   (.log js/console "F11")
+   ;;   (.log js/console "Full screen: Can be stolen"))
    :Cmd-Up
    (fn [editor]
      (.log js/console "Cmd-Up / <s-up>")

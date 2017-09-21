@@ -13,7 +13,7 @@
 ;; TODO Ctrl-Cmd-Alt-<Key> jump-to-char
 ;; TODO vim keybindings
 ;; TODO drag-line / drag-text
-;; TODO run 'boot watch dev-build' from within
+;; TODO Kill only the own boot-process; display a list of found processes
 ;; TODO full-screen style w/o stats and cmd-line
 ;; TODO context-menu: 'Search for <hlited-text>'
 ;; TODO context-menu: paste from clipboard
