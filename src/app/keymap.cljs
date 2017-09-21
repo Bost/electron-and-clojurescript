@@ -32,7 +32,8 @@
       (js/prc.stdout.setEncoding "utf8")
       (js/prc.stdout.on
        "data" (fn [data] (.log js/console #_"STDOUT" (str data))))
-      (js/prc.stderr.on
+      ;; boot process output gets displayed only on the STDERR
+      #_(js/prc.stderr.on
        "data" (fn [data] (.error js/console #_"STDERR" (str data))))
       (js/prc.stdout.on
        "message" (fn [msg] (.log js/console "CHILD got message" msg)))
@@ -110,6 +111,10 @@
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-L")
      (exec ["pgrep" "--full" "boot"]))
+   :Shift-Cmd-D
+   (fn [editor]
+     (.log js/console "Shift-Shift-D")
+     (exec ["ls" "-la"]))
    :Cmd-Ctrl-Alt-B
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-B")
