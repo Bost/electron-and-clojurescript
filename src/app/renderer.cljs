@@ -28,6 +28,9 @@
 
 (def default-css-fn css/left-to-right)
 
+(defn save-ide-settings []
+  #_(fs/save fs "~/.eac/settings.edn" "{:open-files []}"))
+
 (defn init []
   (.log js/console "Starting Application"))
 
@@ -73,6 +76,7 @@
                    :lineNumbers true
                    :vimMode true
                    :styleActiveLine true
+                   :showCursorWhenSelecting true
                    :highlightSelectionMatches #js {:showToken true
                                                    :annotateScrollbar true}
                    ;; see https://github.com/Bost/paredit-cm.git
