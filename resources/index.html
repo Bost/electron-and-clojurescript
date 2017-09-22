@@ -6,7 +6,12 @@
     <script src="node_modules/codemirror/lib/codemirror.js"></script>
     <script src="node_modules/codemirror/mode/clojure/clojure.js"></script>
     <script src="node_modules/codemirror/mode/xml/xml.js"></script>
-
+    <script src="node_modules/codemirror/addon/selection/active-line.js"></script>
+    <script src="node_modules/codemirror/addon/search/match-highlighter.js"></script>
+    <script src="node_modules/codemirror/addon/scroll/annotatescrollbar.js"></script>
+    <script src="node_modules/codemirror/addon/search/matchesonscrollbar.js"></script>
+    <script src="node_modules/codemirror/addon/search/searchcursor.js"></script>
+    <script src="node_modules/codemirror/addon/search/match-highlighter.js"></script>
     <!-- Order matters; see https://github.com/Bost/paredit-cm.git -->
     <!--
     <script src="lib/paredit-cm.js"></script>
@@ -18,15 +23,22 @@
     <link rel="stylesheet" href="node_modules/codemirror/theme/solarized.css"/>
   </head>
   <body>
-    <style type="text/css">
-     /* If no grid support, limit width to 50em and center align */
-     @supports not (display: grid) {
-         .site {
-             max-width: 50em;
-             margin: 0 auto;
-         }
-     }
-    </style>
+      <style type="text/css">
+       // .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
+       // .CodeMirror-focused .cm-matchhighlight {
+           //   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+           //   background-position: bottom;
+           //   background-repeat: repeat-x;
+           // }
+       .cm-matchhighlight {
+           background-color: transparent;
+           border-radius: 3px;
+           border: 1px solid rgba(82, 139, 255, 0.24);
+           // box-sizing: border-box;
+           // z-index: 0;
+       }
+       .CodeMirror-selection-highlight-scrollbar {background-color: green}
+      </style>
       <div id="app">Loading re-frame / reagent app...</div>
       <script>window.onload = ()=>{app.renderer.run()}</script>
       <script type="text/javascript" src="renderer.js"></script>

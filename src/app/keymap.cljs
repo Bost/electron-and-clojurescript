@@ -6,6 +6,7 @@
    [app.regs]
    [app.fs :as fs]
    [app.styles :as css]
+   [app.paredit-cm :as p]
    ))
 
 (defn next-active [editor open-files]
@@ -56,22 +57,22 @@
    ;; (fn [editor]
    ;;   (.log js/console "F11")
    ;;   (.log js/console "Full screen: Can be stolen"))
-   :Cmd-Up
+   :Cmd-Ctrl-Up
    (fn [editor]
-     (.log js/console "Cmd-Up / <s-up>")
-     (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
-   :Cmd-Down
+     (.log js/console "Cmd-Ctrl-Up / <s-C-up>")
+     (rf/dispatch [:tabs-pos-change css/tabs-C-on-top]))
+   :Cmd-Ctrl-Down
    (fn [editor]
-     (.log js/console "Cmd-Down / <s-down>")
+     (.log js/console "Cmd-Ctrl-Down / <s-C-down>")
      (rf/dispatch [:tabs-pos-change css/no-tabs])
      )
-   :Cmd-Left
+   :Cmd-Ctrl-Left
    (fn [editor]
-     (.log js/console "Cmd-Left / <s-left>")
+     (.log js/console "Cmd-Ctrl-Left / <s-C-left>")
      (rf/dispatch [:tabs-pos-change css/left-to-right]))
-   :Cmd-Right
+   :Cmd-Ctrl-Right
    (fn [editor]
-     (.log js/console "Cmd-Right / <s-right>")
+     (.log js/console "Cmd-Ctrl-Right / <s-C-right>")
      (rf/dispatch [:tabs-pos-change css/right-to-left]))
    :Cmd-F
    (fn [editor]
@@ -99,10 +100,22 @@
    (fn [editor]
      (.log js/console "Cmd-Q / <S-q>")
      (next-active editor open-files))
+   :Cmd-Left
+   (fn [editor]
+     (.log js/console "Cmd-Left")
+     (p/backward-sexp editor))
+   :Cmd-Right
+   (fn [editor]
+     (.log js/console "Cmd-Right")
+     (p/forward-sexp editor))
+   :Cmd-Up
+   (fn [editor]
+     (.log js/console "Cmd-Up")
+     (p/forward-sexp editor))
    :Cmd-Ctrl-Alt-P
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-P")
-     )
+     #_(p/forward-sexp editor))
    :Cmd-Ctrl-Alt-K
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-K")
@@ -113,7 +126,7 @@
      (exec ["pgrep" "--full" "boot"]))
    :Shift-Cmd-D
    (fn [editor]
-     (.log js/console "Shift-Shift-D")
+     (.log js/console "Shift-Cmd-D")
      (exec ["ls" "-la"]))
    :Cmd-Ctrl-Alt-B
    (fn [editor]

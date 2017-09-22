@@ -72,6 +72,9 @@
              (->> {:theme (sjoin [css/theme css/theme-mode #_"xq-light"])
                    :lineNumbers true
                    :vimMode true
+                   :styleActiveLine true
+                   :highlightSelectionMatches #js {:showToken true
+                                                   :annotateScrollbar true}
                    ;; see https://github.com/Bost/paredit-cm.git
                    ;; :keyMap "paredit_cm"
                    :autoCloseBrackets true}
