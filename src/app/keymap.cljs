@@ -24,28 +24,9 @@
        (rf/dispatch [:prev-file-change active])
        (rf/dispatch [:active-file-change prev])))))
 
-(defn exec [cmd-line]
-  (let [cmd (first cmd-line)
-        prms (clj->js (rest cmd-line))]
-    (.log js/console "$" (sjoin cmd-line))
-    (let [spawn (->> (js/require "child_process") .-spawn)
-          prc (spawn cmd prms)]
-      (js/prc.stdout.setEncoding "utf8")
-      (js/prc.stdout.on
-       "data" (fn [data] (.log js/console #_"STDOUT" (str data))))
-      ;; boot process output gets displayed only on the STDERR
-      #_(js/prc.stderr.on
-       "data" (fn [data] (.error js/console #_"STDERR" (str data))))
-      (js/prc.stdout.on
-       "message" (fn [msg] (.log js/console "CHILD got message" msg)))
-      (js/prc.stdout.on
-       "close" (fn [code] #_(.log js/console "Process close code" code)))
-      (js/prc.stdout.on
-       "exit" (fn [code] (.log js/console "Process exit code" code))))))
-
 (defn keymap
   "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
-  [fs file open-files]
+  [file open-files]
   #js
   {
    ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
@@ -60,7 +41,7 @@
    :Cmd-Ctrl-Up
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Up / <s-C-up>")
-     (rf/dispatch [:tabs-pos-change css/tabs-C-on-top]))
+     (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
    :Cmd-Ctrl-Down
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Down / <s-C-down>")
@@ -79,7 +60,7 @@
      (.log js/console "Cmd-F / <S-f>")
      ;; assigning file to file causes file-reload
      (rf/dispatch [:active-file-change file])
-     (fs/read fs file editor open-files))
+     (fs/read file editor open-files))
    ;; :Ctrl-R
    ;; (fn [editor]
    ;;   (.log js/console "Ctrl-R / <C-r>")
@@ -95,7 +76,11 @@
    :Cmd-S
    (fn [editor]
      (.log js/console "Cmd-S / <S-s>")
-     (fs/save fs file (.getValue (.-doc editor))))
+     (fs/save file (.getValue (.-doc editor))))
+   :Shift-Ctrl-S
+   (fn [editor]
+     (.log js/console "Shift-Ctrl-S")
+     (fs/save-ide-settings))
    :Cmd-Q
    (fn [editor]
      (.log js/console "Cmd-Q / <S-q>")
@@ -119,17 +104,17 @@
    :Cmd-Ctrl-Alt-K
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-K")
-     (exec ["pkill" "--full" "boot"]))
+     (fs/exec ["pkill" "--full" "boot"]))
    :Cmd-Ctrl-Alt-L
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-L")
-     (exec ["pgrep" "--full" "boot"]))
+     (fs/exec ["pgrep" "--full" "boot"]))
    :Shift-Cmd-D
    (fn [editor]
      (.log js/console "Shift-Cmd-D")
-     (exec ["ls" "-la"]))
+     (fs/exec ["ls" "-la"]))
    :Cmd-Ctrl-Alt-B
    (fn [editor]
      (.log js/console "Cmd-Ctrl-Alt-B")
-     (exec ["boot" "watch" "dev-build"]))
+     (fs/exec ["boot" "watch" "dev-build"]))
    })

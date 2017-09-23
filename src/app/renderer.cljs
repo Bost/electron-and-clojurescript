@@ -32,7 +32,8 @@
   #_(fs/save fs "~/.eac/settings.edn" "{:open-files []}"))
 
 (defn init []
-  (.log js/console "Starting Application"))
+  (.log js/console "Starting Application")
+  (fs/read-ide-settings))
 
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
@@ -89,12 +90,11 @@
                   clj->js))
             open-files @(rf/subscribe [:open-files])
             ]
-        (let [fs (js/require "fs")]
-          (fs/read fs file editor open-files)
-          (.setSize editor nil (css/window-height))
-          (.focus editor)
-          ;; editor.setCursor({line: 1, ch: 5})
-          (.setOption editor "extraKeys" (k/keymap fs file open-files)))))
+        (fs/read file editor open-files)
+        (.setSize editor nil (css/window-height))
+        (.focus editor)
+        ;; editor.setCursor({line: 1, ch: 5})
+        (.setOption editor "extraKeys" (k/keymap file open-files))))
 
     ;; ... other methods go here
     ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle

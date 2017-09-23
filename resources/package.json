@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "codemirror": "^5.30.0"
+    "codemirror": "^5.30.0",
+    "writefile": "^0.2.8"
   }
 }
