@@ -9,7 +9,12 @@
 
 (enable-console-print!)
 
-(rf/reg-event-db :initialize (fn [_ _] {:time (js/Date.) :time-color "#f88"}))
+(rf/reg-event-db
+ :initialize
+ (fn [_ _]
+   (.log js/console ":initialize 1 (js/Date.)" (js/Date.))
+   {:time (js/Date.)
+    :time-color "#f88"}))
 
 (rf/reg-event-db :time-color-change
                  (fn [db [_ new]] (assoc db :time-color new)))

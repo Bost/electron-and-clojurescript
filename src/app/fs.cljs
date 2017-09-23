@@ -10,7 +10,7 @@
 (def home-dir (-> (js/require "os") .homedir))
 (def config-file (str home-dir "/.eac/config.edn"))
 (def encoding "utf8")
-(def writefile (js/require "writefile"))
+(def fwriter (js/require "writefile"))
 
 (defn read-file [file cont-fn]
   (.readFile fs file (clj->js {:encoding encoding}) cont-fn))
@@ -30,13 +30,7 @@
                        )))))))
 
 (defn save [file data]
-  #_(.writeFile fs file data #_(clj->js {:encoding encoding :flags "w"})
-                (fn [err _]
-                  (if err
-                    (.error js/console err)
-                    (.log js/console file (count data) "bytes saved"))))
-  #_(.log js/console "writefile" writefile)
-  (writefile file data
+  (fwriter file data
    (fn [err _]
      (if err
        (js/throw err)
@@ -48,7 +42,7 @@
     (.log js/console "$" (sjoin cmd-line))
     (let [spawn (->> (js/require "child_process") .-spawn)
           prc (spawn cmd prms)]
-      (js/prc.stdout.setEncoding "utf8")
+      (js/prc.stdout.setEncoding encoding)
       (js/prc.stdout.on
        "data" (fn [data] (.log js/console #_"STDOUT" (str data))))
       ;; boot process output gets displayed only on the STDERR
@@ -63,17 +57,53 @@
 
 (defn save-ide-settings []
   (let [settings @(rf/subscribe [:ide-files])]
-    #_(println "settings" settings)
-    (save config-file (-> settings println with-out-str))))
+    #_(with-open [wr (clojure.core/writer config-file)]
+        (.write wr (clojure.core/pr-str settings)))
+    #_(.log js/console "writing" (-> {:ide-files settings} clojure.core/pr-str #_with-out-str))
+    (save config-file
+          #_(with-out-str (clojure.pprint/pprint settings))
+          (-> {:ide-files settings} clojure.core/prn-str))))
+
+#_(defn write-object
+  "Serializes an object to disk so it can be opened again later.
+   Careful: It will overwrite an existing file at file-path."
+  []
+  (let [settings @(rf/subscribe [:ide-files])]
+    (with-open [wr (clojure.core/writer config-file)]
+      (.write wr (clojure.core/pr-str settings)))))
+
+#_{:ide-files
+ {
+  "/home/bost/dev/eac/src/app/keymap.cljs" {}
+  "/home/bost/dev/eac/src/app/renderer.cljs" {}
+  "/home/bost/dev/eac/src/app/styles.cljs" {}
+  "/home/bost/dev/eac/resources/index.html" {}
+  "/home/bost/dev/eac/src/app/regs.cljs" {}
+  }}
+
+(defn fn-load-ide-files [err data]
+  (if err
+    (js/throw err)
+    (do
+      #_(.log js/console config-file (count data) "bytes loaded")
+      #_(.log js/console "data" data)
+      #_(.log js/console "read-string" (cljs.reader/read-string data))
+      (.log js/console "(:ide-files (cljs.reader/read-string data))" (:ide-files (cljs.reader/read-string data)))
+      #_(.log js/console "(reader/read-string data)" (reader/read-string data))
+      #_(.log js/console "(:ide-files (reader/read-string data))" (:ide-files (reader/read-string data)))
+      (let [ide-files (or
+                       (:ide-files (cljs.reader/read-string data))
+                          (let [path (js/require "path")
+                                cur-dir (.resolve path ".")]
+                            {
+                             (str cur-dir "/src/app/keymap.cljs") {}
+                             (str cur-dir "/src/app/renderer.cljs") {}
+                             (str cur-dir "/src/app/styles.cljs") {}
+                             (str cur-dir "/resources/index.html") {}
+                             (str cur-dir "/src/app/regs.cljs") {}
+                             }))]
+        (rf/dispatch [:ide-files-change ide-files])))))
 
 (defn read-ide-settings []
-  (read-file config-file
-             (fn [err data]
-               (if err
-                 (js/throw err)
-                 (do
-                   (.log js/console config-file (count data) "bytes loaded")
-                   #_(.setValue (.-doc editor) data)
-                   #_(rf/dispatch [:ide-file-content-change [file data]])
-                   )))))
+  (read-file config-file fn-load-ide-files))
 

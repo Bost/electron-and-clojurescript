@@ -248,19 +248,11 @@
        ])))
 
 (defn ui []
-  (let [path (js/require "path")
-        cur-dir (.resolve path ".")
-        ide-files {
-                   (str cur-dir "/src/app/keymap.cljs") {}
-                   (str cur-dir "/src/app/renderer.cljs") {}
-                   (str cur-dir "/src/app/styles.cljs") {}
-                   (str cur-dir "/resources/index.html") {}
-                   (str cur-dir "/src/app/regs.cljs") {}
-                   }
+  (let [
+        ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)
         active (first files)]
     (rf/dispatch [:tabs-pos-change default-css-fn])
-    (rf/dispatch [:ide-files-change ide-files])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])
     (rf/dispatch [:prev-file-change active])
@@ -269,6 +261,7 @@
 (defn ^:export run
   []
   ;; puts a value into application state
+  (.log js/console "run 1 (js/Date.)" (js/Date.))
   (rf/dispatch-sync [:initialize])
   ;; mount the application's ui into '<div id="app" />'
   (r/render [ui] (js/document.getElementById "app")))
