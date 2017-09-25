@@ -82,28 +82,23 @@
   }}
 
 (defn fn-load-ide-files [err data]
-  (if err
-    (js/throw err)
-    (do
-      #_(.log js/console config-file (count data) "bytes loaded")
-      #_(.log js/console "data" data)
-      #_(.log js/console "read-string" (cljs.reader/read-string data))
-      (.log js/console "(:ide-files (cljs.reader/read-string data))" (:ide-files (cljs.reader/read-string data)))
-      #_(.log js/console "(reader/read-string data)" (reader/read-string data))
-      #_(.log js/console "(:ide-files (reader/read-string data))" (:ide-files (reader/read-string data)))
-      (let [ide-files (or
-                       (:ide-files (cljs.reader/read-string data))
-                          (let [path (js/require "path")
-                                cur-dir (.resolve path ".")]
-                            {
-                             (str cur-dir "/src/app/keymap.cljs") {}
-                             (str cur-dir "/src/app/renderer.cljs") {}
-                             (str cur-dir "/src/app/styles.cljs") {}
-                             (str cur-dir "/resources/index.html") {}
-                             (str cur-dir "/src/app/regs.cljs") {}
-                             }))]
-        (rf/dispatch [:ide-files-change ide-files])))))
+  (rf/dispatch
+   [:ide-files-change
+    (if err
+      (do
+        ;; (js/throw err)
+        (let [path (js/require "path")
+              cur-dir (.resolve path ".")]
+          {
+           (str cur-dir "/src/app/keymap.cljs") {}
+           (str cur-dir "/src/app/renderer.cljs") {}
+           (str cur-dir "/src/app/styles.cljs") {}
+           (str cur-dir "/resources/index.html") {}
+           (str cur-dir "/src/app/regs.cljs") {}
+           }))
+      (do
+        #_(.log js/console "(:ide-files (cljs.reader/read-string data))" (:ide-files (cljs.reader/read-string data)))
+        (:ide-files (cljs.reader/read-string data))))]))
 
 (defn read-ide-settings []
   (read-file config-file fn-load-ide-files))
-
