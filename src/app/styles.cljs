@@ -12,6 +12,9 @@
 (def stats "s")
 (def cmd-line "c")
 (def box "box")
+(def active "active")
+(def prev "prev")
+
 (defn class-str [name] (str "." name))
 (defn class [name] (keyword (class-str name)))
 
@@ -44,8 +47,12 @@
   [[:body {:font-family "monospace" :margin 0}]
    [(class box)
     (conj
-     #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})
-    ]])
+     #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})]
+   [(class active)
+    {:font-weight "bold"
+     :text-decoration "underline wavy"}]
+   [(class prev)
+    {:font-weight "bold"}]])
 
 (defn row-height [cnt-files] (/ (window-height) cnt-files))
 
@@ -94,7 +101,6 @@
              {:grid-column 1 :grid-row 2}]
             [(class cmd-line)
              {:grid-column 1 :grid-row 3}]
-
             ]))
         (apply g/css))
    ])

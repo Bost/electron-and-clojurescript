@@ -184,13 +184,17 @@
          :class (sjoin [css/box
                         (str css/tabs (inc i))
                         css/codemirror-theme
-                        css/codemirror-theme-mode])
+                        css/codemirror-theme-mode
+                        (if (active? file) css/active)
+                        (if (prev? file) css/prev)])
          :on-click (fn [] (rf/dispatch [:active-file-change file]))}
    (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
                    (remove nil?)
                    s/join)]
-     (sjoin [(if-not (empty? attr) (str "*" attr "*"))
-             (str (nth fancy-indexes i) " " (.basename (js/require "path") file))]))])
+     (sjoin [
+             #_(if-not (empty? attr) (str "*" attr "*"))
+             (nth fancy-indexes i)
+             (.basename (js/require "path") file)]))])
 
 (defn editors [key-name files active count-tabs]
   (map-indexed (fn [i file]
