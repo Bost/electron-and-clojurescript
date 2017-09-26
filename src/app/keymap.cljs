@@ -24,51 +24,80 @@
        (rf/dispatch [:prev-file-change active])
        (rf/dispatch [:active-file-change prev])))))
 
+(defn insert-sexp [{:keys [editor sexp n-chars-back]}]
+  (let [doc (.-doc editor)]
+    (.replaceSelection doc sexp)
+    (let [pos (.getCursor doc)]
+      (.setCursor doc (clj->js {:line (.-line pos)
+                                :ch (- (.-ch pos) n-chars-back)})))))
 (defn keymap
   "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
   [file open-files]
   (->>
-   (conj
-    {}
-    {
-     ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
+   conj
+   {}
+   (->>
+    (conj
+     {
+      :Up
+      (fn [editor]
+        #_(.log js/console "up old val" (->> editor .-options .-styleActiveLine))
+        (.setOption editor "styleActiveLine" true)
+        js/CodeMirror.Pass)
+      :Down
+      (fn [editor]
+        #_(.log js/console "down old val" (->> editor .-options .-styleActiveLine))
+        (.setOption editor "styleActiveLine" false)
+        js/CodeMirror.Pass)
+      }
+     {
 
-     ;; single key: <S>
-     ;; :Mod (fn [editor] (.log js/console "Mod"))
+      ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
-     ;; :F11 (fn [editor] (.log js/console "Full screen: Can be stolen"))
-     :Cmd-Ctrl-Up (fn [editor] (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
-     :Cmd-Ctrl-Down (fn [editor] (rf/dispatch [:tabs-pos-change css/no-tabs]))
-     :Cmd-Ctrl-Left (fn [editor] (rf/dispatch [:tabs-pos-change css/left-to-right]))
-     :Cmd-Ctrl-Right (fn [editor] (rf/dispatch [:tabs-pos-change css/right-to-left]))
-     :Cmd-F (fn [editor]
-              ;; assigning file to file causes file-reload
-              (rf/dispatch [:active-file-change file])
-              (fs/read file editor open-files))
-     ;; :Ctrl-R (fn [editor] (.log js/console "Can be stolen"))
-     ;; :Shift-Ctrl-I (fn [editor] (.log js/console "Can be stolen"))
-     :Cmd-Tab (fn [editor] (alternate-active editor open-files))
-     :Cmd-S (fn [editor] (fs/save file (.getValue (.-doc editor))))
-     :Shift-Ctrl-S (fn [editor] (fs/save-ide-settings))
-     :Cmd-Q (fn [editor] (next-active editor open-files))
-     :Cmd-Left (fn [editor] (p/backward-sexp editor))
-     :Cmd-Right (fn [editor] (p/forward-sexp editor))
-     :Cmd-Up (fn [editor] (p/forward-sexp editor))
-     :Cmd-Ctrl-Alt-P (fn [editor] #_(p/forward-sexp editor))
-     :Cmd-Ctrl-Alt-K (fn [editor] (fs/exec ["pkill" "--full" "boot"]))
-     :Cmd-Ctrl-Alt-L (fn [editor] (fs/exec ["pgrep" "--full" "boot"]))
-     :Shift-Cmd-D (fn [editor] (fs/exec ["ls" "-la"]))
-     :Cmd-Ctrl-Alt-B (fn [editor] (fs/exec ["boot" "watch" "dev-build"]))
+      ;; single key: <S>
+      ;; :Mod (fn [editor] (.log js/console "Mod"))
 
-     }
-    (->>
-     (map-indexed (fn [i file]
-                    {(keyword (str "Cmd-" i))
-                     (fn [editor] (rf/dispatch [:active-file-change file]))})
-                  open-files)
-     (into {})))
-   (map (fn [[k v]]
-          {k (fn [editor] (println "key-comb" (name k)) (v editor))}))
-   (into {})
+      ;; :F11 (fn [editor] (.log js/console "Full screen: Can be stolen"))
+      :Cmd-Ctrl-Up (fn [editor] (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
+      :Cmd-Ctrl-Down (fn [editor] (rf/dispatch [:tabs-pos-change css/no-tabs]))
+      :Cmd-Ctrl-Left (fn [editor] (rf/dispatch [:tabs-pos-change css/left-to-right]))
+      :Cmd-Ctrl-Right (fn [editor] (rf/dispatch [:tabs-pos-change css/right-to-left]))
+      :Cmd-F (fn [editor]
+               ;; assigning file to file causes file-reload
+               (rf/dispatch [:active-file-change file])
+               (fs/read file editor open-files))
+      ;; :Ctrl-R (fn [editor] (.log js/console "Can be stolen"))
+      ;; :Shift-Ctrl-I (fn [editor] (.log js/console "Can be stolen"))
+      :Cmd-Tab (fn [editor] (alternate-active editor open-files))
+      :Cmd-S (fn [editor] (fs/save file (.getValue (.-doc editor))))
+      :Shift-Ctrl-S (fn [editor] (fs/save-ide-settings))
+      :Cmd-Q (fn [editor] (next-active editor open-files))
+      :Cmd-Left (fn [editor] (p/backward-sexp editor))
+      :Cmd-Right (fn [editor] (p/forward-sexp editor))
+      :Cmd-Up (fn [editor] (p/forward-sexp editor))
+      :Cmd-Ctrl-Alt-P (fn [editor] #_(p/forward-sexp editor))
+      :Cmd-Ctrl-Alt-K (fn [editor] (fs/exec ["pkill" "--full" "boot"]))
+      :Cmd-Ctrl-Alt-L (fn [editor] (fs/exec ["pgrep" "--full" "boot"]))
+      :Shift-Cmd-D (fn [editor]
+                     (.log js/console editor (->> editor .-options .-styleActiveLine))
+                     #_(fs/exec ["ls" "-la"]))
+      :Cmd-Ctrl-Alt-B (fn [editor] (fs/exec ["boot" "watch" "dev-build"]))
+      :Cmd-Ctrl-P (fn [editor] (insert-sexp {:editor editor
+                                            :sexp "(.log js/console \"\")"
+                                            :n-chars-back 2}))
+
+      :Cmd-Ctrl-L (fn [editor] (insert-sexp {:editor editor
+                                            :sexp "(let [])"
+                                             :n-chars-back 2}))
+      }
+     (->>
+      (map-indexed (fn [i file]
+                     {(keyword (str "Cmd-" i))
+                      (fn [editor] (rf/dispatch [:active-file-change file]))})
+                   open-files)
+      (into {})))
+    #_(map (fn [[k v]]
+           {k (fn [editor] (println "key-comb" (name k)) (v editor))}))
+    (into {}))
    clj->js))
 

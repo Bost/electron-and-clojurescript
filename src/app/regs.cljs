@@ -66,3 +66,13 @@
  :ide-file-content
  (fn [db [_ file]]
    (get-in db [:ide-files file :content])))
+
+(rf/reg-event-db
+ :ide-file-editor-change
+ (fn [db [_ [file new]]]
+   (assoc-in db [:ide-files file :editor] new)))
+
+(rf/reg-sub
+ :ide-file-editor
+ (fn [db [_ file]]
+   (get-in db [:ide-files file :editor])))

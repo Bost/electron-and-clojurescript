@@ -40,12 +40,22 @@
 
 (defn dispatch-timer-event
   []
-  (let [now (js/Date.)] (rf/dispatch [:timer now])))
+  (let [
+        active @(rf/subscribe [:active-file])
+        editor @(rf/subscribe [:ide-file-editor active])
+        ;; content @(rf/subscribe [:ide-file-content active])
+        ]
+    (if editor ;; TODO editor must be always defined!
+      (do
+        (.log js/console "active" active "old styleActiveLine"
+              (.getOption editor "styleActiveLine" true))
+        (.setOption editor "styleActiveLine" true))))
+  #_(let [now (js/Date.)] (rf/dispatch [:timer now])))
 
 ;; Call the dispatching function every second.
 ;; `defonce` is like `def` but it ensures only one instance is ever
 ;; created in the face of figwheel hot-reloading of this file.
-(defonce do-timer (js/setInterval dispatch-timer-event 1000))
+(defonce do-timer (js/setInterval dispatch-timer-event 2000))
 
 (defn clock
   []
@@ -78,6 +88,7 @@
                    :vimMode true
                    :styleActiveLine true
                    :showCursorWhenSelecting true
+                   ;; :cursorBlinkRate 0 ;; 0 - no blinking
                    :highlightSelectionMatches #js {:showToken true
                                                    :annotateScrollbar true}
                    ;; see https://github.com/Bost/paredit-cm.git

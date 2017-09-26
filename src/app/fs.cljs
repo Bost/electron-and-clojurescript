@@ -27,6 +27,7 @@
                        (.log js/console file (count data) "bytes loaded")
                        (.setValue (.-doc editor) data)
                        (rf/dispatch [:ide-file-content-change [file data]])
+                       (rf/dispatch [:ide-file-editor-change [file editor]])
                        )))))))
 
 (defn save [file data]
