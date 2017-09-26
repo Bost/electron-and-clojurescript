@@ -178,7 +178,7 @@
 
 (def fancy-indexes ["➊" "➋" "➌" "➍" "➎" "➏" "➐" "➑" "➒"])
 
-(defn file-tab [key-name i path file]
+(defn file-tab [key-name i file]
   [:div {:key (str key-name i)
          :class (sjoin [css/box
                         (str css/tabs (inc i))
@@ -189,11 +189,26 @@
                    (remove nil?)
                    s/join)]
      (sjoin [(if-not (empty? attr) (str "*" attr "*"))
-             (str (nth fancy-indexes i) " " (.basename path file))]))])
+             (str (nth fancy-indexes i) " " (.basename (js/require "path") file))]))])
+
+(defn editors [key-name files active count-tabs]
+  (map-indexed (fn [i file]
+                 [:div {:key (str key-name (+ count-tabs i))
+                        :class (sjoin [#_css/box css/editor])}
+                  (if (= active file) [edit file])])
+               files))
+
+(defn cmd-line [cnt-files]
+  [:div {:key (inc cnt-files)
+         :class (sjoin [css/box css/cmd-line
+                        css/codemirror-theme css/codemirror-theme-mode])}
+   "cmd-line, messages"])
 
 (defn uix [files]
   (let [cnt-files (count files)
-        css-fn @(rf/subscribe [:tabs-pos])]
+        css-fn @(rf/subscribe [:tabs-pos])
+        active @(rf/subscribe [:active-file])
+        prev @(rf/subscribe [:prev-file])]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
        [(if css-fn css-fn default-css-fn) files]
@@ -201,48 +216,28 @@
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
         (doall
-         (let [prev @(rf/subscribe [:prev-file])
-               path (js/require "path")]
-           (if (= css-fn css/no-tabs)
-             []
-             (map-indexed (fn [i file] (file-tab css/tabs i path file)) files))))]
+         (if (= css-fn css/no-tabs)
+           []
+           (map-indexed (fn [i file] (file-tab css/tabs i file))
+                        files)))]
        [:div {:class "r-wrapper"}
-        (let [active @(rf/subscribe [:active-file])]
-          (map-indexed
-           (fn [i file]
-             [:div {:key (str css/editor i)
-                    :class (sjoin [#_css/box css/editor])}
-              (if (= active file) [edit file])])
-           files))
+        (editors css/editor files active 0) ;; (= 0 count-tabs)
         [active-stats cnt-files files]
-        [:div {:key (inc cnt-files)
-               :class (sjoin [css/box css/cmd-line
-                              css/codemirror-theme css/codemirror-theme-mode])}
-         "cmd-line, messages"]]
+        [cmd-line cnt-files]]
        [context-menu]]
       [:div {:class "wrapper"}
-       (let [css-fn @(rf/subscribe [:tabs-pos])]
-         [(if css-fn css-fn default-css-fn) files])
+       [(if css-fn css-fn default-css-fn) files]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [active @(rf/subscribe [:active-file])
-             prev @(rf/subscribe [:prev-file])
-             path (js/require "path")
-             tabs (if (= css-fn css/no-tabs)
+       (let [tabs (if (= css-fn css/no-tabs)
                     []
-                    (map-indexed (fn [i file] (file-tab "" i path file)) files))
-             editor (map-indexed
-                     (fn [i file]
-                       [:div {:key (+ (count tabs) i) :class (sjoin [#_css/box css/editor])}
-                        (if (= active file) [edit file])]) files)]
-         (into editor tabs))
+                    (map-indexed (fn [i file] (file-tab "" i file))
+                                 files))]
+         (into (editors "" files active (count tabs))
+               tabs))
        [active-stats cnt-files files]
-       [:div {:key (inc cnt-files)
-              :class (sjoin [css/box css/cmd-line
-                             css/codemirror-theme css/codemirror-theme-mode])}
-        "cmd-line, messages"]
-       [context-menu]
-       ])))
+       [cmd-line cnt-files]
+       [context-menu]])))
 
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
