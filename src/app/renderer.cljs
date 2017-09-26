@@ -92,7 +92,7 @@
                    ;; see https://github.com/Bost/paredit-cm.git
                    ;; :keyMap "paredit_cm"
                    :autoCloseBrackets true}
-                  (conj ((keyword (.extname fs/js-path file))
+                  (conj ((keyword (.extname (js/require "path") file))
                          {:.cljs {:mode "clojure"}
                           :.html {:mode "xml" :htmlMode true}}))
                   clj->js))
@@ -131,7 +131,7 @@
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
   []
-  (let [remote (.-remote fs/js-electron)
+  (let [remote (.-remote (js/require "electron"))
         menu-fn (.-Menu remote)
         menu-item-fn (.-MenuItem remote)
         menu (menu-fn.)

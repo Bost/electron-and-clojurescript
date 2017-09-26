@@ -6,14 +6,7 @@
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]))
 
-(def js-fs (js/require "fs"))
-(def js-os (js/require "os"))
-(def js-path (js/require "path"))
-(def js-writerfile (js/require "writefile"))
-(def js-electron (js/require "electron"))
-(def js-child_process (js/require "child_process"))
-
-(def home-dir (.homedir js-os))
+(def home-dir (.homedir (js/require "os")))
 ;; (def current-dir (.resolve js-path "."))
 (def config-file (str home-dir "/.eac/config.edn"))
 (def encoding "utf8")
@@ -23,7 +16,7 @@
 (defn cur-dir [f] (str current-dir f))
 
 (defn read-file [file cont-fn]
-  (.readFile js-fs file (clj->js {:encoding encoding}) cont-fn))
+  (.readFile (js/require "fs") #_js-fs file (clj->js {:encoding encoding}) cont-fn))
 
 (defn read [file editor open-files]
   (let [content @(rf/subscribe [:ide-file-content file])]
@@ -41,7 +34,7 @@
              (rf/dispatch [:ide-file-editor-change [file editor]]))))))))
 
 (defn save [file data]
-  (js-writerfile
+  ((js/require "writefile")
    file data
    (fn [err _]
      (if err
@@ -52,7 +45,7 @@
   (let [cmd (first cmd-line)
         prms (clj->js (rest cmd-line))]
     (.log js/console "$" (sjoin cmd-line))
-    (let [spawn (.-spawn js-child_process)
+    (let [spawn (.-spawn (js/require "child_process"))
           prc (spawn cmd prms)]
       (js/prc.stdout.setEncoding encoding)
       (js/prc.stdout.on

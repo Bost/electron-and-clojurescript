@@ -1,8 +1,7 @@
-(ns app.main
-  (:require [app.fs :as fs]))
+(ns app.main)
 
-(def app           (.-app fs/js-electron))
-(def BrowserWindow (.-BrowserWindow fs/js-electron))
+(def app           (.-app (js/require "electron")))
+(def BrowserWindow (.-BrowserWindow (js/require "electron")))
 
 (goog-define dev? false)
 
