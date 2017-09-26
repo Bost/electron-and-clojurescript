@@ -192,7 +192,7 @@
                                  (remove nil?)
                                  s/join)]
                    (sjoin [(if-not (empty? attr) (str "*" attr "*"))
-                           (.basename path file)]))])
+                           (str i " " (.basename path file))]))])
               files))))]
        [:div {:class "r-wrapper"}
         (let [active @(rf/subscribe [:active-file])]

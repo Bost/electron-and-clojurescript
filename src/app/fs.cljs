@@ -75,6 +75,7 @@
 (def current-dir (.resolve (js/require "path") "."))
 (defn cur-dir [f] (str current-dir f))
 
+;; TODO handle situation with too many opened files
 (defn fn-load-ide-files [err data]
   (let [files
         (if err
