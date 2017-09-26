@@ -22,7 +22,6 @@
 ;; TODO multiple-buffer, split-view: horizontal / vertical (active/inactive editor- bg-color)
 ;; TODO multiple-buffer, split-view: http://codemirror.net/demo/buffers.html
 ;; TODO dired
-;; TODO file numbers: s-1, s-2, ... activate-file
 ;; TODO stack of active files 1. *A*, 2. *P*, 3. <order-by edit-time?>
 ;; TODO search and replace: http://codemirror.net/doc/manual.html#addon_search
 
@@ -177,6 +176,21 @@
 (defn active? [file]
   (= file @(rf/subscribe [:active-file])))
 
+(def fancy-indexes ["➊" "➋" "➌" "➍" "➎" "➏" "➐" "➑" "➒"])
+
+(defn file-tab [key-name i path file]
+  [:div {:key (str key-name i)
+         :class (sjoin [css/box
+                        (str css/tabs (inc i))
+                        css/codemirror-theme
+                        css/codemirror-theme-mode])
+         :on-click (fn [] (rf/dispatch [:active-file-change file]))}
+   (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
+                   (remove nil?)
+                   s/join)]
+     (sjoin [(if-not (empty? attr) (str "*" attr "*"))
+             (str (nth fancy-indexes i) " " (.basename path file))]))])
+
 (defn uix [files]
   (let [cnt-files (count files)
         css-fn @(rf/subscribe [:tabs-pos])]
@@ -191,20 +205,7 @@
                path (js/require "path")]
            (if (= css-fn css/no-tabs)
              []
-             (map-indexed
-              (fn [i file]
-                [:div {:key (str css/tabs i)
-                       :class (sjoin [css/box
-                                      (str css/tabs (inc i))
-                                      css/codemirror-theme
-                                      css/codemirror-theme-mode])
-                       :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-                 (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
-                                 (remove nil?)
-                                 s/join)]
-                   (sjoin [(if-not (empty? attr) (str "*" attr "*"))
-                           (str i " " (.basename path file))]))])
-              files))))]
+             (map-indexed (fn [i file] (file-tab css/tabs i path file)) files))))]
        [:div {:class "r-wrapper"}
         (let [active @(rf/subscribe [:active-file])]
           (map-indexed
@@ -229,22 +230,7 @@
              path (js/require "path")
              tabs (if (= css-fn css/no-tabs)
                     []
-                    (map-indexed
-                     (fn [i file]
-                       [:div {:key i
-                              :class (sjoin [css/box
-                                             (str css/tabs (inc i))
-                                             css/codemirror-theme
-                                             css/codemirror-theme-mode])
-                              :on-click (fn [] (rf/dispatch [:active-file-change file]))}
-
-                        (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
-                                        (remove nil?)
-                                        s/join)]
-                          (sjoin [(if-not (empty? attr)
-                                    (str "*" attr "*"))
-                                  (.basename path file)]))])
-                     files))
+                    (map-indexed (fn [i file] (file-tab "" i path file)) files))
              editor (map-indexed
                      (fn [i file]
                        [:div {:key (+ (count tabs) i) :class (sjoin [#_css/box css/editor])}

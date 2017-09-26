@@ -92,7 +92,7 @@
       }
      (->>
       (map-indexed (fn [i file]
-                     {(keyword (str "Cmd-" i))
+                     {(keyword (str "Cmd-" (inc i)))
                       (fn [editor] (rf/dispatch [:active-file-change file]))})
                    open-files)
       (into {})))
