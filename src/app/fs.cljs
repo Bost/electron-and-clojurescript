@@ -1,5 +1,6 @@
 (ns app.fs
   (:require
+   [cljs.reader :refer [read-string]]
    [re-frame.core :as rf]
    [clojure.string :as s]
    [utils.core :refer [in? dbg sjoin next-cyclic]]
@@ -11,6 +12,8 @@
 (def config-file (str home-dir "/.eac/config.edn"))
 (def encoding "utf8")
 (def fwriter (js/require "writefile"))
+(def current-dir (.resolve (js/require "path") "."))
+(defn cur-dir [f] (str current-dir f))
 
 (defn read-file [file cont-fn]
   (.readFile fs file (clj->js {:encoding encoding}) cont-fn))
@@ -73,24 +76,21 @@
     (with-open [wr (clojure.core/writer config-file)]
       (.write wr (clojure.core/pr-str settings)))))
 
-(def current-dir (.resolve (js/require "path") "."))
-(defn cur-dir [f] (str current-dir f))
+(def default-ide-files
+  {(cur-dir "/src/app/fs.cljs") {}
+   (cur-dir "/src/app/keymap.cljs") {}
+   (cur-dir "/src/app/renderer.cljs") {}
+   (cur-dir "/src/app/styles.cljs") {}
+   (cur-dir "/src/app/regs.cljs") {}
+   (cur-dir "/resources/index.html") {}})
 
 ;; TODO handle situation with too many opened files
-(defn fn-load-ide-files [err data]
-  (let [files
-        (if err
-          (do
-            (.error js/console err)
-            {(cur-dir "/src/app/fs.cljs") {}
-             (cur-dir "/src/app/keymap.cljs") {}
-             (cur-dir "/src/app/renderer.cljs") {}
-             (cur-dir "/src/app/styles.cljs") {}
-             (cur-dir "/src/app/regs.cljs") {}
-             (cur-dir "/resources/index.html") {}})
-          (:ide-files (cljs.reader/read-string data)))]
-    (rf/dispatch [:ide-files-change files]))
-  )
-
 (defn read-ide-settings []
-  (read-file config-file fn-load-ide-files))
+  (read-file config-file
+             (fn [err data]
+               (rf/dispatch [:ide-files-change
+                             (if err (do (.error js/console err)
+                                         default-ide-files)
+                                 (->> data
+                                      cljs.reader/read-string
+                                      :ide-files))]))))
