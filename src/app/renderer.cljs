@@ -139,17 +139,17 @@
         menu-item-fn (.-MenuItem remote)
         menu (menu-fn.)
         menu-items [(menu-item-fn.
-                     #js {:label "MenuItem1"
-                          :click (fn [] (.log js/console "item 1 clicked"))})
+                     (clj->js {:label "MenuItem1"
+                               :click
+                               (fn [] (.log js/console "item 1 clicked"))}))
                     (menu-item-fn.
                      #js {:type "separator"})
                     (menu-item-fn.
-                     #js {:label "MenuItem2"
-                          :type "checkbox"
-                          :checked true
-                          :click (fn [] (.log js/console "item 2 clicked"))
-                          })]
-        ]
+                     (clj->js {:label "MenuItem2"
+                               :type "checkbox"
+                               :checked true
+                               :click
+                               (fn [] (.log js/console "item 2 clicked"))}))]]
     (doseq [mi menu-items]
       (.append menu mi))
     (.addEventListener
@@ -164,12 +164,13 @@
 (defn active-stats [key files]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:key key :class (sjoin [css/box css/stats
-                                 css/codemirror-theme css/codemirror-theme-mode])}
-     (map-indexed
-      (fn [i file]
-        (if (= file active) (sjoin [file "orig-size" (count orig-size) "bytes"])))
-      files)]))
+    [:div {:key key
+           :class (sjoin [css/box css/stats
+                          css/codemirror-theme css/codemirror-theme-mode])}
+     (map-indexed (fn [i file]
+                    (if (= file active)
+                      (sjoin [file "orig-size" (count orig-size) "bytes"])))
+                  files)]))
 
 (defn prev? [file]
   (= file @(rf/subscribe [:prev-file])))
