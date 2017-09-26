@@ -12,7 +12,7 @@
 (rf/reg-event-db
  :initialize
  (fn [_ _]
-   (.log js/console ":initialize 1 (js/Date.)" (js/Date.))
+   (.log js/console "Initialize re-frame.core" (js/Date.))
    {:time (js/Date.)
     :time-color "#f88"}))
 

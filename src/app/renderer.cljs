@@ -32,7 +32,7 @@
   #_(fs/save fs "~/.eac/settings.edn" "{:open-files []}"))
 
 (defn init []
-  (.log js/console "Starting Application")
+  (.log js/console "Starting Application" (js/Date.))
   (fs/read-ide-settings))
 
 ;; A detailed walk-through of this source code is provied in the docs:
@@ -248,8 +248,7 @@
        ])))
 
 (defn ui []
-  (let [
-        ide-files @(rf/subscribe [:ide-files])
+  (let [ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)
         active (first files)]
     (rf/dispatch [:tabs-pos-change default-css-fn])
@@ -261,7 +260,6 @@
 (defn ^:export run
   []
   ;; puts a value into application state
-  (.log js/console "run 1 (js/Date.)" (js/Date.))
   (rf/dispatch-sync [:initialize])
   ;; mount the application's ui into '<div id="app" />'
   (r/render [ui] (js/document.getElementById "app")))

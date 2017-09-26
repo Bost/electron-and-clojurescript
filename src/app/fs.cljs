@@ -72,33 +72,23 @@
     (with-open [wr (clojure.core/writer config-file)]
       (.write wr (clojure.core/pr-str settings)))))
 
-#_{:ide-files
- {
-  "/home/bost/dev/eac/src/app/keymap.cljs" {}
-  "/home/bost/dev/eac/src/app/renderer.cljs" {}
-  "/home/bost/dev/eac/src/app/styles.cljs" {}
-  "/home/bost/dev/eac/resources/index.html" {}
-  "/home/bost/dev/eac/src/app/regs.cljs" {}
-  }}
+(def current-dir (.resolve (js/require "path") "."))
+(defn cur-dir [f] (str current-dir f))
 
 (defn fn-load-ide-files [err data]
-  (rf/dispatch
-   [:ide-files-change
-    (if err
-      (do
-        ;; (js/throw err)
-        (let [path (js/require "path")
-              cur-dir (.resolve path ".")]
-          {
-           (str cur-dir "/src/app/keymap.cljs") {}
-           (str cur-dir "/src/app/renderer.cljs") {}
-           (str cur-dir "/src/app/styles.cljs") {}
-           (str cur-dir "/resources/index.html") {}
-           (str cur-dir "/src/app/regs.cljs") {}
-           }))
-      (do
-        #_(.log js/console "(:ide-files (cljs.reader/read-string data))" (:ide-files (cljs.reader/read-string data)))
-        (:ide-files (cljs.reader/read-string data))))]))
+  (let [files
+        (if err
+          (do
+            (.error js/console err)
+            {(cur-dir "/src/app/fs.cljs") {}
+             (cur-dir "/src/app/keymap.cljs") {}
+             (cur-dir "/src/app/renderer.cljs") {}
+             (cur-dir "/src/app/styles.cljs") {}
+             (cur-dir "/src/app/regs.cljs") {}
+             (cur-dir "/resources/index.html") {}})
+          (:ide-files (cljs.reader/read-string data)))]
+    (rf/dispatch [:ide-files-change files]))
+  )
 
 (defn read-ide-settings []
   (read-file config-file fn-load-ide-files))
