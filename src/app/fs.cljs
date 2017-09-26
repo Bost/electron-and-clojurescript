@@ -4,37 +4,45 @@
    [re-frame.core :as rf]
    [clojure.string :as s]
    [utils.core :refer [in? dbg sjoin next-cyclic]]
-   [app.regs]
-   ))
+   [app.regs]))
 
-(def fs (js/require "fs"))
-(def home-dir (-> (js/require "os") .homedir))
+(def js-fs (js/require "fs"))
+(def js-os (js/require "os"))
+(def js-path (js/require "path"))
+(def js-writerfile (js/require "writefile"))
+(def js-electron (js/require "electron"))
+(def js-child_process (js/require "child_process"))
+
+(def home-dir (.homedir js-os))
+;; (def current-dir (.resolve js-path "."))
 (def config-file (str home-dir "/.eac/config.edn"))
 (def encoding "utf8")
 (def fwriter (js/require "writefile"))
 (def current-dir (.resolve (js/require "path") "."))
+
 (defn cur-dir [f] (str current-dir f))
 
 (defn read-file [file cont-fn]
-  (.readFile fs file (clj->js {:encoding encoding}) cont-fn))
+  (.readFile js-fs file (clj->js {:encoding encoding}) cont-fn))
 
 (defn read [file editor open-files]
   (let [content @(rf/subscribe [:ide-file-content file])]
     (if content
       (.setValue (.-doc editor) content)
-      (read-file file
-                 (fn [err data]
-                   (if err
-                     (js/throw err)
-                     (do
-                       (.log js/console file (count data) "bytes loaded")
-                       (.setValue (.-doc editor) data)
-                       (rf/dispatch [:ide-file-content-change [file data]])
-                       (rf/dispatch [:ide-file-editor-change [file editor]])
-                       )))))))
+      (read-file
+       file
+       (fn [err data]
+         (if err
+           (js/throw err)
+           (do
+             (.log js/console file (count data) "bytes loaded")
+             (.setValue (.-doc editor) data)
+             (rf/dispatch [:ide-file-content-change [file data]])
+             (rf/dispatch [:ide-file-editor-change [file editor]]))))))))
 
 (defn save [file data]
-  (fwriter file data
+  (js-writerfile
+   file data
    (fn [err _]
      (if err
        (js/throw err)
@@ -44,7 +52,7 @@
   (let [cmd (first cmd-line)
         prms (clj->js (rest cmd-line))]
     (.log js/console "$" (sjoin cmd-line))
-    (let [spawn (->> (js/require "child_process") .-spawn)
+    (let [spawn (.-spawn js-child_process)
           prc (spawn cmd prms)]
       (js/prc.stdout.setEncoding encoding)
       (js/prc.stdout.on

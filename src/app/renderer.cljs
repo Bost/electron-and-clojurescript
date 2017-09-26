@@ -7,8 +7,7 @@
    [app.regs]
    [app.styles :as css]
    [app.keymap :as k]
-   [app.fs :as fs]
-   ))
+   [app.fs :as fs]))
 
 ;; TODO Ctrl-Cmd-Alt-<Key> jump-to-char
 ;; TODO vim keybindings
@@ -93,13 +92,11 @@
                    ;; see https://github.com/Bost/paredit-cm.git
                    ;; :keyMap "paredit_cm"
                    :autoCloseBrackets true}
-                  (conj (let [path (js/require "path")]
-                          ((keyword (.extname path file))
-                           {:.cljs {:mode "clojure"}
-                            :.html {:mode "xml" :htmlMode true}})))
+                  (conj ((keyword (.extname fs/js-path file))
+                         {:.cljs {:mode "clojure"}
+                          :.html {:mode "xml" :htmlMode true}}))
                   clj->js))
-            open-files @(rf/subscribe [:open-files])
-            ]
+            open-files @(rf/subscribe [:open-files])]
         (fs/read file editor open-files)
         (.setSize editor nil (css/window-height))
         (.focus editor)
@@ -134,7 +131,7 @@
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
   []
-  (let [remote (.-remote (js/require "electron"))
+  (let [remote (.-remote fs/js-electron)
         menu-fn (.-Menu remote)
         menu-item-fn (.-MenuItem remote)
         menu (menu-fn.)
@@ -143,7 +140,7 @@
                                :click
                                (fn [] (.log js/console "item 1 clicked"))}))
                     (menu-item-fn.
-                     #js {:type "separator"})
+                     (clj->js {:type "separator"}))
                     (menu-item-fn.
                      (clj->js {:label "MenuItem2"
                                :type "checkbox"
@@ -158,8 +155,7 @@
        (.preventDefault e)
        (.popup menu (.getCurrentWindow remote)))
      false)
-    [:div]
-    ))
+    [:div]))
 
 (defn active-stats [key files]
   (let [active @(rf/subscribe [:active-file])
@@ -260,4 +256,3 @@
   (rf/dispatch-sync [:initialize])
   ;; mount the application's ui into '<div id="app" />'
   (r/render [ui] (js/document.getElementById "app")))
-
