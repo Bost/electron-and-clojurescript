@@ -1,0 +1,22 @@
+* key bindings
+** Ctrl-Cmd-Alt-<Key> jump-to-char
+** vim key bindings
+** key binding names as in emacs
+** display key bindings in the bottom righ corner
+** integrate paredit-cm
+* tabs: vertically orientated file names on the right and left
+* search and replace
+** http://codemirror.net/doc/manual.html#addon_search
+** ack-grep
+* drag-line / drag-text
+* kill only the own boot-process; display a list of found processes
+* full-screen style w/o stats and cmd-line
+* context-menu
+** 'Search for <hlited-text>'
+** paste from clipboard
+* integrate utils dependency
+* multiple-files
+** split-view: horizontal / vertical (active/inactive editor- bg-color)
+** split-view: http://codemirror.net/demo/buffers.html
+* dired
+* auto format source code
