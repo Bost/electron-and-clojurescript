@@ -235,12 +235,13 @@
   (let [ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)
         active (if-let [af @(rf/subscribe [:active-file])]
-                 af
-                 (first files))]
-    (rf/dispatch [:tabs-pos-change default-css-fn])
-    (rf/dispatch [:open-files-change files])
-    (rf/dispatch [:active-file-change active])
-    (rf/dispatch [:prev-file-change active])
+                 af (first files))]
+    (->> [[:tabs-pos-change default-css-fn]
+          [:open-files-change files]
+          [:active-file-change active]
+          [:prev-file-change active]]
+         (map rf/dispatch)
+         doall)
     [uix files]))
 
 (defn ^:export run
