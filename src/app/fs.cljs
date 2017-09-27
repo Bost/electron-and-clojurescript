@@ -60,11 +60,14 @@
       (js/prc.stdout.on
        "exit" (fn [code] (.log js/console "Process exit code" code))))))
 
+(defn hm-with-default [kws default-val]
+  (apply hash-map (interleave kws (repeat default-val))))
+
 (defn save-ide-settings []
   (let [settings @(rf/subscribe [:ide-files])]
     (save config-file
-          #_(with-out-str (clojure.pprint/pprint settings))
-          (-> {:ide-files settings} clojure.core/prn-str))))
+          (-> {:ide-files (hm-with-default (keys settings) {})}
+              clojure.core/prn-str))))
 
 (def default-ide-files
   {(cur-dir "/src/app/fs.cljs") {}

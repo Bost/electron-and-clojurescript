@@ -9,21 +9,6 @@
    [app.keymap :as k]
    [app.fs :as fs]))
 
-;; TODO Ctrl-Cmd-Alt-<Key> jump-to-char
-;; TODO vim keybindings
-;; TODO drag-line / drag-text
-;; TODO Kill only the own boot-process; display a list of found processes
-;; TODO full-screen style w/o stats and cmd-line
-;; TODO context-menu: 'Search for <hlited-text>'
-;; TODO context-menu: paste from clipboard
-;; TODO integrate paredit-cm
-;; TODO integrate utils dependency
-;; TODO multiple-buffer, split-view: horizontal / vertical (active/inactive editor- bg-color)
-;; TODO multiple-buffer, split-view: http://codemirror.net/demo/buffers.html
-;; TODO dired
-;; TODO stack of active files 1. *A*, 2. *P*, 3. <order-by edit-time?>
-;; TODO search and replace: http://codemirror.net/doc/manual.html#addon_search
-
 (def default-css-fn css/left-to-right)
 
 (defn save-ide-settings []
@@ -249,7 +234,9 @@
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)
-        active (first files)]
+        active (if-let [af @(rf/subscribe [:active-file])]
+                 af
+                 (first files))]
     (rf/dispatch [:tabs-pos-change default-css-fn])
     (rf/dispatch [:open-files-change files])
     (rf/dispatch [:active-file-change active])
