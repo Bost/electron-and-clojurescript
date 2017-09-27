@@ -16,7 +16,7 @@
 (defn cur-dir [f] (str current-dir f))
 
 (defn read-file [file cont-fn]
-  (.readFile (js/require "fs") #_js-fs file (clj->js {:encoding encoding}) cont-fn))
+  (.readFile (js/require "fs") file (clj->js {:encoding encoding}) cont-fn))
 
 (defn read [file editor open-files]
   (let [content @(rf/subscribe [:ide-file-content file])]
@@ -62,20 +62,9 @@
 
 (defn save-ide-settings []
   (let [settings @(rf/subscribe [:ide-files])]
-    #_(with-open [wr (clojure.core/writer config-file)]
-        (.write wr (clojure.core/pr-str settings)))
-    #_(.log js/console "writing" (-> {:ide-files settings} clojure.core/pr-str #_with-out-str))
     (save config-file
           #_(with-out-str (clojure.pprint/pprint settings))
           (-> {:ide-files settings} clojure.core/prn-str))))
-
-#_(defn write-object
-  "Serializes an object to disk so it can be opened again later.
-   Careful: It will overwrite an existing file at file-path."
-  []
-  (let [settings @(rf/subscribe [:ide-files])]
-    (with-open [wr (clojure.core/writer config-file)]
-      (.write wr (clojure.core/pr-str settings)))))
 
 (def default-ide-files
   {(cur-dir "/src/app/fs.cljs") {}

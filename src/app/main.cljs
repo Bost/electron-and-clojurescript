@@ -30,7 +30,7 @@
   (.on @main-window "closed" #(reset! main-window nil)))
 
 (defn init []
-  (.on app "window-all-closed" #(when-not (= js/process.platform "darwin") (.quit app)))
+  (.on app "window-all-closed"
+       #(when-not (= js/process.platform "darwin") (.quit app)))
   (.on app "ready" init-browser)
   (set! *main-cli-fn* (fn [] nil)))
-
