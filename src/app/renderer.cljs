@@ -225,7 +225,7 @@
                     []
                     (map-indexed (fn [i file] (file-tab "" i file))
                                  files))]
-         (into (editors "" files active (count tabs))
+         (conj (editors "" files active (count tabs))
                tabs))
        [active-stats cnt-files files]
        [cmd-line cnt-files]
