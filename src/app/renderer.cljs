@@ -40,8 +40,7 @@
 ;; created in the face of figwheel hot-reloading of this file.
 (defonce do-timer (js/setInterval dispatch-timer-event 2000))
 
-(defn clock
-  []
+(defn clock []
   [:div.example-clock
    {:style {:color @(rf/subscribe [:time-color])}}
    (-> @(rf/subscribe [:time])
@@ -49,8 +48,7 @@
        (s/split " ")
        first)])
 
-(defn color-input
-  []
+(defn color-input []
   [:div.color-input
    "Time color: "
    [:input {:type "text"
@@ -111,7 +109,6 @@
     (fn []
       #_(.log js/console "reagent-render")
       [:div])}))
-
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
@@ -231,15 +228,18 @@
        [cmd-line cnt-files]
        [context-menu]])))
 
+(defn init-vals [k default-val]
+  [(keyword (str (name k) "-change"))
+   (if-let [val @(rf/subscribe [k])]
+     val default-val)])
+
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
-        files (->> ide-files keys vec)
-        active (if-let [af @(rf/subscribe [:active-file])]
-                 af (first files))]
-    (->> [[:tabs-pos-change default-css-fn]
+        files (->> ide-files keys vec)]
+    (->> [(init-vals :tabs-pos default-css-fn)
           [:open-files-change files]
-          [:active-file-change active]
-          [:prev-file-change active]]
+          (init-vals :active-file (first files))
+          (init-vals :prev-file (first files))]
          (map rf/dispatch)
          doall)
     [uix files]))
