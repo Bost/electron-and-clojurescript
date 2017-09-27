@@ -165,9 +165,8 @@
                         (str css/tabs (inc i))
                         css/codemirror-theme
                         css/codemirror-theme-mode
-                        (cond
-                          (active? file) css/active
-                          (prev? file) css/prev)])
+                        (if (active? file) css/active)
+                        (if (prev? file) css/prev)])
          :on-click (fn [] (rf/dispatch [:active-file-change file]))}
    (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
                    (remove nil?)
