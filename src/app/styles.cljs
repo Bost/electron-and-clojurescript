@@ -49,8 +49,7 @@
     (conj
      #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})]
    [(class active)
-    {:font-weight "bold"
-     :text-decoration "underline wavy"}]
+    {:font-weight "bold" :text-decoration "underline"}]
    [(class prev)
     {:font-weight "bold"}]])
 

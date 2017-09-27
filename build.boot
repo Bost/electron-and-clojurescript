@@ -7,7 +7,7 @@
    [org.clojure/tools.nrepl "0.2.12" :scope "test"]
    [com.cemerick/piggieback "0.2.2" :scope "test"]
 
-   [utils "0.1.0"]
+   [utils "0.1.1"]
 
    ;; ClojureScript browser REPL using WebSockets
    [weasel "0.7.0" :scope "test"]

@@ -173,7 +173,9 @@
 (defn active? [file]
   (= file @(rf/subscribe [:active-file])))
 
-(def fancy-indexes ["➊" "➋" "➌" "➍" "➎" "➏" "➐" "➑" "➒"])
+(def fancy-indexes-active-or-prev ["➊" "➋" "➌" "➍" "➎" "➏" "➐" "➑" "➒"]
+  #_["❶" "❷" "❸" "❹" "❺" "❻" "❼" "❽" "❾"])
+(def fancy-indexes-default ["①" "②" "③" "④" "⑤" "⑥" "⑦" "⑧" "⑨"])
 
 (defn file-tab [key-name i file]
   [:div {:key (str key-name i)
@@ -181,15 +183,19 @@
                         (str css/tabs (inc i))
                         css/codemirror-theme
                         css/codemirror-theme-mode
-                        (if (active? file) css/active)
-                        (if (prev? file) css/prev)])
+                        (cond
+                          (active? file) css/active
+                          (prev? file) css/prev)])
          :on-click (fn [] (rf/dispatch [:active-file-change file]))}
    (let [attr (->> [(if (active? file) "A") (if (prev? file) "P")]
                    (remove nil?)
                    s/join)]
      (sjoin [
              #_(if-not (empty? attr) (str "*" attr "*"))
-             (nth fancy-indexes i)
+             (let [fancy-indexes (if (or (active? file) (prev? file))
+                                   fancy-indexes-active-or-prev
+                                   fancy-indexes-default)]
+               (nth fancy-indexes i))
              (.basename (js/require "path") file)]))])
 
 (defn editors [key-name files active count-tabs]
