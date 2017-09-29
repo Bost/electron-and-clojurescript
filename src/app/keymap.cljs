@@ -30,6 +30,11 @@
     (let [pos (.getCursor doc)]
       (.setCursor doc (clj->js {:line (.-line pos)
                                 :ch (- (.-ch pos) n-chars-back)})))))
+
+(defn active-line-off [editor]
+  (.setOption editor "styleActiveLine" false)
+  js/CodeMirror.Pass)
+
 (defn keymap
   "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
   [file open-files]
@@ -38,20 +43,9 @@
    {}
    (->>
     (conj
+     {:Up active-line-off
+      :Down active-line-off}
      {
-      :Up
-      (fn [editor]
-        #_(.log js/console "up old val" (->> editor .-options .-styleActiveLine))
-        (.setOption editor "styleActiveLine" true)
-        js/CodeMirror.Pass)
-      :Down
-      (fn [editor]
-        #_(.log js/console "down old val" (->> editor .-options .-styleActiveLine))
-        (.setOption editor "styleActiveLine" false)
-        js/CodeMirror.Pass)
-      }
-     {
-
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
       ;; single key: <S>

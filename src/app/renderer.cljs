@@ -3,6 +3,7 @@
    [reagent.core :as r]
    [re-frame.core :as rf]
    [clojure.string :as s]
+   #_[clojure.pprint :refer [pprint]]
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    [app.regs]
    [app.styles :as css]
@@ -11,9 +12,6 @@
 
 (def default-css-fn css/left-to-right)
 
-(defn save-ide-settings []
-  #_(fs/save fs "~/.eac/settings.edn" "{:open-files []}"))
-
 (defn init []
   (.log js/console "Starting Application" (js/Date.))
   (fs/read-ide-settings))
@@ -21,24 +19,16 @@
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
 
-(defn dispatch-timer-event
-  []
-  (let [
-        active @(rf/subscribe [:active-file])
-        editor @(rf/subscribe [:ide-file-editor active])
-        ;; content @(rf/subscribe [:ide-file-content active])
-        ]
-    (if editor ;; TODO editor must be always defined!
-      (do
-        (.log js/console "active" active "old styleActiveLine"
-              (.getOption editor "styleActiveLine" true))
-        (.setOption editor "styleActiveLine" true))))
+(defn dispatch-timer-event []
+  (let [active @(rf/subscribe [:active-file])
+        editor @(rf/subscribe [:ide-file-editor active])]
+    (.setOption editor "styleActiveLine" true))
   #_(let [now (js/Date.)] (rf/dispatch [:timer now])))
 
 ;; Call the dispatching function every second.
 ;; `defonce` is like `def` but it ensures only one instance is ever
 ;; created in the face of figwheel hot-reloading of this file.
-(defonce do-timer (js/setInterval dispatch-timer-event 2000))
+(defonce do-timer (js/setInterval dispatch-timer-event 500))
 
 (defn clock []
   [:div.example-clock
@@ -80,6 +70,7 @@
                           :.html {:mode "xml" :htmlMode true}}))
                   clj->js))
             open-files @(rf/subscribe [:open-files])]
+        (rf/dispatch [:ide-file-editor-change [file editor]])
         (fs/read file editor open-files)
         (.setSize editor nil (css/window-height))
         (.focus editor)
