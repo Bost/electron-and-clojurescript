@@ -46,6 +46,8 @@
      {:Up active-line-off
       :Down active-line-off}
      {
+      :Ctrl-Left (fn [editor] (.execCommand editor "goWordLeft"))
+      :Ctrl-Right (fn [editor] (.execCommand editor "goWordRight"))
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
       ;; single key: <S>
