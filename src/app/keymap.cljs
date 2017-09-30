@@ -46,6 +46,7 @@
      {:Up active-line-off
       :Down active-line-off}
      {
+      (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
       :Ctrl-Left (fn [editor] (.execCommand editor "goWordLeft"))
       :Ctrl-Right (fn [editor] (.execCommand editor "goWordRight"))
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
