@@ -59,11 +59,17 @@
                    :vimMode true
                    :styleActiveLine true
                    :showCursorWhenSelecting true
+                   :rulers (clj->js
+                            [{:color "lightgray"
+                              :column 80 :lineStyle "dashed"}])
                    ;; :cursorBlinkRate 0 ;; 0 - no blinking
-                   :highlightSelectionMatches #js {:showToken true
-                                                   :annotateScrollbar true}
+                   :matchBrackets true
+                   :showTrailingSpace true ;; TODO doesn't work
+                   :highlightSelectionMatches (clj->js
+                                               [{:showToken true
+                                                 :annotateScrollbar true}])
                    ;; see https://github.com/Bost/paredit-cm.git
-                   ;; :keyMap "paredit_cm"
+                   ;; :keyMap "paredit_cm" ;; see lib/keymap-paredit-cm.js
                    :autoCloseBrackets true}
                   (conj ((keyword (.extname (js/require "path") file))
                          {:.cljs {:mode "clojure"}
