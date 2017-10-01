@@ -25,6 +25,7 @@
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
    [garden "1.3.2"]
+   #_[org.webjars.bower/bootstrap "3.3.6"]
    ]
  )
 
@@ -48,6 +49,7 @@
         #_(sift :move {#"cljsjs/codemirror/development/codemirror.css"
                      "vendor/codemirror/codemirror.css"})
 
+        #_(deraen.boot-less/less) ;; TODO http://lesscss.org/
         ;; Inject REPL and reloading code into renderer build =======
         (cljs-repl :ids #{"renderer"}
                    :nrepl-opts {:bind "0.0.0.0" :port 36503})

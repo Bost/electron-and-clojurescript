@@ -6,7 +6,9 @@
    [app.regs]
    [app.fs :as fs]
    [app.styles :as css]
+   [app.search :as sr]
    [app.paredit-cm :as p]
+   [app.panel :as panel]
    ))
 
 (defn next-active [editor open-files]
@@ -46,7 +48,9 @@
      {:Up active-line-off
       :Down active-line-off}
      {
+      :Ctrl-B (fn [editor] (panel/addPanel editor "bottom"))
       (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
+      :Cmd-Ctrl-F (fn [editor] (sr/search editor))
       :Ctrl-Left (fn [editor] (.execCommand editor "goWordLeft"))
       :Ctrl-Right (fn [editor] (.execCommand editor "goWordRight"))
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))

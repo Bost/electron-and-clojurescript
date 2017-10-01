@@ -20,6 +20,7 @@
     <script src="node_modules/codemirror/addon/edit/matchbrackets.js"></script>
     <script src="node_modules/codemirror/addon/dialog/dialog.js"></script>
     <script src="node_modules/codemirror/addon/display/rulers.js"></script>
+    <script src="node_modules/codemirror/addon/display/panel.js"></script>
     <script src="node_modules/writefile/index.js"></script>
     <script src="node_modules/codemirror/addon/edit/closebrackets.js"></script>
 
@@ -61,6 +62,29 @@
        .CodeMirror-selection-highlight-scrollbar {background-color: green}
        .cm-s-solarized.cm-s-light div.CodeMirror-selected {
            background: #e4dbbd; // TODO use less darken
+       }
+       .add-panel {
+           background: orange;
+           padding: 3px 6px;
+           color: white !important;
+           border-radius: 3px;
+       }
+       .add-panel, .remove-panel {
+           cursor: pointer;
+       }
+       .remove-panel {
+           float: left;
+       }
+       .panel {
+           background: #f7f7f7;
+           padding: 3px 7px;
+           font-size: 0.85em;
+       }
+       .panel.top, .panel.after-top {
+           border-bottom: 1px solid #ddd;
+       }
+       .panel.bottom, .panel.before-bottom {
+           border-top: 1px solid #ddd;
        }
       </style>
       <div id="app">Loading re-frame / reagent app...</div>
