@@ -98,7 +98,7 @@
                    open-files)
       (into {})))
     #_(map (fn [[k v]]
-           {k (fn [editor] (println "key-comb" (name k)) (v editor))}))
+           {k (fn [editor] (println "key-chord" (name k)) (v editor))}))
     (into {}))
    clj->js))
 

@@ -3,7 +3,7 @@
  :resource-paths  #{"resources"}
  :dependencies
  '[
-   [org.clojure/clojurescript "1.9.908"]
+   [org.clojure/clojurescript "1.9.946"]
    [org.clojure/tools.nrepl "0.2.12" :scope "test"]
    [com.cemerick/piggieback "0.2.2" :scope "test"]
 
