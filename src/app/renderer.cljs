@@ -198,7 +198,7 @@
                    :active @(rf/subscribe [:active-file]))]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
-       [(if css-fn css-fn default-css-fn) files]
+       [(if css-fn css-fn default-css-fn) prm]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
@@ -210,7 +210,7 @@
         [cmd-line prm]]
        [context-menu prm]]
       [:div {:class "wrapper"}
-       [(if css-fn css-fn default-css-fn) files]
+       [(if css-fn css-fn default-css-fn) prm]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
        (let [prm (assoc prm :react-key "")

@@ -58,7 +58,7 @@
 (def left "left")
 (def right "right")
 
-(defn left-right [tabs-left files]
+(defn left-right [{:keys [tabs-left files] :as prm}]
   [:style {:type "text/css"}
    (->> (common)
         (conj
@@ -104,10 +104,10 @@
         (apply g/css))
    ])
 
-(defn left-to-right [files] (left-right true files))
-(defn right-to-left [files] (left-right false files))
+(defn left-to-right [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left true)))
+(defn right-to-left [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left false)))
 
-(defn tabs-on-top [files]
+(defn tabs-on-top [{:keys [files]}]
   [:style {:type "text/css"}
    (->> (common)
         (conj
@@ -133,7 +133,7 @@
             ]))
         (apply g/css))])
 
-(defn no-tabs [files]
+(defn no-tabs [{:keys [files] :as prm}]
   [:style {:type "text/css"}
    (->> (common)
         (conj
