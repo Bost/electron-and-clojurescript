@@ -109,7 +109,7 @@
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
-  []
+  [{:keys [] :as prm}]
   (let [remote (.-remote (js/require "electron"))
         menu-fn (.-Menu remote)
         menu-item-fn (.-MenuItem remote)
@@ -136,10 +136,10 @@
      false)
     [:div]))
 
-(defn active-stats [key files]
+(defn active-stats [{:keys [react-key files] :as prm}]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:key key
+    [:div {:key react-key
            :class (sjoin [css/box css/stats
                           css/codemirror-theme css/codemirror-theme-mode])}
      (map-indexed (fn [i file]
@@ -147,10 +147,13 @@
                       (sjoin [file "orig-size" (count orig-size) "bytes"])))
                   files)]))
 
-(defn prev? [file]
-  (= file @(rf/subscribe [:prev-file])))
-(defn active? [file]
-  (= file @(rf/subscribe [:active-file])))
+(defn cmd-line [{:keys [] :as prm}]
+  [:div {:class (sjoin [css/box css/cmd-line
+                        css/codemirror-theme css/codemirror-theme-mode])}
+   "cmd-line, messages"])
+
+(defn prev?   [file] (= file @(rf/subscribe [:prev-file])))
+(defn active? [file] (= file @(rf/subscribe [:active-file])))
 
 (def fancy-indexes-active-or-prev ["➊" "➋" "➌" "➍" "➎" "➏" "➐" "➑" "➒"]
   #_["❶" "❷" "❸" "❹" "❺" "❻" "❼" "❽" "❾"])
@@ -183,47 +186,40 @@
                   (if (= active file) [edit file])])
                files))
 
-(defn cmd-line [cnt-files]
-  [:div {:key (inc cnt-files)
-         :class (sjoin [css/box css/cmd-line
-                        css/codemirror-theme css/codemirror-theme-mode])}
-   "cmd-line, messages"])
-
 (defn file-tab-key [{:keys [react-key css-fn files]}]
   (if-not (= css-fn css/no-tabs)
     (map-indexed (fn [i file] (file-tab react-key i file))
                  files)))
 
-(defn uix [files]
-  (let [cnt-files (count files)
-        css-fn @(rf/subscribe [:tabs-pos])
-        active @(rf/subscribe [:active-file])
-        prev @(rf/subscribe [:prev-file])]
+(defn uix [{:keys [files] :as prm}]
+  (let [css-fn @(rf/subscribe [:tabs-pos])
+        prm (assoc prm
+                   :css-fn css-fn
+                   :active @(rf/subscribe [:active-file]))]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
        [(if css-fn css-fn default-css-fn) files]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
-        (let [react-key css/tabs]
-          (doall
-           (file-tab-key {:react-key react-key :css-fn css-fn :files files})))]
+        (doall
+         (file-tab-key (assoc prm :react-key css/tabs)))]
        [:div {:class "r-wrapper"}
-        (editors {:react-key css/editor :files files :active active :count-tabs 0})
-        [active-stats cnt-files files]
-        [cmd-line cnt-files]]
-       [context-menu]]
+        (editors (assoc prm :react-key css/editor :count-tabs 0))
+        [active-stats prm]
+        [cmd-line prm]]
+       [context-menu prm]]
       [:div {:class "wrapper"}
        [(if css-fn css-fn default-css-fn) files]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [prm {:react-key "" :files files :active active :css-fn css-fn}
+       (let [prm (assoc prm :react-key "")
              tabs (file-tab-key prm)]
          (conj (editors (assoc prm :count-tabs (count tabs)))
                tabs))
-       [active-stats cnt-files files]
-       [cmd-line cnt-files]
-       [context-menu]])))
+       [active-stats prm]
+       [cmd-line prm]
+       [context-menu prm]])))
 
 (defn init-vals [k default-val]
   [(keyword (str (name k) "-change"))
@@ -239,7 +235,7 @@
           (init-vals :prev-file (first files))]
          (map rf/dispatch)
          doall)
-    [uix files]))
+    [uix {:files files}]))
 
 (defn ^:export run
   []
