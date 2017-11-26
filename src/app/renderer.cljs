@@ -179,12 +179,13 @@
                (nth fancy-indexes i))
              (.basename (js/require "path") file)]))])
 
-(defn editors [{:keys [react-key files active count-tabs]}]
-  (map-indexed (fn [i file]
-                 [:div {:key (str react-key (+ count-tabs i))
-                        :class (sjoin [#_css/box css/editor])}
-                  (if (= active file) [edit file])])
-               files))
+(defn editors [{:keys [react-key files active tabs]}]
+  (let [count-tabs (count tabs)]
+    (map-indexed (fn [i file]
+                   [:div {:key (str react-key (+ count-tabs i))
+                          :class (sjoin [#_css/box css/editor])}
+                    (if (= active file) [edit file])])
+                 files)))
 
 (defn file-tab-key [{:keys [react-key css-fn files]}]
   (if-not (= css-fn css/no-tabs)
@@ -198,8 +199,13 @@
                    :css-fn css-fn
                    :active @(rf/subscribe [:active-file])
                    :react-key (if (in? [css/left-to-right css/right-to-left] css-fn)
-                                css/editor "")
-                   )]
+                                css/editor ""))
+        tabs (if (in? [css/left-to-right css/right-to-left] css-fn)
+               nil
+               (file-tab-key prm))
+        editor-tabs (conj (editors (assoc prm :tabs tabs))
+                          tabs)
+        ]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
        [css-fn prm]
@@ -209,9 +215,7 @@
         (doall
          (file-tab-key (assoc prm :react-key css/tabs)))]
        [:div {:class "r-wrapper"}
-        (let [tabs nil]
-          (conj (editors (assoc prm :count-tabs 0))
-                tabs))
+        editor-tabs
         [active-stats prm]
         [cmd-line prm]]
        [context-menu prm]]
@@ -219,9 +223,7 @@
        [css-fn prm]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [tabs (file-tab-key prm)]
-         (conj (editors (assoc prm :count-tabs (count tabs)))
-               tabs))
+       editor-tabs
        [active-stats prm]
        [cmd-line prm]
        [context-menu prm]])))
