@@ -176,7 +176,7 @@
                (nth fancy-indexes i))
              (.basename (js/require "path") file)]))])
 
-(defn editors [react-key files active count-tabs]
+(defn editors [{:keys [react-key files active count-tabs]}]
   (map-indexed (fn [i file]
                  [:div {:key (str react-key (+ count-tabs i))
                         :class (sjoin [#_css/box css/editor])}
@@ -189,7 +189,7 @@
                         css/codemirror-theme css/codemirror-theme-mode])}
    "cmd-line, messages"])
 
-(defn file-tab-key [react-key css-fn files]
+(defn file-tab-key [{:keys [react-key css-fn files]}]
   (if-not (= css-fn css/no-tabs)
     (map-indexed (fn [i file] (file-tab react-key i file))
                  files)))
@@ -207,9 +207,9 @@
        [:div {:class "l-wrapper"}
         (let [react-key css/tabs]
           (doall
-           (file-tab-key react-key css-fn files)))]
+           (file-tab-key {:react-key react-key :css-fn css-fn :files files})))]
        [:div {:class "r-wrapper"}
-        (editors css/editor files active 0) ;; (= 0 count-tabs)
+        (editors {:react-key css/editor :files files :active active :count-tabs 0})
         [active-stats cnt-files files]
         [cmd-line cnt-files]]
        [context-menu]]
@@ -217,9 +217,9 @@
        [(if css-fn css-fn default-css-fn) files]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [react-key ""
-             tabs (file-tab-key react-key css-fn files)]
-         (conj (editors react-key files active (count tabs))
+       (let [prm {:react-key "" :files files :active active :css-fn css-fn}
+             tabs (file-tab-key prm)]
+         (conj (editors (assoc prm :count-tabs (count tabs)))
                tabs))
        [active-stats cnt-files files]
        [cmd-line cnt-files]
