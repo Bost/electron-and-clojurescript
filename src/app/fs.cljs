@@ -26,7 +26,7 @@
        file
        (fn [err data]
          (if err
-           (js/throw err)
+           (throw (js/Error. err))
            (do
              (.log js/console file (count data) "bytes loaded")
              (.setValue (.-doc editor) data)
@@ -37,7 +37,7 @@
    file data
    (fn [err _]
      (if err
-       (js/throw err)
+       (throw (js/Error. err))
        (.log js/console file (count data) "bytes saved")))))
 
 (defn exec [cmd-line]

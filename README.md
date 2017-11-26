@@ -16,7 +16,11 @@ cd resources; and npm install codemirror
 
 #### Development
 
-Start the compiler with `boot watch dev-build`. This will:
+Start the compiler with
+```
+boot watch dev-build
+```
+This will:
 * incrementally compile ClojureScript sources
 * push changes to your running Electron app
 * provide a REPL connection

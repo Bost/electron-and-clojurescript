@@ -189,6 +189,11 @@
                         css/codemirror-theme css/codemirror-theme-mode])}
    "cmd-line, messages"])
 
+
+(defn file-tab-key [key css-fn files]
+  (if-not (= css-fn css/no-tabs)
+    (map-indexed (fn [i file] (file-tab key i file))
+                 files)))
 (defn uix [files]
   (let [cnt-files (count files)
         css-fn @(rf/subscribe [:tabs-pos])
@@ -201,10 +206,7 @@
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
         (doall
-         (if (= css-fn css/no-tabs)
-           []
-           (map-indexed (fn [i file] (file-tab css/tabs i file))
-                        files)))]
+         (file-tab-key css/tabs css-fn files))]
        [:div {:class "r-wrapper"}
         (editors css/editor files active 0) ;; (= 0 count-tabs)
         [active-stats cnt-files files]
@@ -214,10 +216,8 @@
        [(if css-fn css-fn default-css-fn) files]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [tabs (if (= css-fn css/no-tabs)
-                    []
-                    (map-indexed (fn [i file] (file-tab "" i file))
-                                 files))]
+       (let [tabs
+             (file-tab-key "" css-fn files)]
          (conj (editors "" files active (count tabs))
                tabs))
        [active-stats cnt-files files]
