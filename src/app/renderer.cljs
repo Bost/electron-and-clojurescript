@@ -192,29 +192,34 @@
                  files)))
 
 (defn uix [{:keys [files] :as prm}]
-  (let [css-fn @(rf/subscribe [:tabs-pos])
+  (let [css-fn (if-let [css-fn @(rf/subscribe [:tabs-pos])]
+                 css-fn default-css-fn)
         prm (assoc prm
                    :css-fn css-fn
-                   :active @(rf/subscribe [:active-file]))]
+                   :active @(rf/subscribe [:active-file])
+                   :react-key (if (in? [css/left-to-right css/right-to-left] css-fn)
+                                css/editor "")
+                   )]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
-       [(if css-fn css-fn default-css-fn) prm]
+       [css-fn prm]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
         (doall
          (file-tab-key (assoc prm :react-key css/tabs)))]
        [:div {:class "r-wrapper"}
-        (editors (assoc prm :react-key css/editor :count-tabs 0))
+        (let [tabs nil]
+          (conj (editors (assoc prm :count-tabs 0))
+                tabs))
         [active-stats prm]
         [cmd-line prm]]
        [context-menu prm]]
       [:div {:class "wrapper"}
-       [(if css-fn css-fn default-css-fn) prm]
+       [css-fn prm]
        ;; Can't use (defn active-file [...] ...) because of the react warning:
        ;; Each child in an array or iterator should have a unique "key" prop
-       (let [prm (assoc prm :react-key "")
-             tabs (file-tab-key prm)]
+       (let [tabs (file-tab-key prm)]
          (conj (editors (assoc prm :count-tabs (count tabs)))
                tabs))
        [active-stats prm]
