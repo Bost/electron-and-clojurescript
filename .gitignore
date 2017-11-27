@@ -1,0 +1,19 @@
+/.nrepl-port
+/node_modules/
+/resources/node_modules/
+/resources/lib/
+# pom.xml
+# *jar
+# /lib/
+# /classes/
+# /out/
+/target/
+# .lein-deps-sum
+# .lein-repl-history
+# .lein-plugins/
+
+# .repl-*/
+
+# editor backup files
+*~
+
