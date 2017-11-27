@@ -76,3 +76,9 @@
  :ide-file-editor
  (fn [db [_ file]]
    (get-in db [:ide-files file :editor])))
+
+(rf/reg-event-db
+ :cursor-change (fn [db [_ new]] (assoc db :cursor new)))
+
+(rf/reg-sub
+ :cursor (fn [db _] (:cursor db)))

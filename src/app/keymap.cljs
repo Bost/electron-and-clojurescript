@@ -45,10 +45,24 @@
 
 (defn up-key [editor]
   (active-line-off editor)
+  (let [pos (->> editor .-doc .getCursor)]
+    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
   js/CodeMirror.Pass)
 
 (defn down-key [editor]
   (active-line-off editor)
+  (let [pos (->> editor .-doc .getCursor)]
+    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  js/CodeMirror.Pass)
+
+(defn left-key [editor]
+  (let [pos (->> editor .-doc .getCursor)]
+    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  js/CodeMirror.Pass)
+
+(defn right-key [editor]
+  (let [pos (->> editor .-doc .getCursor)]
+    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
   js/CodeMirror.Pass)
 
 (defn keymap
@@ -59,8 +73,13 @@
    {}
    (->>
     (conj
-     {:Up up-key
-      :Down down-key}
+     {
+      :Up up-key
+      :Down down-key
+      ;; TODO PgUp, PgDown, Home, End keys; Mouse movements change cursor pos
+      :Left left-key
+      :Right right-key
+      }
      {
       :Ctrl-B (fn [editor] (panel/addPanel editor "bottom"))
       (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
