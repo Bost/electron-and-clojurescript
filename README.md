@@ -2,6 +2,10 @@
 
 TODO try out: lein new electroncljs eac
 
+Fix error in install electron
+https://docs.npmjs.com/getting-started/fixing-npm-permissions
+https://github.com/electron/electron/issues/10891
+
 This repository contains an Electron app written in ClojureScript. In
 contrast to other examples out there this one uses ClojureScript for
 both parts of the Electron app: the main process and the renderer.
