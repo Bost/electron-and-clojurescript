@@ -19,16 +19,29 @@
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
 
+(defn cursor-stats [{:keys [r c] :as prm}]
+  (str "[" r ":" c "]"))
+
+(defn cursor [editor]
+  (if editor
+    (let [pos (->> editor .-doc .getCursor)]
+      {:r (.-line pos) :c (.-ch pos)})
+    {}))
+
 (defn dispatch-timer-event []
   (let [active @(rf/subscribe [:active-file])
-        editor @(rf/subscribe [:ide-file-editor active])]
-    (.setOption editor "styleActiveLine" true))
+        editor @(rf/subscribe [:ide-file-editor active])
+        cursor-moved (= false (.getOption editor "styleActiveLine"))]
+    (if cursor-moved
+      (do
+        (.log js/console "cursor" (->> editor cursor cursor-stats))
+        (.setOption editor "styleActiveLine" true))))
   #_(let [now (js/Date.)] (rf/dispatch [:timer now])))
 
 ;; Call the dispatching function every second.
 ;; `defonce` is like `def` but it ensures only one instance is ever
 ;; created in the face of figwheel hot-reloading of this file.
-#_(defonce do-timer (js/setInterval dispatch-timer-event 500))
+(defonce do-timer (js/setInterval dispatch-timer-event 500))
 
 (defn clock []
   [:div.example-clock
@@ -142,10 +155,11 @@
     [:div {:key react-key
            :class (sjoin [css/box css/stats
                           css/codemirror-theme css/codemirror-theme-mode])}
-     (map-indexed (fn [i file]
-                    (if (= file active)
-                      (sjoin [file "orig-size" (count orig-size) "bytes"])))
-                  files)]))
+     (doall
+      (map-indexed (fn [i file]
+                     (if (= file active)
+                       (sjoin [file "orig-size" (count orig-size) "bytes"])))
+                   files))]))
 
 (defn cmd-line [{:keys [] :as prm}]
   [:div {:class (sjoin [css/box css/cmd-line

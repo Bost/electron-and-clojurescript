@@ -33,8 +33,22 @@
       (.setCursor doc (clj->js {:line (.-line pos)
                                 :ch (- (.-ch pos) n-chars-back)})))))
 
+(defn row [editor] (->> editor .-doc .getCursor .-line))
+(defn col [editor] (->> editor .-doc .getCursor .-ch))
+
+(defn kill-buffer [editor]
+  ;; (.log js/console "Cmd-K")
+  (.log js/console "active-file" @(rf/subscribe [:active-file])))
+
 (defn active-line-off [editor]
-  (.setOption editor "styleActiveLine" false)
+  (.setOption editor "styleActiveLine" false))
+
+(defn up-key [editor]
+  (active-line-off editor)
+  js/CodeMirror.Pass)
+
+(defn down-key [editor]
+  (active-line-off editor)
   js/CodeMirror.Pass)
 
 (defn keymap
@@ -45,14 +59,15 @@
    {}
    (->>
     (conj
-     {:Up active-line-off
-      :Down active-line-off}
+     {:Up up-key
+      :Down down-key}
      {
       :Ctrl-B (fn [editor] (panel/addPanel editor "bottom"))
       (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
       :Cmd-Ctrl-F (fn [editor] (sr/search editor))
       :Ctrl-Left (fn [editor] (.execCommand editor "goWordLeft"))
       :Ctrl-Right (fn [editor] (.execCommand editor "goWordRight"))
+      :Cmd-K kill-buffer
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
       ;; single key: <S>
