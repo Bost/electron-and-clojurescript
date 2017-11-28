@@ -9,7 +9,11 @@
 
 (def tabs "a")
 (def editor "e")
-(def stats "s")
+
+(def row-col-stats "row-col-stats")
+(def row-col "cp")
+(def stats "stats")
+
 (def cmd-line "c")
 (def box "box")
 (def active "active")
@@ -42,6 +46,9 @@
 ;; TODO use (window-width) for col-width calculation
 (def col-width 170)
 (def col-width-px (str col-width "px"))
+
+(def row-col-width 150)
+(def row-col-width-px (str row-col-width "px"))
 
 (defn common []
   [[:body {:font-family "monospace" :margin 0}]
@@ -92,15 +99,21 @@
              {:grid-column 2 :grid-row 1
               :display "grid"
               :grid-template-columns 1
-              :grid-template-rows (str "repeat(" 3 ", [row] auto)")
-              }]
+              :grid-template-rows (str "repeat(" 3 ", [row] auto)")}]
             [(class editor)
              {:grid-column 1 :grid-row 1}]
+            [(class row-col-stats)
+             {:grid-column 1 :grid-row 2
+              :display "grid"
+              :grid-template-columns (sjoin [row-col-width-px "auto"])
+              :grid-template-rows 1
+              }]
+            [(class row-col)
+             {:grid-column 1 :grid-row 1}]
             [(class stats)
-             {:grid-column 1 :grid-row 2}]
+             {:grid-column 2 :grid-row 1}]
             [(class cmd-line)
-             {:grid-column 1 :grid-row 3}]
-            ]))
+             {:grid-column 1 :grid-row 3}]]))
         (apply g/css))
    ])
 
@@ -126,8 +139,16 @@
                   {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
             [(class editor)
              {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
+            [(class row-col-stats)
+             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 3"
+              :display "grid"
+              :grid-template-columns (sjoin [row-col-width-px "auto"])
+              :grid-template-rows 1
+              }]
+            [(class row-col)
+             {:grid-column 1 :grid-row 1}]
             [(class stats)
-             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 3"}]
+             {:grid-column 2 :grid-row 1}]
             [(class cmd-line)
              {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 4"}]
             ]))
@@ -152,8 +173,16 @@
                   {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
             [(class editor)
              {:grid-column 1 :grid-row 1}]
+            [(class row-col-stats)
+             {:grid-column 1 :grid-row 2
+              :display "grid"
+              :grid-template-columns (sjoin [row-col-width-px "auto"])
+              :grid-template-rows 1
+              }]
+            [(class row-col)
+             {:grid-column 1 :grid-row 1}]
             [(class stats)
-             {:grid-column 1 :grid-row 2}]
+             {:grid-column 2 :grid-row 1}]
             ]))
         (apply g/css))])
 

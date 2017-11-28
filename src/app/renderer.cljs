@@ -21,7 +21,9 @@
 
 (defn cursor []
   (let [crs @(rf/subscribe [:cursor])]
-    [:div (str "[" (:r crs) ":" (:c crs) "]")]))
+    [:div {:class (sjoin [css/box css/row-col
+                          css/codemirror-theme css/codemirror-theme-mode])}
+     (str "[" (:r crs) ":" (:c crs) "]")]))
 
 (defn dispatch-timer-event []
   (let [active @(rf/subscribe [:active-file])
@@ -146,13 +148,16 @@
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
     [:div {:key react-key
-           :class (sjoin [css/box css/stats
+           :class (sjoin [css/box css/row-col-stats
                           css/codemirror-theme css/codemirror-theme-mode])}
      [cursor]
-     (map-indexed (fn [i file]
-                    (if (= file active)
-                      (sjoin [file "orig-size" (count orig-size) "bytes"])))
-                  files)]))
+     [:div
+      {:class (sjoin [css/box css/stats
+                      css/codemirror-theme css/codemirror-theme-mode])}
+      (map-indexed (fn [i file]
+                     (if (= file active)
+                       (sjoin [file "orig-size" (count orig-size) "bytes"])))
+                   files)]]))
 
 (defn cmd-line [{:keys [] :as prm}]
   [:div {:class (sjoin [css/box css/cmd-line
