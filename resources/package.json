@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "codemirror": "^5.32.0",
+    "codemirror": "^5.33.0",
     "electron-localshortcut": "^2.0.2",
     "writefile": "^0.2.8"
   }
