@@ -14,10 +14,9 @@ Install nodejs8, electron
 
 Preffered:
 ```
+sudo npm install --global --unsafe-perm=true --allow-root electron
+sudo npm install --global --unsafe-perm=true              electron
 npm install electron --save-dev
-
-```
-```
 npm install electron --save-dev --save-exact
 ```
 
@@ -29,10 +28,9 @@ curl -L https://www.npmjs.org/install.sh | sh
 ```
 # https://nodejs.org/dist/v8.9.3/node-v8.9.3-linux-x64.tar.xz
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo npm install --global --unsafe-perm=true electron
 ```
 ```
-cd resources; and npm install codemirror
+cd resources; and npm install codemirror electron-localshortcut
 ```
 
 #### Development
