@@ -27,20 +27,6 @@
 (def codemirror-theme (str "cm-s-" theme))
 (def codemirror-theme-mode (str "cm-s-" theme-mode))
 
-(defn window-height []
-  (let [
-        ;; (->> (js/require "electron")
-        ;;        .-screen
-        ;;        .getPrimaryDisplay
-        ;;        .-workAreaSize .-height)
-        ;; opts (js/require "electron-browser-window-options")
-        ;; bw (->> electron .-remote)
-        ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
-        ]
-    (- (->> js/document .-documentElement .-clientHeight)
-       55 ;; 55 for tabs-on-top; 45 for all other
-       )))
-
 (defn window-width []
   (- (->> js/document .-documentElement .-clientWidth) 0))
 ;; TODO use (window-width) for col-width calculation
@@ -59,8 +45,6 @@
     {:font-weight "bold" :text-decoration "underline"}]
    [(class prev)
     {:font-weight "bold"}]])
-
-(defn row-height [cnt-files] (/ (window-height) cnt-files))
 
 (def left "left")
 (def right "right")
@@ -116,6 +100,8 @@
              {:grid-column 1 :grid-row 3}]]))
         (apply g/css))
    ])
+
+(def tab-pos #{:tabs-left :tabs-right :tabs-on-top :no-tabs})
 
 (defn left-to-right [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left true)))
 (defn right-to-left [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left false)))
@@ -185,4 +171,19 @@
              {:grid-column 2 :grid-row 1}]
             ]))
         (apply g/css))])
+
+(defn window-height [{:keys [tab-pos]}]
+  (let [
+        ;; (->> (js/require "electron")
+        ;;        .-screen
+        ;;        .getPrimaryDisplay
+        ;;        .-workAreaSize .-height)
+        ;; opts (js/require "electron-browser-window-options")
+        ;; bw (->> electron .-remote)
+        ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
+        ]
+    (- (->> js/document .-documentElement .-clientHeight)
+       (or (tab-pos {:css/tabs-on-top 55} 45)))))
+
+(defn row-height [cnt-files] (/ (window-height {:tab-pos :css/tabs-on-top}) cnt-files))
 

@@ -86,7 +86,7 @@
             open-files @(rf/subscribe [:open-files])]
         (rf/dispatch [:ide-file-editor-change [file editor]])
         (fs/read file editor open-files)
-        (.setSize editor nil (css/window-height))
+        (.setSize editor nil (css/window-height {:tab-pos :css/tabs-on-top}))
         (.focus editor)
         ;; editor.setCursor({line: 1, ch: 5})
         (.setOption editor "extraKeys" (k/keymap file open-files))))
