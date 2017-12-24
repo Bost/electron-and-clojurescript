@@ -93,10 +93,10 @@
       ;; :Mod (fn [editor] (.log js/console "Mod"))
 
       ;; :F11 (fn [editor] (.log js/console "Full screen: Can be stolen"))
-      :Cmd-Ctrl-Up (fn [editor] (rf/dispatch [:tabs-pos-change css/tabs-on-top]))
-      :Cmd-Ctrl-Down (fn [editor] (rf/dispatch [:tabs-pos-change css/no-tabs]))
-      :Cmd-Ctrl-Left (fn [editor] (rf/dispatch [:tabs-pos-change css/left-to-right]))
-      :Cmd-Ctrl-Right (fn [editor] (rf/dispatch [:tabs-pos-change css/right-to-left]))
+      :Cmd-Ctrl-Up (fn [editor] (rf/dispatch [:tabs-pos-change :css/tabs-on-top]))
+      :Cmd-Ctrl-Down (fn [editor] (rf/dispatch [:tabs-pos-change :css/no-tabs]))
+      :Cmd-Ctrl-Left (fn [editor] (rf/dispatch [:tabs-pos-change :css/tabs-left]))
+      :Cmd-Ctrl-Right (fn [editor] (rf/dispatch [:tabs-pos-change :css/tabs-right]))
       :Cmd-F (fn [editor]
                ;; assigning file to file causes file-reload
                (rf/dispatch [:active-file-change file])

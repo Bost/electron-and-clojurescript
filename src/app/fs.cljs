@@ -63,10 +63,12 @@
   (apply hash-map (interleave kws (repeat default-val))))
 
 (defn save-ide-settings []
-  (let [settings @(rf/subscribe [:ide-files])]
-    (save config-file
-          (-> {:ide-files (hm-with-default (keys settings) {})}
-              clojure.core/prn-str))))
+  (save config-file
+        (-> {:tabs-pos @(rf/subscribe [:tabs-pos])
+             :ide-files (hm-with-default (keys @(rf/subscribe [:ide-files])) {})}
+            clojure.core/prn-str)))
+
+(def default-tabs-pos :css/tabs-left)
 
 (def default-ide-files
   {(cur-dir "/src/app/fs.cljs") {}
@@ -80,6 +82,12 @@
 (defn read-ide-settings []
   (read-file config-file
              (fn [err data]
+               (rf/dispatch [:tabs-pos-change
+                             (if err (do (.error js/console err)
+                                         default-tabs-pos)
+                                 (->> data
+                                      cljs.reader/read-string
+                                      :tabs-pos))])
                (rf/dispatch [:ide-files-change
                              (if err (do (.error js/console err)
                                          default-ide-files)

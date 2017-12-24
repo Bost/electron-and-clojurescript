@@ -10,7 +10,7 @@
    [app.keymap :as k]
    [app.fs :as fs]))
 
-(def default-css-fn css/left-to-right)
+(def default-tabs-pos :css/tabs-left)
 
 (defn init []
   (.log js/console "Starting Application" (js/Date.))
@@ -86,7 +86,7 @@
             open-files @(rf/subscribe [:open-files])]
         (rf/dispatch [:ide-file-editor-change [file editor]])
         (fs/read file editor open-files)
-        (.setSize editor nil (css/window-height {:tab-pos :css/tabs-on-top}))
+        (.setSize editor nil (css/window-height))
         (.focus editor)
         ;; editor.setCursor({line: 1, ch: 5})
         (.setOption editor "extraKeys" (k/keymap file open-files))))
@@ -204,9 +204,22 @@
     (map-indexed (fn [i file] (file-tab react-key i file))
                  files)))
 
+
+(defn css-fn []
+  (if-let [tabs-pos @(rf/subscribe [:tabs-pos])]
+    (or (tabs-pos {:css/tabs-left css/left-to-right
+                   :css/tabs-right css/right-to-left
+                   :css/no-tabs css/no-tabs
+                   :css/tabs-on-top css/tabs-on-top})
+        (do
+          (.log js/console "WARN: css-fn: tabs-pos not in the hash-map" tabs-pos)
+          css/left-to-right))
+    (do
+      (.log js/console "WARN: css-fn: undefined tabs-pos")
+      css/left-to-right)))
+
 (defn uix [{:keys [files] :as prm}]
-  (let [css-fn (if-let [css-fn @(rf/subscribe [:tabs-pos])]
-                 css-fn default-css-fn)
+  (let [css-fn (css-fn)
         prm (assoc prm
                    :css-fn css-fn
                    :active @(rf/subscribe [:active-file])
@@ -248,7 +261,7 @@
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)]
-    (->> [(init-vals :tabs-pos default-css-fn)
+    (->> [(init-vals :tabs-pos default-tabs-pos)
           [:open-files-change files]
           (init-vals :active-file (first files))
           (init-vals :prev-file (first files))]

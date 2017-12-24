@@ -1,5 +1,6 @@
 (ns app.styles
   (:require
+   [re-frame.core :as rf]
    [garden.core :as g]
    [garden.units :as un]
    [garden.selectors :as se]
@@ -101,7 +102,7 @@
         (apply g/css))
    ])
 
-(def tab-pos #{:tabs-left :tabs-right :tabs-on-top :no-tabs})
+(def tabs-pos #{:tabs-left :tabs-right :tabs-on-top :no-tabs})
 
 (defn left-to-right [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left true)))
 (defn right-to-left [{:keys [files] :as prm}] (left-right (assoc prm :tabs-left false)))
@@ -172,7 +173,7 @@
             ]))
         (apply g/css))])
 
-(defn window-height [{:keys [tab-pos]}]
+(defn window-height []
   (let [
         ;; (->> (js/require "electron")
         ;;        .-screen
@@ -182,8 +183,13 @@
         ;; bw (->> electron .-remote)
         ;; wc (->> electron .-remote .-webContents .getFocusedWebContents)
         ]
-    (- (->> js/document .-documentElement .-clientHeight)
-       (or (tab-pos {:css/tabs-on-top 55} 45)))))
+    (let [tabs-pos @(rf/subscribe [:tabs-pos])]
+      (- (->> js/document .-documentElement .-clientHeight)
+         (if-let [tabs-pos @(rf/subscribe [:tabs-pos]) ]
+           (or (tabs-pos {:css/tabs-on-top 55})
+               45)
+           (do
+             (.log js/console "WARN: window-height: undefined tabs-pos")
+             45))))))
 
-(defn row-height [cnt-files] (/ (window-height {:tab-pos :css/tabs-on-top}) cnt-files))
-
+(defn row-height [cnt-files] (/ (window-height) cnt-files))
