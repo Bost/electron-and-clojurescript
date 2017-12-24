@@ -7,7 +7,7 @@
    [org.clojure/tools.nrepl "0.2.13" :scope "test"]
    [com.cemerick/piggieback "0.2.2" :scope "test"]
 
-   [utils "0.1.1"]
+   [utils "0.1.1"] ;; installed locally
 
    ;; ClojureScript browser REPL using WebSockets
    [weasel "0.7.0" :scope "test"]
@@ -26,7 +26,7 @@
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
    [garden "1.3.3"]
    #_[org.webjars.bower/bootstrap "3.3.6"]
-   [boot-deps "0.1.8"] ;; boot -d boot-deps ancient
+   [boot-deps "0.1.9"] ;; boot -d boot-deps ancient
    ]
  )
 

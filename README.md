@@ -11,10 +11,27 @@ contrast to other examples out there this one uses ClojureScript for
 both parts of the Electron app: the main process and the renderer.
 
 Install nodejs8, electron
+
+Preffered:
 ```
+npm install electron --save-dev
+
+```
+```
+npm install electron --save-dev --save-exact
+```
+
+Reinstall npm:
+```
+curl -L https://www.npmjs.org/install.sh | sh
+```
+
+```
+# https://nodejs.org/dist/v8.9.3/node-v8.9.3-linux-x64.tar.xz
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo npm install --global --unsafe-perm=true electron
-
+```
+```
 cd resources; and npm install codemirror
 ```
 
