@@ -173,6 +173,8 @@
             ]))
         (apply g/css))])
 
+(def default-window-height-offset 38)
+
 (defn window-height []
   (let [
         ;; (->> (js/require "electron")
@@ -186,10 +188,10 @@
     (let [tabs-pos @(rf/subscribe [:tabs-pos])]
       (- (->> js/document .-documentElement .-clientHeight)
          (if-let [tabs-pos @(rf/subscribe [:tabs-pos]) ]
-           (or (tabs-pos {:css/tabs-on-top 55})
-               45)
+           (or (tabs-pos {:css/tabs-on-top 56})
+               default-window-height-offset)
            (do
              (.log js/console "WARN: window-height: undefined tabs-pos")
-             45))))))
+             default-window-height-offset))))))
 
 (defn row-height [cnt-files] (/ (window-height) cnt-files))
