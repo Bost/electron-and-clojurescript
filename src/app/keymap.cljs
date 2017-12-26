@@ -35,58 +35,28 @@
       (.setCursor doc (clj->js {:line (.-line pos)
                                 :ch (- (.-ch pos) n-chars-back)})))))
 
-(defn cursor [editor]
-  (->> editor .-doc .getCursor))
-
-(defn row [editor] (->> editor cursor .-line))
-(defn col [editor] (->> editor cursor .-ch))
-
 (defn kill-buffer [editor]
   ;; (.log js/console "Cmd-K")
   (.log js/console "active-file" @(rf/subscribe [:active-file])))
 
-(defn active-line-off [editor]
-  (.setOption editor "styleActiveLine" false))
+(defn move [editor codemirror-cmd]
+  (.setOption editor "styleActiveLine" false)
+  (.execCommand editor codemirror-cmd)
+  ;; invoking js/CodeMirror.Pass makes scrolling much faster; but the cursor
+  ;; moves twice
+  #_js/CodeMirror.Pass
+  )
 
-(defn move-key [editor]
-  (active-line-off editor)
-  (let [pos (->> editor .-doc .getCursor)
-        active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
-  js/CodeMirror.Pass)
-
-(defn up-key [editor] (move-key editor))
-(defn down-key [editor] (move-key editor))
-(defn left-key [editor] (move-key editor))
-(defn right-key [editor] (move-key editor))
-
-(defn home-key [editor]
-  (active-line-off editor)
-  (.execCommand editor "goLineStartSmart")
-  (let [pos (->> editor .-doc .getCursor)
-        active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
-
-(defn end-key [editor]
-  (active-line-off editor)
-  (.execCommand editor "goLineEnd")
-  (let [pos (->> editor .-doc .getCursor)
-        active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
-
-(defn pageup-key [editor]
-  (active-line-off editor)
-  (.execCommand editor "goPageUp")
-  (let [pos (->> editor .-doc .getCursor)
-        active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
-
-(defn pagedown-key [editor]
-  (active-line-off editor)
-  (.execCommand editor "goPageDown")
-  (let [pos (->> editor .-doc .getCursor)
-        active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
+(defn up       [editor] (move editor "goLineUp"))
+(defn down     [editor] (move editor "goLineDown"))
+(defn left     [editor] (move editor "goCharLeft"))
+(defn right    [editor] (move editor "goCharRight"))
+(defn home     [editor] (move editor "goLineStartSmart"))
+(defn end      [editor] (move editor "goLineEnd"))
+(defn pageup   [editor] (move editor "goPageUp"))
+(defn pagedown [editor] (move editor "goPageDown"))
+(defn file-end [editor] (move editor "goDocEnd"))
+(defn file-beg [editor] (move editor "goDocStart"))
 
 (defn keymap
   "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
@@ -97,22 +67,24 @@
    (->>
     (conj
      {
-      :Up up-key
-      :Down down-key
+      :Up up
+      :Down down
       ;; TODO Mouse movements change cursor pos
-      :Left left-key
-      :Right right-key
-      :PageUp pageup-key
-      :PageDown pagedown-key
-      :Home home-key
-      :End end-key
+      :Left left
+      :Right right
+      :Ctrl-Left (fn [editor] (move editor "goWordLeft"))
+      :Ctrl-Right (fn [editor] (move editor "goWordRight"))
+      :PageUp pageup
+      :PageDown pagedown
+      :Home home
+      :End end
+      :Ctrl-Home file-beg
+      :Ctrl-End file-end
       }
      {
       :Ctrl-B (fn [editor] (panel/addPanel editor "bottom"))
       (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
       :Cmd-Ctrl-F (fn [editor] (sr/search editor))
-      :Ctrl-Left (fn [editor] (.execCommand editor "goWordLeft"))
-      :Ctrl-Right (fn [editor] (.execCommand editor "goWordRight"))
       :Cmd-K kill-buffer
       ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
 
@@ -162,4 +134,3 @@
            {k (fn [editor] (println "key-chord" (name k)) (v editor))}))
     (into {}))
    clj->js))
-

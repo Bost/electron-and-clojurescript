@@ -80,6 +80,18 @@
       #_(js/console.log "did-mount this" this)
       (let [editor (get-editor this file)
             open-files @(rf/subscribe [:open-files])]
+        (.on editor "mousedown" (fn [] (.log js/console "movedByMouse")))
+        (.on editor "cursorActivity"
+             (fn []
+               (let [pos (->> editor .-doc .getCursor)
+                     active @(rf/subscribe [:active-file])]
+                 (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
+               #_(if false
+                 ;;                    movedByMouse = false;
+                 ;;                    if (!editor.getSelection()) {
+                 ;;                                                 console.log("Moved by mouse");
+                 ;;                                                 }
+                 )))
         (fs/read file editor open-files)
         (.setSize editor nil (css/window-height))
         (.focus editor)
