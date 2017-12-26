@@ -19,12 +19,6 @@
 ;; A detailed walk-through of this source code is provied in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
 
-(defn cursor []
-  (let [crs @(rf/subscribe [:cursor])]
-    [:div {:class (sjoin [css/box css/row-col
-                          css/codemirror-theme css/codemirror-theme-mode])}
-     (str "[" (:r crs) ":" (:c crs) "]")]))
-
 (defn dispatch-timer-event []
   (let [active @(rf/subscribe [:active-file])
         editor @(rf/subscribe [:ide-file-editor active])
@@ -54,43 +48,46 @@
             :on-change #(rf/dispatch
                          [:time-color-change (-> % .-target .-value)])}]])
 
+(defn get-editor [this file]
+  (js/CodeMirror
+     (r/dom-node this)
+     (->> {:theme (sjoin [css/theme css/theme-mode #_"xq-light"])
+           :lineNumbers true
+           :vimMode true
+           :styleActiveLine true
+           :showCursorWhenSelecting true
+           :rulers (clj->js
+                    [{:color "lightgray"
+                      :column 80 :lineStyle "dashed"}])
+           ;; :cursorBlinkRate 0 ;; 0 - no blinking
+           :matchBrackets true
+           :showTrailingSpace true ;; TODO doesn't work
+           :highlightSelectionMatches (clj->js
+                                       [{:showToken true
+                                         :annotateScrollbar true}])
+           ;; see https://github.com/Bost/paredit-cm.git
+           ;; :keyMap "paredit_cm" ;; see lib/keymap-paredit-cm.js
+           :autoCloseBrackets true}
+          (conj ((keyword (.extname (js/require "path") file))
+                 {:.cljs {:mode "clojure"}
+                  :.html {:mode "xml" :htmlMode true}}))
+          clj->js)))
+
 (defn edit [file]
   (r/create-class
    {:component-did-mount
     (fn [this]
       #_(js/console.log "did-mount this" this)
-      (let [editor
-            (js/CodeMirror
-             (r/dom-node this)
-             (->> {:theme (sjoin [css/theme css/theme-mode #_"xq-light"])
-                   :lineNumbers true
-                   :vimMode true
-                   :styleActiveLine true
-                   :showCursorWhenSelecting true
-                   :rulers (clj->js
-                            [{:color "lightgray"
-                              :column 80 :lineStyle "dashed"}])
-                   ;; :cursorBlinkRate 0 ;; 0 - no blinking
-                   :matchBrackets true
-                   :showTrailingSpace true ;; TODO doesn't work
-                   :highlightSelectionMatches (clj->js
-                                               [{:showToken true
-                                                 :annotateScrollbar true}])
-                   ;; see https://github.com/Bost/paredit-cm.git
-                   ;; :keyMap "paredit_cm" ;; see lib/keymap-paredit-cm.js
-                   :autoCloseBrackets true}
-                  (conj ((keyword (.extname (js/require "path") file))
-                         {:.cljs {:mode "clojure"}
-                          :.html {:mode "xml" :htmlMode true}}))
-                  clj->js))
+      (let [editor (get-editor this file)
             open-files @(rf/subscribe [:open-files])]
-        (rf/dispatch [:ide-file-editor-change [file editor]])
         (fs/read file editor open-files)
         (.setSize editor nil (css/window-height))
         (.focus editor)
-        ;; editor.setCursor({line: 1, ch: 5})
-        (.setOption editor "extraKeys" (k/keymap file open-files))))
-
+        (let [active @(rf/subscribe [:active-file])
+              crs @(rf/subscribe [:ide-file-cursor active])]
+          (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)})))
+        (.setOption editor "extraKeys" (k/keymap file open-files))
+        (rf/dispatch [:ide-file-editor-change [file editor]])))
     ;; ... other methods go here
     ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
     ;; for a complete list
@@ -143,6 +140,13 @@
        (.popup menu (.getCurrentWindow remote)))
      false)
     [:div]))
+
+(defn cursor []
+  [:div {:class (sjoin [css/box css/row-col
+                        css/codemirror-theme css/codemirror-theme-mode])}
+   (let [active @(rf/subscribe [:active-file])
+         crs @(rf/subscribe [:ide-file-cursor active])]
+     (str "c[" (:r crs) ":" (:c crs) "]"))])
 
 (defn active-stats [{:keys [react-key files] :as prm}]
   (let [active @(rf/subscribe [:active-file])

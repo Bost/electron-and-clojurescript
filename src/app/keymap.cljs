@@ -14,6 +14,7 @@
 (defn next-active [editor open-files]
   (let [active @(rf/subscribe [:active-file])
         idx (.indexOf open-files active)]
+    (rf/dispatch [:ide-file-editor-change [active editor]])
     (rf/dispatch [:prev-file-change active])
     (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
 
@@ -23,6 +24,7 @@
    (if (= prev active)
      (next-active editor open-files)
      (do
+       (rf/dispatch [:ide-file-editor-change [active editor]])
        (rf/dispatch [:prev-file-change active])
        (rf/dispatch [:active-file-change prev])))))
 
@@ -30,11 +32,14 @@
   (let [doc (.-doc editor)]
     (.replaceSelection doc sexp)
     (let [pos (.getCursor doc)]
-      (.setCursor doc (clj->js {:line (.-line pos)
-                                :ch (- (.-ch pos) n-chars-back)})))))
+      (->> doc .setCursor (clj->js {:line (.-line pos)
+                                    :ch (- (.-ch pos) n-chars-back)})))))
 
-(defn row [editor] (->> editor .-doc .getCursor .-line))
-(defn col [editor] (->> editor .-doc .getCursor .-ch))
+(defn cursor [editor]
+  (->> editor .-doc .getCursor))
+
+(defn row [editor] (->> editor cursor .-line))
+(defn col [editor] (->> editor cursor .-ch))
 
 (defn kill-buffer [editor]
   ;; (.log js/console "Cmd-K")
@@ -45,24 +50,28 @@
 
 (defn up-key [editor]
   (active-line-off editor)
-  (let [pos (->> editor .-doc .getCursor)]
-    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  (let [pos (->> editor .-doc .getCursor)
+        active @(rf/subscribe [:active-file])]
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
   js/CodeMirror.Pass)
 
 (defn down-key [editor]
   (active-line-off editor)
-  (let [pos (->> editor .-doc .getCursor)]
-    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  (let [pos (->> editor .-doc .getCursor)
+        active @(rf/subscribe [:active-file])]
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
   js/CodeMirror.Pass)
 
 (defn left-key [editor]
-  (let [pos (->> editor .-doc .getCursor)]
-    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  (let [pos (->> editor .-doc .getCursor)
+        active @(rf/subscribe [:active-file])]
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
   js/CodeMirror.Pass)
 
 (defn right-key [editor]
-  (let [pos (->> editor .-doc .getCursor)]
-    (rf/dispatch [:cursor-change {:r (.-line pos) :c (.-ch pos)}]))
+  (let [pos (->> editor .-doc .getCursor)
+        active @(rf/subscribe [:active-file])]
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
   js/CodeMirror.Pass)
 
 (defn keymap
