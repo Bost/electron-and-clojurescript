@@ -146,7 +146,7 @@
                         css/codemirror-theme css/codemirror-theme-mode])}
    (let [active @(rf/subscribe [:active-file])
          crs @(rf/subscribe [:ide-file-cursor active])]
-     (str "c[" (:r crs) ":" (:c crs) "]"))])
+     (str "[" (:r crs) ":" (:c crs) "]"))])
 
 (defn active-stats [{:keys [react-key files] :as prm}]
   (let [active @(rf/subscribe [:active-file])

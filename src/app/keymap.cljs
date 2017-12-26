@@ -32,8 +32,8 @@
   (let [doc (.-doc editor)]
     (.replaceSelection doc sexp)
     (let [pos (.getCursor doc)]
-      (->> doc .setCursor (clj->js {:line (.-line pos)
-                                    :ch (- (.-ch pos) n-chars-back)})))))
+      (.setCursor doc (clj->js {:line (.-line pos)
+                                :ch (- (.-ch pos) n-chars-back)})))))
 
 (defn cursor [editor]
   (->> editor .-doc .getCursor))
@@ -48,31 +48,45 @@
 (defn active-line-off [editor]
   (.setOption editor "styleActiveLine" false))
 
-(defn up-key [editor]
+(defn move-key [editor]
   (active-line-off editor)
   (let [pos (->> editor .-doc .getCursor)
         active @(rf/subscribe [:active-file])]
     (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
   js/CodeMirror.Pass)
 
-(defn down-key [editor]
+(defn up-key [editor] (move-key editor))
+(defn down-key [editor] (move-key editor))
+(defn left-key [editor] (move-key editor))
+(defn right-key [editor] (move-key editor))
+
+(defn home-key [editor]
   (active-line-off editor)
+  (.execCommand editor "goLineStartSmart")
   (let [pos (->> editor .-doc .getCursor)
         active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
-  js/CodeMirror.Pass)
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
 
-(defn left-key [editor]
+(defn end-key [editor]
+  (active-line-off editor)
+  (.execCommand editor "goLineEnd")
   (let [pos (->> editor .-doc .getCursor)
         active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
-  js/CodeMirror.Pass)
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
 
-(defn right-key [editor]
+(defn pageup-key [editor]
+  (active-line-off editor)
+  (.execCommand editor "goPageUp")
   (let [pos (->> editor .-doc .getCursor)
         active @(rf/subscribe [:active-file])]
-    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
-  js/CodeMirror.Pass)
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
+
+(defn pagedown-key [editor]
+  (active-line-off editor)
+  (.execCommand editor "goPageDown")
+  (let [pos (->> editor .-doc .getCursor)
+        active @(rf/subscribe [:active-file])]
+    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]])))
 
 (defn keymap
   "CodeMirror only keymap. Global shortcuts must be configured elsewhere"
@@ -85,9 +99,13 @@
      {
       :Up up-key
       :Down down-key
-      ;; TODO PgUp, PgDown, Home, End keys; Mouse movements change cursor pos
+      ;; TODO Mouse movements change cursor pos
       :Left left-key
       :Right right-key
+      :PageUp pageup-key
+      :PageDown pagedown-key
+      :Home home-key
+      :End end-key
       }
      {
       :Ctrl-B (fn [editor] (panel/addPanel editor "bottom"))
