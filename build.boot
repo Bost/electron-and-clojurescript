@@ -24,9 +24,9 @@
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.5.2"  :scope "test"]
-   [garden "1.3.3"]
+   [garden "1.3.3"] ;; TODO is it css garden?
    #_[org.webjars.bower/bootstrap "3.3.6"]
-   [boot-deps "0.1.9"] ;; boot -d boot-deps ancient
+   [boot-deps "0.1.9"] ;; boot --dependencies boot-deps ancient
    ]
  )
 
