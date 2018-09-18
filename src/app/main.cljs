@@ -1,8 +1,10 @@
 (ns app.main)
 
-(def app           (.-app (js/require "electron")))
-(def BrowserWindow (.-BrowserWindow (js/require "electron")))
-(def local-shortcut (js/require "electron-localshortcut"))
+(enable-console-print!)
+
+(def app            (-> "electron" js/require .-app ))
+(def BrowserWindow  (-> "electron" js/require .-BrowserWindow))
+(def local-shortcut (-> "electron-localshortcut" js/require))
 
 (goog-define dev? false)
 
@@ -25,45 +27,18 @@
   (BrowserWindow. #js {:width w :height h :frame frame? :show show?}))
 
 (defn register [key-chord callback]
-
-  #_(let [
-        ;; electron (js/require "electron")
-        ;; app (.-app electron)
-        local-shortcut (js/require "electron-localshortcut")]
-    (.register local-shortcut
-               (.-BrowserWindow (js/require "electron"))
-               key-chord callback))
-
-  #_(let [remote (->> (js/require "electron") .-remote)]
-    (println "remote" remote)
-    #_(if (.isRegistered global-shortcut key-chord)
-      #_(.unregisterAll global-shortcut)
-      (.unregister global-shortcut key-chord))
-    #_(if-not (.register global-shortcut key-chord callback)
-      (.error js/console key-chord "registration failed")))
-
-  ;; (js/window.addEventListener "keyup" callback true)
-
-  #_(let [remote (.-remote (js/require "electron"))
-        hotkey (.require remote "electron-hotkey")]
-    #_(js/hotkey.register "global" key-chord  "event-1")
-    #_(js/hotkey.register "myWindow" key-chord "event-3")
-    (.register hotkey "local" key-chord callback)
-    #_(let [app (.-app (js/require "electron"))]
-      (.on app "shortcut-pressed" callback))
-
-    ))
+  (.register local-shortcut @main-window key-chord callback))
 
 (defn init-browser []
   (reset! main-window (mk-window 800 600 true true))
   (load-page @main-window)
   (if dev? (.openDevTools @main-window))
-  (println "local-shortcut:" local-shortcut)
-  (register "Ctrl+O" (fn []
-                       (println "Ctrl+O")
-                       #_(let [active @(rf/subscribe [:active-file])
-                             editor @(rf/subscribe [:ide-file-editor active])]
-                         (println "Ctrl+O" editor))))
+  (register "Ctrl+O"
+            (fn []
+              (println "Ctrl+O")
+              #_(let [active @(rf/subscribe [:active-file])
+                      editor @(rf/subscribe [:ide-file-editor active])]
+                  (println "Ctrl+O" editor))))
   #_(register "Super+Q" (fn [editor]
                         (let [active @(rf/subscribe [:active-file])
                               editor @(rf/subscribe [:ide-file-editor active])
