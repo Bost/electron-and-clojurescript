@@ -8,6 +8,8 @@
    [utils.core :refer [in? dbg sjoin next-cyclic]]
    ))
 
+(enable-console-print!)
+
 (def tabs "a")
 (def editor "e")
 
@@ -191,7 +193,7 @@
            (or (tabs-pos {:css/tabs-on-top 56})
                default-window-height-offset)
            (do
-             (.log js/console "WARN: window-height: undefined tabs-pos")
+             (println "WARN: window-height: undefined tabs-pos")
              default-window-height-offset))))))
 
 (defn row-height [cnt-files] (/ (window-height) cnt-files))

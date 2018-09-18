@@ -1,5 +1,7 @@
 (ns app.search)
 
+(enable-console-print!)
+
 (defn ofu []
   "<pre>ofu</pre>"
   #_[:pre "ofu"])

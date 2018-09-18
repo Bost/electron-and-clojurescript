@@ -35,7 +35,7 @@
                key-chord callback))
 
   #_(let [remote (->> (js/require "electron") .-remote)]
-    (.log js/console "remote" remote)
+    (println "remote" remote)
     #_(if (.isRegistered global-shortcut key-chord)
       #_(.unregisterAll global-shortcut)
       (.unregister global-shortcut key-chord))
@@ -58,12 +58,12 @@
   (reset! main-window (mk-window 800 600 true true))
   (load-page @main-window)
   (if dev? (.openDevTools @main-window))
-  (.log js/console "local-shortcut:" local-shortcut)
+  (println "local-shortcut:" local-shortcut)
   (register "Ctrl+O" (fn []
-                       (.log js/console "Ctrl+O")
+                       (println "Ctrl+O")
                        #_(let [active @(rf/subscribe [:active-file])
                              editor @(rf/subscribe [:ide-file-editor active])]
-                         (.log js/console "Ctrl+O" editor))))
+                         (println "Ctrl+O" editor))))
   #_(register "Super+Q" (fn [editor]
                         (let [active @(rf/subscribe [:active-file])
                               editor @(rf/subscribe [:ide-file-editor active])
@@ -73,7 +73,7 @@
   (.on @main-window "closed" #(reset! main-window nil)))
 
 (defn will-quit []
-  (.log js/console "will-quit"))
+  (println "will-quit"))
 
 (defn init []
   (.on app "window-all-closed"

@@ -14,7 +14,7 @@
     [:div {:id (str "panel-" id)
            :class (str "panel " where)}
      [:a {:title "Remove me!" :class "remove-panel"
-          :on-click (fn [] (.log js/console "on-click"))} "✖"]
+          :on-click (fn [] (println "on-click"))} "✖"]
      [:span (str "I'm panel n° " id)]]))
 
 (defn addPanel [editor where]

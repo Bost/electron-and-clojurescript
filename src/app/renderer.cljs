@@ -10,10 +10,12 @@
    [app.keymap :as k]
    [app.fs :as fs]))
 
+(enable-console-print!)
+
 (def default-tabs-pos :css/tabs-left)
 
 (defn init []
-  (.log js/console "Starting Application" (js/Date.))
+  (println "Starting Application" (js/Date.))
   (fs/read-ide-settings))
 
 ;; A detailed walk-through of this source code is provied in the docs:
@@ -77,10 +79,10 @@
   (r/create-class
    {:component-did-mount
     (fn [this]
-      #_(js/console.log "did-mount this" this)
+      #_(println "did-mount this" this)
       (let [editor (get-editor this file)
             open-files @(rf/subscribe [:open-files])]
-        (.on editor "mousedown" (fn [] (.log js/console "movedByMouse")))
+        (.on editor "mousedown" (fn [] (println "movedByMouse")))
         (.on editor "cursorActivity"
              (fn []
                (let [pos (->> editor .-doc .getCursor)
@@ -109,7 +111,7 @@
 
     #_:component-did-update
     #_(fn [this [_ prev-props]]
-        #_(.log js/console "did-update this" this)
+        #_(println "did-update this" this)
         ;; TODO: Handle codemirror-opts changes?
 
         (if-let [new-value (:value (r/props this))]
@@ -121,7 +123,7 @@
     ;; note the keyword for this method
     :reagent-render
     (fn []
-      #_(.log js/console "reagent-render")
+      #_(println "reagent-render")
       [:div])}))
 
 (defn context-menu
@@ -134,7 +136,7 @@
         menu-items [(menu-item-fn.
                      (clj->js {:label "MenuItem1"
                                :click
-                               (fn [] (.log js/console "item 1 clicked"))}))
+                               (fn [] (println "item 1 clicked"))}))
                     (menu-item-fn.
                      (clj->js {:type "separator"}))
                     (menu-item-fn.
@@ -142,7 +144,7 @@
                                :type "checkbox"
                                :checked true
                                :click
-                               (fn [] (.log js/console "item 2 clicked"))}))]]
+                               (fn [] (println "item 2 clicked"))}))]]
     (doseq [mi menu-items]
       (.append menu mi))
     (.addEventListener
@@ -228,10 +230,10 @@
                    :css/no-tabs css/no-tabs
                    :css/tabs-on-top css/tabs-on-top})
         (do
-          (.log js/console "WARN: css-fn: tabs-pos not in the hash-map" tabs-pos)
+          (println "WARN: css-fn: tabs-pos not in the hash-map" tabs-pos)
           css/left-to-right))
     (do
-      (.log js/console "WARN: css-fn: undefined tabs-pos")
+      (println "WARN: css-fn: undefined tabs-pos")
       css/left-to-right)))
 
 (defn uix [{:keys [files] :as prm}]

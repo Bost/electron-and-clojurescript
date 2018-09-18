@@ -11,6 +11,8 @@
    [app.panel :as panel]
    ))
 
+(enable-console-print!)
+
 (defn next-active [editor open-files]
   (let [active @(rf/subscribe [:active-file])
         idx (.indexOf open-files active)]
@@ -36,8 +38,8 @@
                                 :ch (- (.-ch pos) n-chars-back)})))))
 
 (defn kill-buffer [editor]
-  ;; (.log js/console "Cmd-K")
-  (.log js/console "active-file" @(rf/subscribe [:active-file])))
+  ;; (println "Cmd-K")
+  (println "active-file" @(rf/subscribe [:active-file])))
 
 (defn move [editor codemirror-cmd]
   (.setOption editor "styleActiveLine" false)
@@ -86,12 +88,12 @@
       (keyword "Cmd-;") (fn [editor] (.execCommand editor "toggleComment"))
       :Cmd-Ctrl-F (fn [editor] (sr/search editor))
       :Cmd-K kill-buffer
-      ;; :Ctrl-W (fn [editor] (.log js/console "Ctrl-W"))
+      ;; :Ctrl-W (fn [editor] (println "Ctrl-W"))
 
       ;; single key: <S>
-      ;; :Mod (fn [editor] (.log js/console "Mod"))
+      ;; :Mod (fn [editor] (println "Mod"))
 
-      ;; :F11 (fn [editor] (.log js/console "Full screen: Can be stolen"))
+      ;; :F11 (fn [editor] (println "Full screen: Can be stolen"))
       :Cmd-Ctrl-Up (fn [editor] (rf/dispatch [:tabs-pos-change :css/tabs-on-top]))
       :Cmd-Ctrl-Down (fn [editor] (rf/dispatch [:tabs-pos-change :css/no-tabs]))
       :Cmd-Ctrl-Left (fn [editor] (rf/dispatch [:tabs-pos-change :css/tabs-left]))
@@ -100,8 +102,8 @@
                ;; assigning file to file causes file-reload
                (rf/dispatch [:active-file-change file])
                (fs/read file editor open-files))
-      ;; :Ctrl-R (fn [editor] (.log js/console "Can be stolen"))
-      ;; :Shift-Ctrl-I (fn [editor] (.log js/console "Can be stolen"))
+      ;; :Ctrl-R (fn [editor] (println "Can be stolen"))
+      ;; :Shift-Ctrl-I (fn [editor] (println "Can be stolen"))
       :Cmd-Tab (fn [editor] (alternate-active editor open-files))
       :Cmd-S (fn [editor] (fs/save file (.getValue (.-doc editor))))
       :Shift-Ctrl-S (fn [editor] (fs/save-ide-settings))
@@ -113,11 +115,11 @@
       :Cmd-Ctrl-Alt-K (fn [editor] (fs/exec ["pkill" "--full" "boot"]))
       :Cmd-Ctrl-Alt-L (fn [editor] (fs/exec ["pgrep" "--full" "boot"]))
       :Shift-Cmd-D (fn [editor]
-                     (.log js/console editor (->> editor .-options .-styleActiveLine))
+                     (println editor (->> editor .-options .-styleActiveLine))
                      #_(fs/exec ["ls" "-la"]))
       :Cmd-Ctrl-Alt-B (fn [editor] (fs/exec ["boot" "watch" "dev-build"]))
       :Cmd-Ctrl-P (fn [editor] (insert-sexp {:editor editor
-                                            :sexp "(.log js/console \"\")"
+                                            :sexp "(println \"\")"
                                             :n-chars-back 2}))
 
       :Cmd-Ctrl-L (fn [editor] (insert-sexp {:editor editor
