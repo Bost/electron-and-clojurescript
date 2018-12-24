@@ -13,22 +13,21 @@
 
 (enable-console-print!)
 
-(defn next-active [editor open-files]
-  (let [active @(rf/subscribe [:active-file])
-        idx (.indexOf open-files active)]
-    (rf/dispatch [:ide-file-editor-change [active editor]])
-    (rf/dispatch [:prev-file-change active])
-    (rf/dispatch [:active-file-change (next-cyclic idx open-files)])))
+(defn activate [{:keys [active editor prev] :as prm}]
+  (println "prm" prm)
+  (rf/dispatch [:ide-file-editor-change [active editor]])
+  (rf/dispatch [:prev-file-change active])
+  (rf/dispatch [:active-file-change prev]))
 
-(defn alternate-active [editor open-files]
- (let [prev @(rf/subscribe [:prev-file])
-       active @(rf/subscribe [:active-file])]
+(defn next-active [{:keys [active editor open-files] :as prm}]
+  (let [prev (next-cyclic (.indexOf open-files active) open-files)]
+    (activate (conj prm {:prev prev}))))
+
+(defn alternate-active [{:keys [active editor open-files] :as prm}]
+ (let [prev @(rf/subscribe [:prev-file])]
    (if (= prev active)
-     (next-active editor open-files)
-     (do
-       (rf/dispatch [:ide-file-editor-change [active editor]])
-       (rf/dispatch [:prev-file-change active])
-       (rf/dispatch [:active-file-change prev])))))
+     (next-active prm)
+     (activate (conj prm {:prev prev})))))
 
 (defn insert-sexp [{:keys [editor sexp n-chars-back]}]
   (let [doc (.-doc editor)]
@@ -104,10 +103,10 @@
                (fs/read file editor open-files))
       ;; :Ctrl-R (fn [editor] (println "Can be stolen"))
       ;; :Shift-Ctrl-I (fn [editor] (println "Can be stolen"))
-      :Cmd-Tab (fn [editor] (alternate-active editor open-files))
+      :Cmd-Tab (fn [editor] (alternate-active {:active @(rf/subscribe [:active-file]) :editor editor :open-files open-files}))
       :Cmd-S (fn [editor] (fs/save file (.getValue (.-doc editor))))
       :Shift-Ctrl-S (fn [editor] (fs/save-ide-settings))
-      :Cmd-Q (fn [editor] (next-active editor open-files))
+      :Cmd-Q (fn [editor] (next-active {:active @(rf/subscribe [:active-file]) :editor editor :open-files open-files}))
       :Cmd-Left (fn [editor] (p/backward-sexp editor))
       :Cmd-Right (fn [editor] (p/forward-sexp editor))
       :Cmd-Up (fn [editor] (p/forward-sexp editor))
