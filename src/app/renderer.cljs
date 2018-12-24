@@ -4,7 +4,7 @@
    [re-frame.core :as rf]
    [clojure.string :as s]
    #_[clojure.pprint :refer [pprint]]
-   [utils.core :refer [in? dbg sjoin next-cyclic]]
+   [utils.core :refer [in? sjoin next-cyclic]]
    [app.regs]
    [app.styles :as css]
    [app.keymap :as k]

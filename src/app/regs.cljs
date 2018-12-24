@@ -4,7 +4,7 @@
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [clojure.string :as str]
-   [utils.core :refer [in? dbg next-cyclic]]
+   [utils.core :refer [in? next-cyclic]]
    ))
 
 (enable-console-print!)

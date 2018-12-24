@@ -3,7 +3,7 @@
    [cljs.reader :refer [read-string]]
    [re-frame.core :as rf]
    [clojure.string :as s]
-   [utils.core :refer [in? dbg sjoin next-cyclic]]
+   [utils.core :refer [in? sjoin next-cyclic]]
    [app.regs]))
 
 (def home-dir (.homedir (js/require "os")))

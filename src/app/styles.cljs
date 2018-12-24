@@ -5,7 +5,7 @@
    [garden.units :as un]
    [garden.selectors :as se]
    [garden.stylesheet :as stylesheet]
-   [utils.core :refer [in? dbg sjoin next-cyclic]]
+   [utils.core :refer [in? sjoin next-cyclic]]
    ))
 
 (enable-console-print!)
@@ -26,7 +26,7 @@
 (defn class [name] (keyword (class-str name)))
 
 (def theme "solarized")
-(def theme-mode "light" #_"dark")
+(def theme-mode #_"light" "dark")
 (def codemirror-theme (str "cm-s-" theme))
 (def codemirror-theme-mode (str "cm-s-" theme-mode))
 

@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as s]
    [re-frame.core :as rf]
-   [utils.core :refer [in? dbg sjoin next-cyclic]]
+   [utils.core :refer [in? sjoin next-cyclic]]
    [app.regs]
    [app.fs :as fs]
    [app.styles :as css]

@@ -3,28 +3,28 @@
  :resource-paths  #{"resources"}
  :dependencies
  '[
-   [org.clojure/clojurescript "1.9.946"]
-   [org.clojure/tools.nrepl "0.2.13" :scope "test"]
-   [com.cemerick/piggieback "0.2.2" :scope "test"]
+   [org.clojure/clojurescript "1.10.439"]
+   [cider/piggieback "0.3.10" :scope "test"]
+   [nrepl "0.5.3" :scope "test"]
 
-   [utils "0.1.1"] ;; installed locally
+   [utils "0.10.0"] ;; installed locally
 
    ;; ClojureScript browser REPL using WebSockets
    [weasel "0.7.0" :scope "test"]
 
-   [reagent  "0.7.0"]
-   [re-frame "0.10.2"]
+   [reagent  "0.8.1"]
+   [re-frame "0.10.6"]
 
    ;; Boot task to compile ClojureScript applications
-   [adzerk/boot-cljs "2.1.4" :scope "test"]
+   [adzerk/boot-cljs "2.1.5" :scope "test"]
 
    ;; Boot task providing a ClojureScript browser REPL via Weasel and Piggieback.
-   [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
+   [adzerk/boot-cljs-repl "0.4.0" :scope "test"]
 
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
-   [adzerk/boot-reload    "0.5.2"  :scope "test"]
-   [garden "1.3.3"] ;; TODO is it css garden?
+   [adzerk/boot-reload    "0.6.0"  :scope "test"]
+   [garden "1.3.6"] ;; TODO is it css garden?
    #_[org.webjars.bower/bootstrap "3.3.6"]
    [boot-deps "0.1.9"] ;; boot --dependencies boot-deps ancient
    ]
