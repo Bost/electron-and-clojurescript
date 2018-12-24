@@ -85,6 +85,7 @@
         #_(.on editor "mousedown" (fn [] (println "movedByMouse")))
         (.on editor "cursorActivity"
              (fn []
+               #_(println "cursorActivity")
                (let [pos (->> editor .-doc .getCursor)
                      active @(rf/subscribe [:active-file])]
                  (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))

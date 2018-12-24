@@ -32,7 +32,9 @@
            (do
              (println file (count data) "bytes loaded")
              (.setValue (.-doc editor) data)
-             (rf/dispatch [:ide-file-content-change [file data]]))))))))
+             (rf/dispatch [:ide-file-content-change [file data]])
+             (let [crs @(rf/subscribe [:ide-file-cursor file])]
+               (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)}))))))))))
 
 (defn save [file data]
   ((js/require "writefile")

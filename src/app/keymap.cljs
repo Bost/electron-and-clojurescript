@@ -14,7 +14,6 @@
 (enable-console-print!)
 
 (defn activate [{:keys [active editor prev] :as prm}]
-  (println "prm" prm)
   (rf/dispatch [:ide-file-editor-change [active editor]])
   (rf/dispatch [:prev-file-change active])
   (rf/dispatch [:active-file-change prev]))
