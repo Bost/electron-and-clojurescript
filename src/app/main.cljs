@@ -24,7 +24,8 @@
 (def main-window (atom nil))
 
 (defn mk-window [w h frame? show?]
-  (BrowserWindow. #js {:width w :height h :frame frame? :show show?}))
+  (BrowserWindow. #js {:width w :height h :frame frame? :show show?
+                       :webPreferences #js {:nodeIntegration true}}))
 
 (defn register [key-chord callback]
   (.register local-shortcut @main-window key-chord callback))
