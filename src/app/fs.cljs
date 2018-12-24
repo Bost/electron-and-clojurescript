@@ -2,6 +2,7 @@
   "File system relevant stuff"
   (:require
    [cljs.reader :refer [read-string]]
+   [cljs.pprint :refer [pprint]]
    [re-frame.core :as rf]
    [clojure.string :as s]
    [utils.core :refer [in? sjoin next-cyclic]]
@@ -66,8 +67,10 @@
 (defn save-ide-settings []
   (save config-file
         (-> {:tabs-pos @(rf/subscribe [:tabs-pos])
-             :ide-files (hm-with-default (keys @(rf/subscribe [:ide-files])) {})}
-            clojure.core/prn-str)))
+             :ide-files (hm-with-default (keys @(rf/subscribe [:ide-files])) {})
+             :active-file @(rf/subscribe [:active-file])}
+          pprint
+          with-out-str)))
 
 (def default-tabs-pos :css/tabs-left)
 
