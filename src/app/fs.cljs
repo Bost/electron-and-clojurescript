@@ -67,7 +67,10 @@
 (defn save-ide-settings []
   (save config-file
         (-> {:tabs-pos @(rf/subscribe [:tabs-pos])
-             :ide-files (hm-with-default (keys @(rf/subscribe [:ide-files])) {})
+             :ide-files (->> @(rf/subscribe [:ide-files])
+                             (map (fn [[k v]]
+                                    {k (dissoc v :editor :content)}))
+                             (into {}))
              :active-file @(rf/subscribe [:active-file])}
           pprint
           with-out-str)))
@@ -80,6 +83,7 @@
    (cur-dir "/src/app/renderer.cljs") {}
    (cur-dir "/src/app/styles.cljs") {}
    (cur-dir "/src/app/regs.cljs") {}
+   (cur-dir "/src/app/main.cljs") {}
    (cur-dir "/resources/index.html") {}})
 
 ;; TODO handle situation with too many opened files
