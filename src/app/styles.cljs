@@ -26,7 +26,7 @@
 (defn class [name] (keyword (class-str name)))
 
 (def theme "solarized")
-(def theme-mode #_"light" "dark")
+(def theme-mode "light" #_"dark")
 (def codemirror-theme (str "cm-s-" theme))
 (def codemirror-theme-mode (str "cm-s-" theme-mode))
 
@@ -52,6 +52,8 @@
 (def left "left")
 (def right "right")
 
+(defn repeat-row-auto [cnt] (str "repeat(" cnt ", [row] auto)"))
+
 (defn left-right [{:keys [tabs-left files] :as prm}]
   [:style {:type "text/css"}
    (->> (common)
@@ -74,7 +76,7 @@
              {:grid-column 1 :grid-row 1
               :display "grid"
               :grid-template-columns 1
-              :grid-template-rows (str "repeat(" cnt-files ", [row] auto)")
+              :grid-template-rows (repeat-row-auto cnt-files)
               }]
             (map-indexed
              (fn [i _]
@@ -86,7 +88,7 @@
              {:grid-column 2 :grid-row 1
               :display "grid"
               :grid-template-columns 1
-              :grid-template-rows (str "repeat(" 3 ", [row] auto)")}]
+              :grid-template-rows (repeat-row-auto 3)}]
             [(class editor)
              {:grid-column 1 :grid-row 1}]
             [(class row-col-stats)

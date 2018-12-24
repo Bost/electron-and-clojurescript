@@ -1,4 +1,5 @@
 (ns app.fs
+  "File system relevant stuff"
   (:require
    [cljs.reader :refer [read-string]]
    [re-frame.core :as rf]
