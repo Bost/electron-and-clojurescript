@@ -61,9 +61,6 @@
       (js/prc.stdout.on
        "exit" (fn [code] (println "Process exit code" code))))))
 
-(defn hm-with-default [kws default-val]
-  (apply hash-map (interleave kws (repeat default-val))))
-
 (defn save-ide-settings []
   (save config-file
         (-> {:tabs-pos @(rf/subscribe [:tabs-pos])
@@ -101,4 +98,10 @@
                                          default-ide-files)
                                  (->> data
                                       cljs.reader/read-string
-                                      :ide-files))]))))
+                                      :ide-files))])
+               #_(rf/dispatch [:active-file-change
+                             (if err (do (.error js/console err)
+                                         default-ide-files)
+                                 (->> data
+                                      cljs.reader/read-string
+                                      :active-file))]))))
