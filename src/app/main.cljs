@@ -17,9 +17,7 @@
   optimizations, for this we defined `dev?` above that we can override
   at compile time using the `:clojure-defines` compiler option."
   [window]
-  (if dev?
-      (.loadURL window (str "file://" js/__dirname "/../../index.html"))
-      (.loadURL window (str "file://" js/__dirname "/index.html"))))
+  (.loadURL window (str "file://" js/__dirname (if dev? "/../.." "") "/index.html")))
 
 (def main-window (atom nil))
 

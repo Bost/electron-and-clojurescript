@@ -82,7 +82,7 @@
       #_(println "did-mount this" this)
       (let [editor (get-editor this file)
             open-files @(rf/subscribe [:open-files])]
-        (.on editor "mousedown" (fn [] (println "movedByMouse")))
+        #_(.on editor "mousedown" (fn [] (println "movedByMouse")))
         (.on editor "cursorActivity"
              (fn []
                (let [pos (->> editor .-doc .getCursor)
