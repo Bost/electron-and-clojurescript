@@ -15,8 +15,6 @@
 (def fwriter (js/require "writefile"))
 (def current-dir (.resolve (js/require "path") "."))
 
-(defn cur-dir [f] (str current-dir f))
-
 (defn read-file [file cont-fn]
   (.readFile (js/require "fs") file (clj->js {:encoding encoding}) cont-fn))
 
@@ -85,33 +83,27 @@
 (def default-tabs-pos :css/tabs-left)
 
 (def default-ide-files
-  {(cur-dir "/src/app/fs.cljs") {}
-   (cur-dir "/src/app/keymap.cljs") {}
-   (cur-dir "/src/app/renderer.cljs") {}
-   (cur-dir "/src/app/styles.cljs") {}
-   (cur-dir "/src/app/regs.cljs") {}
-   (cur-dir "/src/app/main.cljs") {}
-   (cur-dir "/resources/index.html") {}})
+  (->> ["/src/app/fs.cljs"
+        "/src/app/keymap.cljs"
+        "/src/app/renderer.cljs"
+        "/src/app/styles.cljs"
+        "/src/app/regs.cljs"
+        "/src/app/main.cljs"
+        "/resources/index.html"]
+       (map (fn [f] {(str current-dir f) {}}))
+       (into {})))
 
 ;; TODO handle situation with too many opened files
 (defn read-ide-settings []
-  (read-file config-file
-             (fn [err data]
-               (rf/dispatch [:tabs-pos-change
-                             (if err (do (.error js/console err)
-                                         default-tabs-pos)
-                                 (->> data
-                                      cljs.reader/read-string
-                                      :tabs-pos))])
-               (rf/dispatch [:ide-files-change
-                             (if err (do (.error js/console err)
-                                         default-ide-files)
-                                 (->> data
-                                      cljs.reader/read-string
-                                      :ide-files))])
-               #_(rf/dispatch [:active-file-change
-                             (if err (do (.error js/console err)
-                                         default-ide-files)
-                                 (->> data
-                                      cljs.reader/read-string
-                                      :active-file))]))))
+  (read-file
+   config-file
+   (fn [err data]
+     (rf/dispatch [:tabs-pos-change
+                   (if err (do (.error js/console err) default-tabs-pos)
+                       (->> data cljs.reader/read-string :tabs-pos))])
+     (rf/dispatch [:ide-files-change
+                   (if err (do (.error js/console err) default-ide-files)
+                       (->> data cljs.reader/read-string :ide-files))])
+     #_(rf/dispatch [:active-file-change
+                     (if err (do (.error js/console err) default-ide-files)
+                         (->> data cljs.reader/read-string :active-file))]))))
