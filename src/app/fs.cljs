@@ -44,18 +44,26 @@
        (throw (js/Error. err))
        (println file (count data) "bytes saved")))))
 
-(defn exec [cmd-line]
+(defn do-os-cmd [cmd-line]
   (let [cmd (first cmd-line)
         prms (clj->js (rest cmd-line))]
     (println "$" (sjoin cmd-line))
-    (let [spawn (.-spawn (js/require "child_process"))
-          prc (spawn cmd prms)]
+
+    ;; By default, the spawn function does not create a shell to execute the
+    ;; command we pass into it. This makes it slightly more efficient than the
+    ;; exec function, which does create a shell. The exec function has one other
+    ;; major difference. It buffers the command’s generated output and passes
+    ;; the whole output value to a callback function (instead of using streams,
+    ;; which is what spawn does).
+
+    (let [cmd-fn (#_.-exec .-spawn (js/require "child_process"))
+          prc (cmd-fn cmd prms #js {:shell #_"/usr/local/bin/fish" "/bin/bash"})]
       (js/prc.stdout.setEncoding encoding)
       (js/prc.stdout.on
        "data" (fn [data] (println #_"STDOUT" (str data))))
       ;; boot process output gets displayed only on the STDERR
-      #_(js/prc.stderr.on
-         "data" (fn [data] (.error js/console #_"STDERR" (str data))))
+      (js/prc.stderr.on
+       "data" (fn [data] (.error js/console #_"STDERR" (str data))))
       (js/prc.stdout.on
        "message" (fn [msg] (println "CHILD got message" msg)))
       (js/prc.stdout.on

@@ -110,12 +110,16 @@
       :Cmd-Right (fn [editor] (p/forward-sexp editor))
       :Cmd-Up (fn [editor] (p/forward-sexp editor))
       :Cmd-Ctrl-Alt-P (fn [editor] #_(p/forward-sexp editor))
-      :Cmd-Ctrl-Alt-K (fn [editor] (fs/exec ["pkill" "--full" "boot"]))
-      :Cmd-Ctrl-Alt-L (fn [editor] (fs/exec ["pgrep" "--full" "boot"]))
-      :Shift-Cmd-D (fn [editor]
-                     (println editor (->> editor .-options .-styleActiveLine))
-                     #_(fs/exec ["ls" "-la"]))
-      :Cmd-Ctrl-Alt-B (fn [editor] (fs/exec ["boot" "watch" "dev-build"]))
+      :Cmd-Ctrl-Alt-K (fn [editor] (fs/do-os-cmd ["pkill" "--full" "boot"]))
+      :Cmd-Ctrl-Alt-L (fn [editor] (fs/do-os-cmd ["pgrep" "--full" "boot"]))
+      :Cmd-Ctrl-Alt-F (fn [editor] (fs/do-os-cmd ["grep"
+                                                 "--ignore-case" "--line-number" "--recursive"
+                                                 "--exclude-dir={.git}"
+                                                 "--include=\\*.{el,clj,cljs,cljc}"
+                                                 "Cmd-Ctrl-Alt"
+                                                 "./"]))
+      :Shift-Cmd-D (fn [editor] (fs/do-os-cmd ["ls" "-la"]))
+      :Cmd-Ctrl-Alt-B (fn [editor] (fs/do-os-cmd ["boot" "watch" "dev-build"]))
       :Cmd-Ctrl-P (fn [editor] (insert-sexp {:editor editor
                                             :sexp "(println \"\")"
                                             :n-chars-back 2}))
