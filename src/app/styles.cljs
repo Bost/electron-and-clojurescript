@@ -199,3 +199,7 @@
              default-window-height-offset))))))
 
 (defn row-height [cnt-files] (/ (window-height) cnt-files))
+
+(def default-tabs-pos
+  "See also ~/.eac/config.edn"
+  #_:css/tabs-left :no-tabs)

@@ -12,8 +12,6 @@
 
 (enable-console-print!)
 
-(def default-tabs-pos :css/tabs-left)
-
 (defn init []
   (println "Starting Application" (js/Date.))
   (fs/read-ide-settings))
@@ -224,11 +222,11 @@
                    :css/no-tabs css/no-tabs
                    :css/tabs-on-top css/tabs-on-top})
         (do
-          (println "WARN: css-fn: tabs-pos not in the hash-map" tabs-pos)
-          css/left-to-right))
+          (println "WARN: css-fn: tabs-pos" tabs-pos "not in the hash-map. Using " css/default-tabs-pos)
+          css/default-tabs-pos))
     (do
-      (println "WARN: css-fn: undefined tabs-pos")
-      css/left-to-right)))
+      (println "WARN: css-fn: undefined tabs-pos. Using " css/default-tabs-pos)
+      css/default-tabs-pos)))
 
 (defn uix [{:keys [files] :as prm}]
   (let [css-fn (css-fn)
@@ -273,7 +271,7 @@
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
         files (->> ide-files keys vec)]
-    (->> [(init-vals :tabs-pos default-tabs-pos)
+    (->> [(init-vals :tabs-pos css/default-tabs-pos)
           [:open-files-change files]
           (init-vals :active-file (first files))
           (init-vals :prev-file (first files))]

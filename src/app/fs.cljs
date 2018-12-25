@@ -6,6 +6,7 @@
    [re-frame.core :as rf]
    [clojure.string :as s]
    [utils.core :refer [in? sjoin next-cyclic]]
+   [app.styles :as css]
    [app.regs]))
 
 (def home-dir (.homedir (js/require "os")))
@@ -80,8 +81,6 @@
           pprint
           with-out-str)))
 
-(def default-tabs-pos :css/tabs-left)
-
 (def default-ide-files
   (->> ["/src/app/fs.cljs"
         "/src/app/keymap.cljs"
@@ -99,7 +98,7 @@
    config-file
    (fn [err data]
      (rf/dispatch [:tabs-pos-change
-                   (if err (do (.error js/console err) default-tabs-pos)
+                   (if err (do (.error js/console err) css/default-tabs-pos)
                        (->> data cljs.reader/read-string :tabs-pos))])
      (rf/dispatch [:ide-files-change
                    (if err (do (.error js/console err) default-ide-files)
