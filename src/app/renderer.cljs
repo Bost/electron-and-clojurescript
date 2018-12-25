@@ -50,7 +50,7 @@
             :on-change #(rf/dispatch
                          [:time-color-change (-> % .-target .-value)])}]])
 
-(defn get-editor [this file]
+(defn create-editor [this file]
   (js/CodeMirror
      (r/dom-node this)
      (->> {:theme (sjoin [css/theme css/theme-mode #_"xq-light"])
@@ -58,9 +58,8 @@
            :vimMode true
            :styleActiveLine true
            :showCursorWhenSelecting true
-           :rulers (clj->js
-                    [{:color "lightgray"
-                      :column 80 :lineStyle "dashed"}])
+           :rulers (clj->js [{:color "lightgray"
+                              :column 80 :lineStyle "dashed"}])
            ;; :cursorBlinkRate 0 ;; 0 - no blinking
            :matchBrackets true
            :showTrailingSpace true ;; TODO doesn't work
@@ -79,22 +78,16 @@
   (r/create-class
    {:component-did-mount
     (fn [this]
-      #_(println "did-mount this" this)
-      (let [editor (get-editor this file)
+      ;; (println "did-mount this" this)
+      (let [editor (create-editor this file)
             open-files @(rf/subscribe [:open-files])]
-        #_(.on editor "mousedown" (fn [] (println "movedByMouse")))
+        ;; (.on editor "mousedown" (fn [] (println "movedByMouse")))
         (.on editor "cursorActivity"
              (fn []
-               #_(println "cursorActivity")
+               ;; (println "cursorActivity")
                (let [pos (->> editor .-doc .getCursor)
                      active @(rf/subscribe [:active-file])]
-                 (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))
-               #_(if false
-                 ;;                    movedByMouse = false;
-                 ;;                    if (!editor.getSelection()) {
-                 ;;                                                 console.log("Moved by mouse");
-                 ;;                                                 }
-                 )))
+                 (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))))
         (fs/read file editor open-files)
         (.setSize editor nil (css/window-height))
         (.focus editor)
