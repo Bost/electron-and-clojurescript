@@ -19,22 +19,22 @@
   [window]
   (.loadURL window (str "file://" js/__dirname (if dev? "/../.." "") "/index.html")))
 
-(def main-window (atom nil))
-
-(defn mk-window [w h frame? show?]
-  (BrowserWindow. #js {:width w :height h :frame frame? :show show?
-                       :webPreferences #js {:nodeIntegration true}}))
+(def browser-window (atom nil))
 
 (defn register [key-chord callback]
-  (.register local-shortcut @main-window key-chord callback))
+  (.register local-shortcut @browser-window key-chord callback))
 
 (defn init-browser []
-  (reset! main-window (mk-window 800 600 true true))
-  (load-page @main-window)
-  (if dev? (.openDevTools @main-window))
+  (reset! browser-window
+          (BrowserWindow. #js {:width 800 :height 600
+                               :frame true :show true
+                               ;; :useContentSize true
+                               :webPreferences #js {:nodeIntegration true}}))
+  (load-page @browser-window)
+  (if dev? (.openDevTools @browser-window))
   (register "Ctrl+O"
             (fn []
-              (println "Ctrl+O")
+              (println "Ctrl+O") ;; see OS console
               #_(let [active @(rf/subscribe [:active-file])
                       editor @(rf/subscribe [:ide-file-editor active])]
                   (println "Ctrl+O" editor))))
@@ -44,7 +44,9 @@
                               open-files @(rf/subscribe [:open-files])]
                           (k/next-active editor open-files))))
 
-  (.on @main-window "closed" #(reset! main-window nil)))
+  (.on @browser-window "resize"
+       (fn [v] (println "resize browser-window" (.getBounds @browser-window))))
+  (.on @browser-window "closed" #(reset! browser-window nil)))
 
 (defn will-quit []
   (println "will-quit"))
