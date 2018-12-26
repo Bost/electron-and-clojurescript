@@ -10,14 +10,15 @@
 
 (enable-console-print!)
 
-(def tabs "a")
-(def editor "e")
+(def tabs "tabs")
+(def editor "editor")
+(def editor-container "editor-container")
 
 (def row-col-stats "row-col-stats")
-(def row-col "cp")
+(def row-col "row-col")
 (def stats "stats")
 
-(def cmd-line "c")
+(def cmd-line "cmd-line")
 (def box "box")
 (def active "active")
 (def prev "prev")

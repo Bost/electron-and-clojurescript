@@ -116,7 +116,7 @@
     :reagent-render
     (fn []
       #_(println "reagent-render")
-      [:div])}))
+      [:div {:class css/editor-container}])}))
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"

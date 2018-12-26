@@ -129,10 +129,13 @@
       :Cmd-Ctrl-L (fn [editor] (insert-sexp {:editor editor
                                             :sexp "(let [])"
                                              :n-chars-back 2}))
+      :Cmd-3
+      (fn [editor]
+        (println "Cmd-3 TODO vertical split" (identity editor)))
       }
      (->>
       (map-indexed (fn [i file]
-                     {(keyword (str "Cmd-" (inc i)))
+                     {(keyword (str "Ctrl-" (inc i)))
                       (fn [editor] (rf/dispatch [:active-file-change file]))})
                    open-files)
       (into {})))
