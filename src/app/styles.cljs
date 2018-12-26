@@ -114,10 +114,8 @@
          (let [cnt-files (count files)]
            [
             [:.wrapper
-             (conj
-              {:display "grid"
-               :grid-template-columns (str "repeat(" cnt-files ", [col] auto)")})
-             ]
+             {:display "grid"
+              :grid-template-columns (str "repeat(" cnt-files ", [col] auto)")}]
             (map-indexed
              (fn [i _]
                (let [idx (inc i)]
@@ -145,7 +143,7 @@
         (conj
          (let [cnt-files (count files)]
            [
-            [:.wrapper (conj {:display "grid"})]
+            [:.wrapper {:display "grid"}]
             (map-indexed
              (fn [i _]
                (let [idx (inc i)]
@@ -156,13 +154,11 @@
             [(class row-col-stats)
              {:grid-column 1 :grid-row 2
               :display "grid"
-              :grid-template-columns (sjoin [row-col-width-px "auto"])
-              }]
+              :grid-template-columns (sjoin [row-col-width-px "auto"])}]
             [(class row-col)
              {:grid-column 1 :grid-row 1}]
             [(class stats)
-             {:grid-column 2 :grid-row 1}]
-            ]))
+             {:grid-column 2 :grid-row 1}]]))
         (apply g/css))])
 
 (def default-window-height-offset 38)
