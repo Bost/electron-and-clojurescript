@@ -12,7 +12,6 @@
 
 (def tabs "tabs")
 (def editor "editor")
-(def editor-container "editor-container")
 
 (def row-col-stats "row-col-stats")
 (def row-col "row-col")

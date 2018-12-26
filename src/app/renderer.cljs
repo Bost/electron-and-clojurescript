@@ -76,24 +76,25 @@
   (r/create-class
    {:component-did-mount
     (fn [this]
-      ;; (println "did-mount this" this)
-      (let [editor (create-editor this file)
-            open-files @(rf/subscribe [:open-files])]
-        ;; (.on editor "mousedown" (fn [] (println "movedByMouse")))
-        (.on editor "cursorActivity"
-             (fn []
-               ;; (println "cursorActivity")
-               (let [pos (->> editor .-doc .getCursor)
-                     active @(rf/subscribe [:active-file])]
-                 (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))))
-        (fs/read file editor open-files)
-        (.setSize editor nil (css/window-height))
-        (.focus editor)
-        (let [active @(rf/subscribe [:active-file])
-              crs @(rf/subscribe [:ide-file-cursor active])]
-          (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)})))
-        (.setOption editor "extraKeys" (k/keymap file open-files))
-        (rf/dispatch [:ide-file-editor-change [file editor]])))
+      [:div {:class css/editor}
+       ;; (println "did-mount this" this)
+       (let [editor (create-editor this file)
+             open-files @(rf/subscribe [:open-files])]
+         ;; (.on editor "mousedown" (fn [] (println "movedByMouse")))
+         (.on editor "cursorActivity"
+              (fn []
+                ;; (println "cursorActivity")
+                (let [pos (->> editor .-doc .getCursor)
+                      active @(rf/subscribe [:active-file])]
+                  (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))))
+         (fs/read file editor open-files)
+         (.setSize editor nil (css/window-height))
+         (.focus editor)
+         (let [active @(rf/subscribe [:active-file])
+               crs @(rf/subscribe [:ide-file-cursor active])]
+           (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)})))
+         (.setOption editor "extraKeys" (k/keymap file open-files))
+         (rf/dispatch [:ide-file-editor-change [file editor]]))])
     ;; ... other methods go here
     ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
     ;; for a complete list
@@ -116,7 +117,7 @@
     :reagent-render
     (fn []
       #_(println "reagent-render")
-      [:div {:class css/editor-container}])}))
+      [:div {:class css/editor}])}))
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
@@ -203,11 +204,7 @@
 
 (defn editors [{:keys [react-key files active tabs]}]
   (let [count-tabs (count tabs)]
-    (map-indexed (fn [i file]
-                   (if (= active file)
-                     [:div {:key (str react-key (+ count-tabs i))
-                            :class (sjoin [#_css/box css/editor])}
-                      [edit file]]))
+    (map-indexed (fn [i file] (if (= active file) [edit file]))
                  files)))
 
 (defn file-tab-key [{:keys [react-key css-fn files]}]
