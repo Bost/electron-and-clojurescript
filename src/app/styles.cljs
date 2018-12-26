@@ -65,7 +65,6 @@
               :grid-template-columns (sjoin (if tabs-left
                                               [col-width-px "auto"]
                                               ["auto" col-width-px]))
-              :grid-template-rows 1
               }]
             [(class left)
              {:grid-column 1 :grid-row 1}]
@@ -75,7 +74,6 @@
             [(if tabs-left :.l-wrapper :.r-wrapper)
              {:grid-column 1 :grid-row 1
               :display "grid"
-              :grid-template-columns 1
               :grid-template-rows (repeat-row-auto cnt-files)
               }]
             (map-indexed
@@ -87,7 +85,6 @@
             [(if tabs-left :.r-wrapper :.l-wrapper)
              {:grid-column 2 :grid-row 1
               :display "grid"
-              :grid-template-columns 1
               :grid-template-rows (repeat-row-auto 3)}]
             [(class editor)
              {:grid-column 1 :grid-row 1}]
@@ -95,7 +92,6 @@
              {:grid-column 1 :grid-row 2
               :display "grid"
               :grid-template-columns (sjoin [row-col-width-px "auto"])
-              :grid-template-rows 1
               }]
             [(class row-col)
              {:grid-column 1 :grid-row 1}]
@@ -120,28 +116,26 @@
             [:.wrapper
              (conj
               {:display "grid"
-               :grid-template-columns (str "repeat(" cnt-files ", [col] auto)")
-               :grid-template-rows 3})
+               :grid-template-columns (str "repeat(" cnt-files ", [col] auto)")})
              ]
             (map-indexed
              (fn [i _]
                (let [idx (inc i)]
                  [(class (str tabs idx))
-                  {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
+                  {:grid-column idx :grid-row 1}])) files)
             [(class editor)
-             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 2"}]
+             {:grid-column (str "1 / span " cnt-files) :grid-row 2}]
             [(class row-col-stats)
-             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 3"
+             {:grid-column (str "1 / span " cnt-files) :grid-row 3
               :display "grid"
               :grid-template-columns (sjoin [row-col-width-px "auto"])
-              :grid-template-rows 1
               }]
             [(class row-col)
              {:grid-column 1 :grid-row 1}]
             [(class stats)
              {:grid-column 2 :grid-row 1}]
             [(class cmd-line)
-             {:grid-column (str "col 1 / span " cnt-files) :grid-row "row 4"}]
+             {:grid-column (str " 1 / span " cnt-files) :grid-row 4}]
             ]))
         (apply g/css))])
 
@@ -151,24 +145,18 @@
         (conj
          (let [cnt-files (count files)]
            [
-            [:.wrapper
-             (conj
-              {:display "grid"
-               :grid-template-columns 1
-               :grid-template-rows 2
-               })]
+            [:.wrapper (conj {:display "grid"})]
             (map-indexed
              (fn [i _]
                (let [idx (inc i)]
                  [(class (str tabs idx))
-                  {:grid-column (str "col " idx) :grid-row "row 1"}])) files)
+                  {:grid-column idx :grid-row 1}])) files)
             [(class editor)
              {:grid-column 1 :grid-row 1}]
             [(class row-col-stats)
              {:grid-column 1 :grid-row 2
               :display "grid"
               :grid-template-columns (sjoin [row-col-width-px "auto"])
-              :grid-template-rows 1
               }]
             [(class row-col)
              {:grid-column 1 :grid-row 1}]
