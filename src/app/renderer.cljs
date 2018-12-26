@@ -204,9 +204,10 @@
 (defn editors [{:keys [react-key files active tabs]}]
   (let [count-tabs (count tabs)]
     (map-indexed (fn [i file]
-                   [:div {:key (str react-key (+ count-tabs i))
-                          :class (sjoin [#_css/box css/editor])}
-                    (if (= active file) [edit file])])
+                   (if (= active file)
+                     [:div {:key (str react-key (+ count-tabs i))
+                            :class (sjoin [#_css/box css/editor])}
+                      [edit file]]))
                  files)))
 
 (defn file-tab-key [{:keys [react-key css-fn files]}]
