@@ -72,10 +72,11 @@
                   :.html {:mode "xml" :htmlMode true}}))
           clj->js)))
 
-(defn edit [file]
+(defn edit [i file]
   (r/create-class
    {:component-did-mount
     (fn [this]
+      ;; ^{:key i}
       [:div {:class css/editor}
        ;; (println "did-mount this" this)
        (let [editor (create-editor this file)
@@ -117,6 +118,7 @@
     :reagent-render
     (fn []
       #_(println "reagent-render")
+      ;; ^{:key i}
       [:div {:class css/editor}])}))
 
 (defn context-menu
@@ -155,11 +157,10 @@
          crs @(rf/subscribe [:ide-file-cursor active])]
      (str "[" (:r crs) ":" (:c crs) "]"))])
 
-(defn active-stats [{:keys [react-key files] :as prm}]
+(defn active-stats [{:keys [files] :as prm}]
   (let [active @(rf/subscribe [:active-file])
         orig-size @(rf/subscribe [:ide-file-content active])]
-    [:div {:key react-key
-           :class (sjoin [css/box css/row-col-stats
+    [:div {:class (sjoin [css/box css/row-col-stats
                           css/codemirror-theme css/codemirror-theme-mode])}
      [cursor]
      [:div
@@ -182,8 +183,8 @@
   #_["❶" "❷" "❸" "❹" "❺" "❻" "❼" "❽" "❾"])
 (def fancy-indexes-default ["①" "②" "③" "④" "⑤" "⑥" "⑦" "⑧" "⑨"])
 
-(defn file-tab [react-key i file]
-  [:div {:key (str react-key i)
+(defn file-tab [i file]
+  [:div {:key i
          :class (sjoin [css/box
                         (str css/tabs (inc i))
                         css/codemirror-theme
@@ -202,16 +203,15 @@
                (nth fancy-indexes i))
              (.basename (js/require "path") file)]))])
 
-(defn editors [{:keys [react-key files active tabs]}]
-  (let [count-tabs (count tabs)]
-    (map-indexed (fn [i file] (if (= active file) [edit file]))
-                 files)))
+(defn editors [{:keys [files active tabs]}]
+  (->> files
+       (map-indexed (fn [i file] (if (= active file) [edit i file])))
+       (remove nil?)))
 
-(defn file-tab-key [{:keys [react-key css-fn files]}]
+(defn file-tab-key [{:keys [css-fn files]}]
   (if-not (= css-fn css/no-tabs)
-    (map-indexed (fn [i file] (file-tab react-key i file))
+    (map-indexed (fn [i file] (file-tab i file))
                  files)))
-
 
 (defn css-fn []
   (if-let [tabs-pos @(rf/subscribe [:tabs-pos])]
@@ -230,14 +230,13 @@
   (let [css-fn (css-fn)
         prm (assoc prm
                    :css-fn css-fn
-                   :active @(rf/subscribe [:active-file])
-                   :react-key (if (in? [css/left-to-right css/right-to-left] css-fn)
-                                css/editor ""))
+                   :active @(rf/subscribe [:active-file]))
         tabs (if (in? [css/left-to-right css/right-to-left] css-fn)
                nil
                (file-tab-key prm))
-        editor-tabs (conj (editors (assoc prm :tabs tabs))
-                          tabs)
+        editor-tabs (->> tabs
+                         (conj (editors (assoc prm :tabs tabs)))
+                         (into [:div]))
         ]
     (if (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
@@ -246,7 +245,7 @@
        ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
         (doall
-         (file-tab-key (assoc prm :react-key css/tabs)))]
+         (file-tab-key prm))]
        [:div {:class "r-wrapper"}
         editor-tabs
         [active-stats prm]
@@ -268,11 +267,12 @@
 
 (defn ui []
   (let [ide-files @(rf/subscribe [:ide-files])
-        files (->> ide-files keys vec)]
+        files (->> ide-files keys vec)
+        init-file (first files)]
     (->> [(init-vals :tabs-pos css/default-tabs-pos)
           [:open-files-change files]
-          (init-vals :active-file (first files))
-          (init-vals :prev-file (first files))]
+          (init-vals :active-file init-file)
+          (init-vals :prev-file init-file)]
          (map rf/dispatch)
          doall)
     [uix {:files files}]))
