@@ -203,15 +203,14 @@
                (nth fancy-indexes i))
              (.basename (js/require "path") file)]))])
 
-(defn editors [{:keys [files active tabs]}]
+(defn editors [{:keys [files active]}]
   (->> files
        (map-indexed (fn [i file] (if (= active file) [edit i file])))
        (remove nil?)))
 
-(defn file-tab-key [{:keys [css-fn files]}]
-  (if-not (= css-fn css/no-tabs)
-    (map-indexed (fn [i file] (file-tab i file))
-                 files)))
+(defn file-tabs [{:keys [css-fn files]}]
+  (->> files
+       (map-indexed (fn [i file] (file-tab i file)))))
 
 (defn css-fn []
   (if-let [tabs-pos @(rf/subscribe [:tabs-pos])]
@@ -230,35 +229,56 @@
   (let [css-fn (css-fn)
         prm (assoc prm
                    :css-fn css-fn
-                   :active @(rf/subscribe [:active-file]))
-        tabs (if (in? [css/left-to-right css/right-to-left] css-fn)
-               nil
-               (file-tab-key prm))
-        editor-tabs (->> tabs
-                         (conj (editors (assoc prm :tabs tabs)))
-                         (into [:div]))
-        ]
-    (if (in? [css/left-to-right css/right-to-left] css-fn)
+                   :active @(rf/subscribe [:active-file]))]
+    (cond
+      (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
        [css-fn prm]
-       ;; Can't use (defn active-file [...] ...) because of the react warning:
-       ;; Each child in an array or iterator should have a unique "key" prop
        [:div {:class "l-wrapper"}
         (doall
-         (file-tab-key prm))]
+         [:div
+          (->> (conj (file-tabs prm))
+               (into [:div]))
+          #_(->> (conj (editors prm))
+                 (into [:div]))])]
        [:div {:class "r-wrapper"}
-        editor-tabs
+        (doall
+         [:div
+          #_(->> (conj (file-tabs prm))
+                 (into [:div]))
+          (->> (conj (editors prm))
+               (into [:div]))])
         [active-stats prm]
         [cmd-line prm]]
        [context-menu prm]]
+
+      (in? [css/no-tabs css/default-tabs-pos] css-fn)
       [:div {:class "wrapper"}
        [css-fn prm]
-       ;; Can't use (defn active-file [...] ...) because of the react warning:
-       ;; Each child in an array or iterator should have a unique "key" prop
-       editor-tabs
+       (doall
+        [:div
+         #_(->> (conj (file-tabs prm))
+                (into [:div]))
+         (->> (conj (editors prm))
+              (into [:div]))])
        [active-stats prm]
        [cmd-line prm]
-       [context-menu prm]])))
+       [context-menu prm]]
+
+      (in? [css/tabs-on-top] css-fn)
+      [:div {:class "wrapper"}
+       [css-fn prm]
+       (doall
+        [:div
+         (->> (conj (file-tabs prm))
+              (into [:div]))
+         (->> (conj (editors prm))
+              (into [:div]))])
+       [active-stats prm]
+       [cmd-line prm]
+       [context-menu prm]]
+      :else
+      (.log js/console "Error: unknows css-fn" css-fn))))
 
 (defn init-vals [k default-val]
   [(keyword (str (name k) "-change"))
