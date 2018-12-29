@@ -231,37 +231,20 @@
                    :css-fn css-fn
                    :active @(rf/subscribe [:active-file]))]
     (cond
-      (in? [css/left-to-right] css-fn)
+      (in? [css/left-to-right css/right-to-left] css-fn)
       [:div {:class "lr-wrapper"}
        [css-fn prm]
-       (->> prm
-            file-tabs
-            doall
-            conj
-            (into [:div {:class "l-wrapper"}]))
-       (->> prm editors doall conj
-            (into [:div {:class "r-wrapper"}
-                   [active-stats prm]
-                   [cmd-line prm]
-                   [context-menu prm]]))]
-
-      (in? [css/right-to-left] css-fn)
-      [:div {:class "lr-wrapper"}
-       [css-fn prm]
-       (->> prm file-tabs doall conj
-            (into [:div {:class "l-wrapper"}]))
-       (->> prm editors doall conj
-            (into [:div {:class "r-wrapper"}
-                   [active-stats prm]
-                   [cmd-line prm]
-                   [context-menu prm]
-                   ]))]
+       (into [:div {:class "l-wrapper"}] (-> prm file-tabs doall))
+       (into [:div {:class "r-wrapper"}
+              [active-stats prm]
+              [cmd-line prm]
+              [context-menu prm]]
+             (-> prm editors doall))]
 
       (in? [css/no-tabs css/default-tabs-pos] css-fn)
       [:div {:class "wrapper"}
        [css-fn prm]
-       (->> prm editors doall conj
-            (into [:div]))
+       (into [:div] (-> prm editors doall))
        [active-stats prm]
        [cmd-line prm]
        [context-menu prm]]
@@ -269,11 +252,8 @@
       (in? [css/tabs-on-top] css-fn)
       [:div
        [css-fn prm]
-       [:div
-        (->> prm file-tabs doall conj
-             (into [:div {:class "wrapper"}]))
-        (->> prm editors doall
-             (into [:div]))]
+       (into [:div {:class "wrapper"}] (->> prm file-tabs doall))
+       (into [:div] (-> prm editors doall))
        [active-stats prm]
        [cmd-line prm]
        [context-menu prm]]
