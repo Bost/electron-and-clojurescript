@@ -231,49 +231,49 @@
                    :css-fn css-fn
                    :active @(rf/subscribe [:active-file]))]
     (cond
-      (in? [css/left-to-right css/right-to-left] css-fn)
+      (in? [css/left-to-right] css-fn)
       [:div {:class "lr-wrapper"}
        [css-fn prm]
-       [:div {:class "l-wrapper"}
-        (doall
-         [:div
-          (->> (conj (file-tabs prm))
-               (into [:div]))
-          #_(->> (conj (editors prm))
-                 (into [:div]))])]
-       [:div {:class "r-wrapper"}
-        (doall
-         [:div
-          #_(->> (conj (file-tabs prm))
-                 (into [:div]))
-          (->> (conj (editors prm))
-               (into [:div]))])
-        [active-stats prm]
-        [cmd-line prm]]
-       [context-menu prm]]
+       (->> prm
+            file-tabs
+            doall
+            conj
+            (into [:div {:class "l-wrapper"}]))
+       (->> prm editors doall conj
+            (into [:div {:class "r-wrapper"}
+                   [active-stats prm]
+                   [cmd-line prm]
+                   [context-menu prm]]))]
+
+      (in? [css/right-to-left] css-fn)
+      [:div {:class "lr-wrapper"}
+       [css-fn prm]
+       (->> prm file-tabs doall conj
+            (into [:div {:class "l-wrapper"}]))
+       (->> prm editors doall conj
+            (into [:div {:class "r-wrapper"}
+                   [active-stats prm]
+                   [cmd-line prm]
+                   [context-menu prm]
+                   ]))]
 
       (in? [css/no-tabs css/default-tabs-pos] css-fn)
       [:div {:class "wrapper"}
        [css-fn prm]
-       (doall
-        [:div
-         #_(->> (conj (file-tabs prm))
-                (into [:div]))
-         (->> (conj (editors prm))
-              (into [:div]))])
+       (->> prm editors doall conj
+            (into [:div]))
        [active-stats prm]
        [cmd-line prm]
        [context-menu prm]]
 
       (in? [css/tabs-on-top] css-fn)
-      [:div {:class "wrapper"}
+      [:div
        [css-fn prm]
-       (doall
-        [:div
-         (->> (conj (file-tabs prm))
-              (into [:div]))
-         (->> (conj (editors prm))
-              (into [:div]))])
+       [:div
+        (->> prm file-tabs doall conj
+             (into [:div {:class "wrapper"}]))
+        (->> prm editors doall
+             (into [:div]))]
        [active-stats prm]
        [cmd-line prm]
        [context-menu prm]]
