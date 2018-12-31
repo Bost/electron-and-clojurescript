@@ -73,53 +73,54 @@
           clj->js)))
 
 (defn edit [i file]
-  (r/create-class
-   {:component-did-mount
-    (fn [this]
-      ;; ^{:key i}
-      [:div {:class css/editor}
-       ;; (println "did-mount this" this)
-       (let [editor (create-editor this file)
-             open-files @(rf/subscribe [:open-files])]
-         ;; (.on editor "mousedown" (fn [] (println "movedByMouse")))
-         (.on editor "cursorActivity"
-              (fn []
-                ;; (println "cursorActivity")
-                (let [pos (->> editor .-doc .getCursor)
-                      active @(rf/subscribe [:active-file])]
-                  (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))))
-         (fs/read file editor open-files)
-         (.setSize editor nil (css/window-height))
-         (.focus editor)
-         (let [active @(rf/subscribe [:active-file])
-               crs @(rf/subscribe [:ide-file-cursor active])]
-           (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)})))
-         (.setOption editor "extraKeys" (k/keymap file open-files))
-         (rf/dispatch [:ide-file-editor-change [file editor]]))])
-    ;; ... other methods go here
-    ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
-    ;; for a complete list
+  (let [css-class {:class (sjoin [#_css/editor])}]
+    (r/create-class
+     {:component-did-mount
+      (fn [this]
+        ;; ^{:key i}
+        [:div css-class
+         ;; (println "did-mount this" this)
+         (let [editor (create-editor this file)
+               open-files @(rf/subscribe [:open-files])]
+           ;; (.on editor "mousedown" (fn [] (println "movedByMouse")))
+           (.on editor "cursorActivity"
+                (fn []
+                  ;; (println "cursorActivity")
+                  (let [pos (->> editor .-doc .getCursor)
+                        active @(rf/subscribe [:active-file])]
+                    (rf/dispatch [:ide-file-cursor-change [active {:r (.-line pos) :c (.-ch pos)}]]))))
+           (fs/read file editor open-files)
+           (.setSize editor nil (css/window-height))
+           (.focus editor)
+           (let [active @(rf/subscribe [:active-file])
+                 crs @(rf/subscribe [:ide-file-cursor active])]
+             (.setCursor (.-doc editor) (clj->js {:line (:r crs) :ch (:c crs)})))
+           (.setOption editor "extraKeys" (k/keymap file open-files))
+           (rf/dispatch [:ide-file-editor-change [file editor]]))])
+      ;; ... other methods go here
+      ;; see https://facebook.github.io/react/docs/react-component.html#the-component-lifecycle
+      ;; for a complete list
 
-    ;; name your component for inclusion in error messages
-    ;; :display-name "edit"
+      ;; name your component for inclusion in error messages
+      ;; :display-name "edit"
 
-    #_:component-did-update
-    #_(fn [this [_ prev-props]]
-        #_(println "did-update this" this)
-        ;; TODO: Handle codemirror-opts changes?
+      #_:component-did-update
+      #_(fn [this [_ prev-props]]
+          #_(println "did-update this" this)
+          ;; TODO: Handle codemirror-opts changes?
 
-        (if-let [new-value (:value (r/props this))]
-          ;; Not checked against (:value prev-props) as that causes problems with parinfer
-          ;; not sure if any benefit in using that when not using parinfer?
-          (when (not= (.getValue @cm) new-value)
-            (.setValue @cm new-value))))
+          (if-let [new-value (:value (r/props this))]
+            ;; Not checked against (:value prev-props) as that causes problems with parinfer
+            ;; not sure if any benefit in using that when not using parinfer?
+            (when (not= (.getValue @cm) new-value)
+              (.setValue @cm new-value))))
 
-    ;; note the keyword for this method
-    :reagent-render
-    (fn []
-      #_(println "reagent-render")
-      ;; ^{:key i}
-      [:div {:class css/editor}])}))
+      ;; note the keyword for this method
+      :reagent-render
+      (fn []
+        #_(println "reagent-render")
+        ;; ^{:key i}
+        [:div css-class])})))
 
 (defn context-menu
   "See https://github.com/electron/electron/blob/master/docs/api/menu.md"
@@ -142,12 +143,10 @@
                                (fn [] (println "item 2 clicked"))}))]]
     (doseq [mi menu-items]
       (.append menu mi))
-    (.addEventListener
-     js/window "contextmenu"
-     (fn [e]
-       (.preventDefault e)
-       (.popup menu (.getCurrentWindow remote)))
-     false)
+    #_(.addEventListener js/window "contextmenu"
+                       (fn [e] (.preventDefault e)
+                         (->> remote .getCurrentWindow (.popup menu)))
+                       false)
     [:div]))
 
 (defn cursor []
@@ -205,8 +204,9 @@
 
 (defn editors [{:keys [files active]}]
   (->> files
-       (map-indexed (fn [i file] (if (= active file) [edit i file])))
-       (remove nil?)))
+       (map-indexed (fn [i file] [:div {:class css/editor}
+                                 ;; empty div-tag serves as a placeholder
+                                 (if (= active file) [edit i file])]))))
 
 (defn file-tabs [{:keys [css-fn files]}]
   (->> files
