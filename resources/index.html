@@ -25,70 +25,52 @@
     <!-- <script src="node_modules/electron-localshortcut/index.js"></script> -->
     <!-- <script src="node_modules/electron-hotkey/index.js"></script> -->
     <script src="node_modules/codemirror/addon/edit/closebrackets.js"></script>
-
-    <link rel="stylesheet" href="node_modules/codemirror/addon/dialog/dialog.css">
-    <link rel="stylesheet" href="node_modules/codemirror/addon/search/matchesonscrollbar.css">
     <style type="text/css">
      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-     dt {font-family: monospace; color: #666;}
+     .cm-matchhighlight {
+         background-color: transparent;
+         border-radius: 3px;
+         border: 1px solid rgba(82, 139, 255, 0.24);
+     }
+     .cm-s-solarized.cm-s-light.active {
+         background-color: #eee8d5;
+     }
+     .CodeMirror-selection-highlight-scrollbar {background-color: green}
+     .cm-s-solarized.cm-s-light div.CodeMirror-selected {
+         background: #e4dbbd; // TODO use less darken
+     }
+     .add-panel {
+         background: orange;
+         padding: 3px 6px;
+         color: white !important;
+         border-radius: 3px;
+     }
+     .add-panel, .remove-panel {
+         cursor: pointer;
+     }
+     .remove-panel {
+         float: left;
+     }
+     .panel {
+         background: #f7f7f7;
+         padding: 3px 7px;
+         font-size: 0.85em;
+     }
+     .panel.top, .panel.after-top {
+         border-bottom: 1px solid #ddd;
+     }
+     .panel.bottom, .panel.before-bottom {
+         border-top: 1px solid #ddd;
+     }
+     body {font-family: monospace; margin: 0}
+     dt {color: #666;}
     </style>
-
+    <link rel="stylesheet" href="node_modules/codemirror/addon/dialog/dialog.css">
+    <link rel="stylesheet" href="node_modules/codemirror/addon/search/matchesonscrollbar.css">
     <link rel="stylesheet" href="node_modules/codemirror/lib/codemirror.css"/>
     <link rel="stylesheet" href="node_modules/codemirror/theme/solarized.css"/>
   </head>
   <body>
-      <style type="text/css">
-       // .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}
-       // .CodeMirror-focused .cm-matchhighlight {
-           //   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
-           //   background-position: bottom;
-           //   background-repeat: repeat-x;
-           // }
-       .cm-matchhighlight {
-           background-color: transparent;
-           border-radius: 3px;
-           border: 1px solid rgba(82, 139, 255, 0.24);
-           // box-sizing: border-box;
-           // z-index: 0;
-       }
-       .cm-s-solarized.cm-s-light.active {
-           background-color: #eee8d5;
-           // color: #657b83;
-           // text-shadow: #eee8d5 0 1px;
-       }
-       .cm-s-solarized.cm-s-light.prev {
-           // background-color: #eee8d5;
-           // color: #657b83;
-           // text-shadow: #eee8d5 0 1px;
-       }
-       .CodeMirror-selection-highlight-scrollbar {background-color: green}
-       .cm-s-solarized.cm-s-light div.CodeMirror-selected {
-           background: #e4dbbd; // TODO use less darken
-       }
-       .add-panel {
-           background: orange;
-           padding: 3px 6px;
-           color: white !important;
-           border-radius: 3px;
-       }
-       .add-panel, .remove-panel {
-           cursor: pointer;
-       }
-       .remove-panel {
-           float: left;
-       }
-       .panel {
-           background: #f7f7f7;
-           padding: 3px 7px;
-           font-size: 0.85em;
-       }
-       .panel.top, .panel.after-top {
-           border-bottom: 1px solid #ddd;
-       }
-       .panel.bottom, .panel.before-bottom {
-           border-top: 1px solid #ddd;
-       }
-      </style>
       <div id="app">Loading re-frame / reagent app...</div>
       <script>window.onload = ()=>{app.renderer.run()}</script>
       <script type="text/javascript" src="renderer.js"></script>

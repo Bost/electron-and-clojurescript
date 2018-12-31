@@ -143,7 +143,7 @@
                                (fn [] (println "item 2 clicked"))}))]]
     (doseq [mi menu-items]
       (.append menu mi))
-    #_(.addEventListener js/window "contextmenu"
+    (.addEventListener js/window "contextmenu"
                        (fn [e] (.preventDefault e)
                          (->> remote .getCurrentWindow (.popup menu)))
                        false)

@@ -40,7 +40,9 @@
 (def row-col-width-px (str row-col-width "px"))
 
 (defn common []
-  [[:body {:font-family "monospace" :margin 0}]
+  [
+   ;; this doesn't get applied fight at the start. Only after a layout change
+   ;; [:body {:font-family "monospace" :margin 0}]
    [(class box)
     (conj
      #_{:border-radius "4px" :padding "0px" :margin "0px" :font-size "100%"})]
