@@ -219,7 +219,8 @@
                    :css/no-tabs css/no-tabs
                    :css/tabs-on-top css/tabs-on-top})
         (do
-          (println "WARN: css-fn: tabs-pos" tabs-pos "not in the hash-map. Using " css/default-tabs-pos)
+          (println "WARN: css-fn: tabs-pos" tabs-pos "not in the hash-map."
+                   "Using " css/default-tabs-pos)
           css/default-tabs-pos))
     (do
       (println "WARN: css-fn: undefined tabs-pos. Using " css/default-tabs-pos)
