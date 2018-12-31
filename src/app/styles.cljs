@@ -22,6 +22,11 @@
 (def active "active")
 (def prev "prev")
 
+(def lr-wrapper "lr-wrapper")
+(def l-wrapper "l-wrapper")
+(def r-wrapper "r-wrapper")
+(def wrapper "wrapper")
+
 (defn class-str [name] (str "." name))
 (defn class [name] (keyword (class-str name)))
 

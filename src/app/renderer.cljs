@@ -232,17 +232,17 @@
                    :active @(rf/subscribe [:active-file]))]
     (cond
       (in? [css/left-to-right css/right-to-left] css-fn)
-      [:div {:class "lr-wrapper"}
+      [:div {:class css/lr-wrapper}
        [css-fn prm]
-       (into [:div {:class "l-wrapper"}] (-> prm file-tabs doall))
-       (into [:div {:class "r-wrapper"}
+       (into [:div {:class css/l-wrapper}] (-> prm file-tabs doall))
+       (into [:div {:class css/r-wrapper}
               [active-stats prm]
               [cmd-line prm]
               [context-menu prm]]
              (-> prm editors doall))]
 
       (in? [css/no-tabs css/default-tabs-pos] css-fn)
-      [:div {:class "wrapper"}
+      [:div {:class css/wrapper}
        [css-fn prm]
        (into [:div] (-> prm editors doall))
        [active-stats prm]
@@ -252,7 +252,7 @@
       (in? [css/tabs-on-top] css-fn)
       [:div
        [css-fn prm]
-       (into [:div {:class "wrapper"}] (->> prm file-tabs doall))
+       (into [:div {:class css/wrapper}] (->> prm file-tabs doall))
        (into [:div] (-> prm editors doall))
        [active-stats prm]
        [cmd-line prm]
