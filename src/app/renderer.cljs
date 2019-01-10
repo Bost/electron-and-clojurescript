@@ -12,6 +12,11 @@
 
 (enable-console-print!)
 
+(def remote         (-> "electron" js/require .-remote))
+#_(def local-shortcut (-> "electron-localshortcut" js/require))
+
+(def default-tabs-pos :css/tabs-left)
+
 (defn init []
   (println "Starting Application" (js/Date.))
   (fs/read-ide-settings))
@@ -282,5 +287,12 @@
   []
   ;; puts a value into application state
   (rf/dispatch-sync [:initialize])
+  #_(.log js/console "local-shortcut" local-shortcut)
+  #_(.register app.main/local-shortcut (.getCurrentWindow remote) "Ctrl-P"
+             (fn []
+               (println "Ctrl+P")
+               #_(let [active @(rf/subscribe [:active-file])
+                       editor @(rf/subscribe [:ide-file-editor active])]
+                   (println "Ctrl+O" editor))))
   ;; mount the application's ui into '<div id="app" />'
   (r/render [ui] (js/document.getElementById "app")))
