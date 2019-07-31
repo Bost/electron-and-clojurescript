@@ -3,17 +3,18 @@
  :resource-paths  #{"resources"}
  :dependencies
  '[
-   [org.clojure/clojurescript "1.10.439"]
-   [cider/piggieback "0.3.10" :scope "test"]
-   [nrepl "0.5.3" :scope "test"]
+   ;; When you use :scope "test" dependencies won't end up in your uberjar
 
-   [utils "0.10.0"] ;; installed locally
+   [org.clojure/clojurescript "1.10.520"]
+   [cider/piggieback "0.4.1" :scope "test"]
+   [nrepl "0.7.0-alpha1" :scope "test"]
+   [utils "0.0.0-22-0x5cef"]
 
    ;; ClojureScript browser REPL using WebSockets
    [weasel "0.7.0" :scope "test"]
 
    [reagent  "0.8.1"]
-   [re-frame "0.10.6"]
+   [re-frame "0.10.8"]
 
    ;; Boot task to compile ClojureScript applications
    [adzerk/boot-cljs "2.1.5" :scope "test"]
@@ -24,9 +25,10 @@
    ;; Boot task to automatically reload resources in the browser when files in the project change.
    ;; Communication with the client is via websockets.
    [adzerk/boot-reload    "0.6.0"  :scope "test"]
-   [garden "1.3.6"] ;; TODO is it css garden?
+   [garden "1.3.9"] ; render css
    #_[org.webjars.bower/bootstrap "3.3.6"]
-   [boot-deps "0.1.9"] ;; boot --dependencies boot-deps ancient
+   ;; use `boot show --updates` instead of boot-deps
+   ;; [boot-deps "0.1.9"] ;; boot --dependencies boot-deps ancient
    ]
  )
 
